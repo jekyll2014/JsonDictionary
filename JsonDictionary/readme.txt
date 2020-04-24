@@ -11,8 +11,15 @@ Short manual:
 10) File link in the grid cell can be opened with double-click.
 11) Field search in the parent node can be executed by right clicking on the node tree.
 12) Field+value can also be executed with right clicking at the grid cell.
+13) Use Readjust button to adjust grid rows height (70% of grid control height) if needed (will be reset to auto-height on next grid refill).
+14) Single column height can be auto-adjusted with double-click on row header as well.
 
-P.S. UI critical controls are inactive on long operations.
+Tech. notes:
+Only the first file name for every unique field/example is saved to database (otherwise there'll be hundreds of files for some fields).
+UI critical controls are inactive on long operations.
+It's possible to re-format json-queries to palce starting brackets ("[,{") on the next line (I personally prefer this way). Works on database creation time. Can only be enabled in the code for now.
+It's possible to save all file names for the fielsd/examples. Works on database creation time. Can only be enabled in the code for now.
+
 ====
 Russian
 Краткая инструкция:
@@ -28,9 +35,15 @@ Russian
 10) Двойным кликом на ссылке на файл в гриде можно открыть файл, в котором найден этот пример.
 11) Поиск упоминания поля в родительском объекте запускается по правому клику на ноду в дереве.
 12) Поиск упоминания поля и значения в родительском объекте запускается по правому клику на ячейку со значением в таблице.
+13) Высота колонок таблицы может быть поправлена до 70% от высоты таблицы кнопкой Readjust.
+14) Высота конкретной колонки может поправлена до 70% от высоты таблицы двойным кликом на заголовок столбца.
 
+Особенности работы:
 
-P.S. На время всех длительных операций все критичные контролы на UI дезактивируются.
+В базу пишется имя только первого файла для каждого уникального ключевого поля (иначе к некоторым полям будет по сотне и более файлов)
+На время всех длительных операций все критичные контролы на UI дезактивируются.
+Предусмотрена возможность переформатировать json-выражения для выставления верхних/нижних скобок на один уровень в отдельную строку (по-умолчанию верхние скобки остаются на строке объекта). Срабатывает при создании базы. Включается пока только в коде.
+Предусмотрена возможность сохранять все имена фалов для каждого поля. Срабатывает при создании базы. Включается пока только в коде.
 
 ----
 andrey.kalugin@epicor.com
