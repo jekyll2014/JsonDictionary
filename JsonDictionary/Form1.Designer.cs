@@ -126,6 +126,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.checkedListBox_params.CheckOnClick = true;
+            this.checkedListBox_params.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.checkedListBox_params.FormattingEnabled = true;
             this.checkedListBox_params.HorizontalScrollbar = true;
             this.checkedListBox_params.Location = new System.Drawing.Point(0, 0);
@@ -184,6 +185,7 @@
             // textBox_logText
             // 
             this.textBox_logText.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox_logText.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.textBox_logText.Location = new System.Drawing.Point(0, 0);
             this.textBox_logText.Multiline = true;
             this.textBox_logText.Name = "textBox_logText";
@@ -231,6 +233,7 @@
             // treeView_json
             // 
             this.treeView_json.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeView_json.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.treeView_json.HideSelection = false;
             this.treeView_json.Location = new System.Drawing.Point(0, 0);
             this.treeView_json.Name = "treeView_json";
@@ -314,7 +317,7 @@
             this.dataGridView_examples.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
             dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -366,13 +369,14 @@
             this.FindAllStripMenuItem});
             this.contextMenuStrip_findValue.Name = "contextMenuStrip_findInParent";
             this.contextMenuStrip_findValue.Size = new System.Drawing.Size(179, 26);
+            this.contextMenuStrip_findValue.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_findValue_Opening);
             // 
             // FindAllStripMenuItem
             // 
             this.FindAllStripMenuItem.Name = "FindAllStripMenuItem";
             this.FindAllStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.FindAllStripMenuItem.Text = "Find value in parent";
-            this.FindAllStripMenuItem.Click += new System.EventHandler(this.FindAllToolStripMenuItem_Click);
+            this.FindAllStripMenuItem.Click += new System.EventHandler(this.FindValueToolStripMenuItem_Click);
             // 
             // contextMenuStrip_findField
             // 
@@ -381,6 +385,7 @@
             this.contextMenuStrip_findField.Name = "contextMenuStrip_findField";
             this.contextMenuStrip_findField.Size = new System.Drawing.Size(174, 26);
             this.contextMenuStrip_findField.Text = "Find field in parent";
+            this.contextMenuStrip_findField.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_findField_Opening);
             // 
             // FindFieldToolStripMenuItem
             // 
@@ -399,6 +404,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 400);
             this.Name = "Form1";
             this.Text = "KineticJsonDictionary";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);

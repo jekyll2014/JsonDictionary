@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Windows.Forms;
 
 namespace JsonDictionary
 {
@@ -89,19 +88,21 @@ namespace JsonDictionary
             Nodes = new List<MetaNode>();
         }
 
-        public void Add(MetaNode newNode)
+        public string Add(MetaNode newNode)
         {
-            if (newNode == null) return;
+            if (newNode == null) return "No data to add";
+
             var node = Nodes?.Where(n => n?.Depth == newNode.Depth
                                          && n.ParentName == newNode.ParentName
                                          && n.Name == newNode.Name
                                          && n.Type == newNode.Type
-                                         && n.Version == newNode.Version);
+                                         && n.Version == newNode.Version).ToArray();
             if (node == null)
             {
-                // report error
-                return;
+                return "Can't fine node " + newNode.Name + " to add new data";
             }
+
+            var errorString = "";
             if (!node.Any())
             {
                 Nodes?.Add(newNode);
@@ -110,17 +111,15 @@ namespace JsonDictionary
             {
                 if (node.Count() > 1)
                 {
-                    //log error
-                    MessageBox.Show("More than 1 similar object found on add node to collection");
+                    errorString = "More than 1 similar object found on add node " + node[0].Name + " to collection";
                 }
                 var examples = node.FirstOrDefault()?.ExamplesList;
 
                 if (examples == null)
                 {
-                    // report error
-                    MessageBox.Show("Object with no examples found on add node to collection");
-
+                    errorString = "Object with no examples found on add node " + node[0].Name + " to collection";
                     examples = newNode.ExamplesList;
+                    return errorString;
                 }
 
                 foreach (var newExample in newNode.ExamplesList)
@@ -132,7 +131,8 @@ namespace JsonDictionary
                     }
                 }
             }
+
+            return errorString;
         }
     }
-
 }

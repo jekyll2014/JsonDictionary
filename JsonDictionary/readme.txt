@@ -18,8 +18,8 @@ Short manual:
 Tech. notes:
 Only the first file name for every unique field/example is saved to database (otherwise there'll be hundreds of files for some fields).
 UI critical controls are inactive on long operations.
-It's possible to re-format json-queries to palce starting brackets ("[,{") on the next line (I personally prefer this way). Works on database creation time. Can only be enabled in the code for now.
-It's possible to save all file names for the fielsd/examples. Works on database creation time. Can only be enabled in the code for now.
+It's possible to re-format json-queries to place starting brackets ("[,{") on the next line (I personally prefer this way). Works on database creation time. Can be enabled by JsonDictionary.exe.config "ReformatJson" setting.
+It's possible to save all file names for the fielsd/examples. Works on database creation time. Can be enabled by JsonDictionary.exe.config "CollectAllFileNames" setting.
 Some minor(?) validation errors are suppressed. - the possible reason is outdated schema specification used by NJsonSchema library.
 
 ====
@@ -44,8 +44,8 @@ Russian
 Особенности работы:
 В базу пишется имя только первого файла для каждого уникального ключевого поля (иначе к некоторым полям будет по сотне и более файлов)
 На время всех длительных операций все критичные контролы на UI дезактивируются.
-Предусмотрена возможность переформатировать json-выражения для выставления верхних/нижних скобок на один уровень в отдельную строку (по-умолчанию верхние скобки остаются на строке объекта). Срабатывает при создании базы. Включается пока только в коде.
-Предусмотрена возможность сохранять все имена фалов для каждого поля. Срабатывает при создании базы. Включается пока только в коде.
+Предусмотрена возможность переформатировать json-выражения для выставления верхних/нижних скобок на один уровень в отдельную строку (по-умолчанию верхние скобки остаются на строке объекта). Срабатывает при создании базы. Включается настройкой "ReformatJson" в JsonDictionary.exe.config .
+Предусмотрена возможность сохранять все имена фалов для каждого поля. Срабатывает при создании базы. Включается настройкой "CollectAllFileNames" в JsonDictionary.exe.config .
 Некоторые незначительные(?) ошибки валидации не выводятся - возможно, они вызваны устаревшей версией описания схем в библиотеке NJsonSchema.
 
 ----

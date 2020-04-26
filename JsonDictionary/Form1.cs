@@ -14,14 +14,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using JsonDictionary.Properties;
 
 namespace JsonDictionary
 {
     public partial class Form1 : Form
     {
         // experimental options
-        private bool _reformatJson = true;
-        private bool _collectAllFileNames = false;
+        private readonly bool _reformatJson;
+        private readonly bool _collectAllFileNames;
 
         private string _version = "";
         private string _fileName = "";
@@ -39,7 +40,7 @@ namespace JsonDictionary
             EndsWith
         }
 
-        private readonly string[] _exampleGridColumns = { "Version", "Example", "File Name" };
+        private readonly string[] _exampleGridColumnsNames = { "Version", "Example", "File Name" };
 
         private const string DefaultVersionCaption = "Any";
 
@@ -65,7 +66,11 @@ namespace JsonDictionary
         {
             InitializeComponent();
 
-            comboBox_condition.Items.AddRange(items: typeof(SearchCondition).GetEnumNames());
+            _reformatJson = Settings.Default.ReformatJson;
+            _collectAllFileNames = Settings.Default.CollectAllFileNames;
+            folderBrowserDialog1.SelectedPath = Settings.Default.LastRootFolder;
+
+            comboBox_condition.Items.AddRange(items: typeof(SearchCondition).GetEnumNames() as string[]);
             comboBox_condition.SelectedIndex = 0;
 
             foreach (var fileName in JsoncDictionary.FileNames)
@@ -75,31 +80,30 @@ namespace JsonDictionary
             }
 
             _examplesTable = new DataTable("Examples");
-            _examplesTable.Columns.Add(_exampleGridColumns[0]);
-            _examplesTable.Columns.Add(_exampleGridColumns[1]);
-            _examplesTable.Columns.Add(_exampleGridColumns[2]);
-            _examplesTable.Columns[0].ReadOnly = true;
-            _examplesTable.Columns[1].ReadOnly = true;
-            _examplesTable.Columns[2].ReadOnly = true;
-
-            DataGridViewTextBoxColumn col0 = new DataGridViewTextBoxColumn
+            for (var i = 0; i < _exampleGridColumnsNames.Length; i++)
             {
-                DataPropertyName = _exampleGridColumns[0],
-                Name = _exampleGridColumns[0]
+                _examplesTable.Columns.Add(_exampleGridColumnsNames[i]);
+                //_examplesTable.Columns[i].ReadOnly = true;
+            }
+
+            var col0 = new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = _exampleGridColumnsNames[0],
+                Name = _exampleGridColumnsNames[0]
             };
             dataGridView_examples.Columns.Add(col0);
 
-            DataGridViewTextBoxColumn col1 = new DataGridViewTextBoxColumn
+            var col1 = new DataGridViewTextBoxColumn
             {
-                DataPropertyName = _exampleGridColumns[1],
-                Name = _exampleGridColumns[1]
+                DataPropertyName = _exampleGridColumnsNames[1],
+                Name = _exampleGridColumnsNames[1]
             };
             dataGridView_examples.Columns.Add(col1);
 
-            DataGridViewLinkColumn col2 = new DataGridViewLinkColumn
+            var col2 = new DataGridViewLinkColumn
             {
-                DataPropertyName = _exampleGridColumns[2],
-                Name = _exampleGridColumns[2]
+                DataPropertyName = _exampleGridColumnsNames[2],
+                Name = _exampleGridColumnsNames[2]
             };
             dataGridView_examples.Columns.Add(col2);
 
@@ -145,7 +149,7 @@ namespace JsonDictionary
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error reading file " + openFileDialog1.FileName + ": " + ex.Message);
+                    MessageBox.Show("File read exception [" + openFileDialog1.FileName + "]: " + ex.Message);
                 }
 
                 if (dataCollection == null || nodeCollection == null)
@@ -159,6 +163,7 @@ namespace JsonDictionary
 
             treeView_json.Nodes.Clear();
             treeView_json.Nodes.Add(_rootNode);
+            treeView_json.Sort();
             treeView_json.Nodes[0].Expand();
             ActivateUiControls(true);
         }
@@ -205,19 +210,19 @@ namespace JsonDictionary
                 }).ConfigureAwait(true);
             }
 
-            textBox_logText.Text += "\r\nFiles parsed: " + filesList.Count.ToString() + "\r\n";
+            textBox_logText.Text += "Files parsed: " + filesList.Count.ToString() + "\r\n";
+            textBox_logText.SelectionStart = textBox_logText.Text.Length;
+            textBox_logText.ScrollToCaret();
 
             treeView_json.Nodes.Add(_rootNode);
+            treeView_json.Sort();
             treeView_json.Nodes[0].Expand();
             ActivateUiControls(true);
         }
 
         private async void Button_validateFiles_Click(object sender, EventArgs e)
         {
-            if (folderBrowserDialog1.ShowDialog() != DialogResult.OK)
-            {
-                return;
-            }
+            if (folderBrowserDialog1.ShowDialog() != DialogResult.OK) return;
 
             ActivateUiControls(false);
 
@@ -249,8 +254,9 @@ namespace JsonDictionary
                 }).ConfigureAwait(true);
             }
 
-            textBox_logText.Text += "\r\nFiles validated: " + filesList.Count.ToString() + "\r\n";
-
+            textBox_logText.Text += "Files validated: " + filesList.Count.ToString() + "\r\n";
+            textBox_logText.SelectionStart = textBox_logText.Text.Length;
+            textBox_logText.ScrollToCaret();
             ActivateUiControls(true);
         }
 
@@ -259,7 +265,7 @@ namespace JsonDictionary
             saveFileDialog1.Title = "Save data as JSON...";
             saveFileDialog1.DefaultExt = "json";
             saveFileDialog1.Filter = "Binary files|*.metalib|All files|*.*";
-            saveFileDialog1.FileName = "metaUIdictionary_" + DateTime.Today.ToShortDateString().Replace("/", "_") + ".metalib";
+            saveFileDialog1.FileName = "metaUiDictionary_" + DateTime.Today.ToShortDateString().Replace("/", "_") + ".metalib";
             saveFileDialog1.ShowDialog();
         }
 
@@ -274,7 +280,7 @@ namespace JsonDictionary
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error writing to file " + saveFileDialog1.FileName + ": " + ex.Message);
+                    MessageBox.Show("File write exception [" + saveFileDialog1.FileName + "]: " + ex.Message);
                 }
             }).ConfigureAwait(true);
         }
@@ -297,12 +303,12 @@ namespace JsonDictionary
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error running file: " + fileName + "\r\n" + ex.Message);
+                    MessageBox.Show("File execution exception [" + fileName + "]: " + ex.Message);
                 }
             }
             else if (e.ColumnIndex == 1)
             {
-                DataGridViewCell cell = dataGridView_examples.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                var cell = dataGridView_examples.Rows[e.RowIndex].Cells[e.ColumnIndex];
                 dataGridView_examples.CurrentCell = cell;
                 dataGridView_examples.CurrentCell.ReadOnly = false;
                 dataGridView_examples.BeginEdit(true);
@@ -382,20 +388,22 @@ namespace JsonDictionary
             ActivateUiControls(true);
         }
 
-        private void FindAllToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FindValueToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_lastSelectedNode == null
                 || dataGridView_examples == null
-                || dataGridView_examples.SelectedCells[0].ColumnIndex != 1
+                || dataGridView_examples.SelectedCells.Count < 1
+                || dataGridView_examples.SelectedCells[0]?.ColumnIndex != 1
                 || _lastSelectedNode.Parent?.Parent?.Parent == null) return;
 
             var paramName = _lastSelectedNode.Text;
-            var paramValue = TrimMultiLineText(dataGridView_examples.SelectedCells[0]?.Value.ToString());
+            var paramValue = TrimMultiLineText(dataGridView_examples.SelectedCells[0].Value.ToString());
 
             ActivateUiControls(false);
             FillGrid(_lastSelectedNode.Parent);
             FilterExamples((int)SearchCondition.Contains, "\"" + paramName + "\":", true);
             FilterExamples((int)SearchCondition.Contains, paramValue, true, true);
+
             dataGridView_examples.Invalidate();
             ActivateUiControls(true);
         }
@@ -420,11 +428,35 @@ namespace JsonDictionary
 
         private void DataGridView_examples_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
+            if (e.Button != MouseButtons.Right) return;
+
+            dataGridView_examples.ClearSelection();
+            dataGridView_examples.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected = true;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Settings.Default.LastRootFolder = folderBrowserDialog1.SelectedPath;
+            Settings.Default.Save();
+        }
+
+        private void ContextMenuStrip_findValue_Opening(object sender, CancelEventArgs e)
+        {
+            if (_lastSelectedNode == null
+                || dataGridView_examples == null
+                || dataGridView_examples.SelectedCells.Count < 1
+                || dataGridView_examples.SelectedCells[0]?.ColumnIndex != 1
+                || _lastSelectedNode.Parent?.Parent?.Parent == null)
             {
-                dataGridView_examples.ClearSelection();
-                dataGridView_examples.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected = true;
+                FindAllStripMenuItem.Enabled = false;
             }
+            else FindAllStripMenuItem.Enabled = true;
+        }
+
+        private void ContextMenuStrip_findField_Opening(object sender, CancelEventArgs e)
+        {
+            if (treeView_json.SelectedNode?.Parent?.Parent?.Parent == null || treeView_json.SelectedNode.Parent.Parent.Text == RootNodeName) FindFieldToolStripMenuItem.Enabled = false;
+            else FindFieldToolStripMenuItem.Enabled = true;
         }
 
         #endregion
@@ -448,7 +480,7 @@ namespace JsonDictionary
                 return;
             }
 
-            var versionIndex = jsonText.IndexOf(_schemaTag);
+            var versionIndex = jsonText.IndexOf(_schemaTag, StringComparison.Ordinal);
             if (versionIndex <= 0) return;
 
             versionIndex += _schemaTag.Length;
@@ -518,7 +550,7 @@ namespace JsonDictionary
                 if (!_suppressErrors.Contains(error.Path))
                     Invoke((MethodInvoker)delegate
                     {
-                        textBox_logText.Text += "\r\n" + fullFileName + ": line " + error.LineNumber + " " + error.Path + ": " + error.Kind + "\r\n";
+                        textBox_logText.Text += fullFileName + ": line " + error.LineNumber + " " + error.Path + ": " + error.Kind + "\r\n";
                     });
             }
         }
@@ -545,15 +577,15 @@ namespace JsonDictionary
                     parentNode.Nodes.Add(childNode);
                 }
 
-                dynamic jsonObject = JsonConvert.DeserializeObject(_reformatJson ? ReFormatJson(jsonStr) : jsonStr);
+                dynamic jsonObject = JsonConvert.DeserializeObject(jsonStr);
                 if (jsonObject != null) ParseJsonObject(jsonObject, 0, shortFileName, childNode);
             }
             catch (Exception ex)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    // File.WriteAllText(fullFileName + ".error", ReFormatJson(File.ReadAllText(fullFileName)));
-                    textBox_logText.Text += "\r\nFile parse error: " + _fileName + "]:\r\n" + ex.Message + "\r\n\r\n";
+                    // File.WriteAllText(fullFileName + ".error", jsonShiftBrackets(File.ReadAllText(fullFileName)));
+                    textBox_logText.Text += "\r\nFile parse exception: " + _fileName + "]:\r\n" + ex.Message + "\r\n\r\n";
                 });
             }
         }
@@ -563,7 +595,7 @@ namespace JsonDictionary
             JsoncDictionary newItem;
             try
             {
-                var obj = _metaDictionary.Where(n => n.Type == _fileType);
+                var obj = _metaDictionary.Where(n => n.Type == _fileType).ToArray();
                 if (obj.Count() > 1)
                 {
                     Invoke((MethodInvoker)delegate
@@ -577,105 +609,121 @@ namespace JsonDictionary
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    textBox_logText.Text += "\r\nContent parse error: " + _fileName + "]:\r\n" + ex.Message + "\r\n\r\n";
+                    textBox_logText.Text += "\r\nContent parse exception: " + _fileName + "]:\r\n" + ex.Message + "\r\n\r\n";
                 });
 
                 return;
             }
 
-            if (token is JProperty jProperty)
+            switch (token)
             {
-                string printValue;
-                string saveValue;
-                if (jProperty.Value is JValue jPropertyValue)
-                {
-                    printValue = saveValue = jPropertyValue.Value?.ToString();
-                }
-                else
-                {
-                    printValue = jProperty.Value?.GetType().Name;
-                    saveValue = jProperty.Value?.ToString();
-                }
-
-                TreeNode childNode;
-
-                var obj = parentNode.Nodes.Cast<TreeNode>().Where(r => r.Text == jProperty.Name);
-
-                if (obj.Count() > 1)
-                {
-                    Invoke((MethodInvoker)delegate
+                case JProperty jProperty:
                     {
-                        textBox_logText.Text += "\r\nMore than 1 similar object found in the tree:\r\n" + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next) + "\r\n\r\n";
-                    });
-                }
-                var exNode = obj.FirstOrDefault();
+                        string printValue;
+                        string saveValue;
+                        if (jProperty.Value is JValue jPropertyValue)
+                        {
+                            printValue = saveValue = jPropertyValue.Value?.ToString();
+                        }
+                        else
+                        {
+                            printValue = jProperty.Value?.GetType().Name;
+                            saveValue = jProperty.Value?.ToString();
+                        }
 
-                if (exNode != null)
-                {
-                    childNode = exNode;
-                }
-                else
-                {
-                    childNode = new TreeNode(jProperty.Name);
-                    parentNode.Nodes.Add(childNode);
-                }
+                        TreeNode childNode;
 
-                if (jProperty.Name == VersionTagName)
-                {
-                    _version = printValue;
-                }
+                        var obj = parentNode.Nodes.Cast<TreeNode>().Where(r => r.Text == jProperty.Name).ToArray();
 
-                if (!JsoncDictionary.NodeTypes.TryGetValue(token.GetType().Name, out var nodeType)) nodeType = JsoncNodeType.Unknown;
-                if (!string.IsNullOrEmpty(saveValue))
-                {
-                    var node = new MetaNode(jProperty.Name, parent, nodeType, depth, saveValue, _fileName,
-                        _version);
-                    newItem?.Add(node);
-                }
+                        if (obj.Count() > 1)
+                        {
+                            Invoke((MethodInvoker)delegate
+                            {
+                                textBox_logText.Text += "\r\nMore than 1 similar object found in the tree:\r\n" + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next) + "\r\n\r\n";
+                            });
+                        }
+                        var exNode = obj.FirstOrDefault();
 
-                foreach (var child in jProperty.Children())
-                {
-                    ParseJsonObject(child, depth + 1, jProperty.Path, childNode);
-                }
-            }
-            else if (token is JObject jObject)
-            {
-                string newParent;
+                        if (exNode != null)
+                        {
+                            childNode = exNode;
+                        }
+                        else
+                        {
+                            childNode = new TreeNode(jProperty.Name);
+                            parentNode.Nodes.Add(childNode);
+                        }
 
-                if (!string.IsNullOrEmpty(jObject.Path))
-                {
-                    newParent = jObject.Path.EndsWith("]") ? jObject.Path.Substring(0, jObject.Path.LastIndexOf('[')) : jObject.Path;
-                    if (newParent.Contains(".")) newParent = newParent.Substring(newParent.LastIndexOf('.') + 1);
-                }
-                else
-                {
-                    newParent = parent;
-                }
+                        if (jProperty.Name == VersionTagName)
+                        {
+                            _version = printValue;
+                        }
 
-                foreach (var child in jObject.Children())
-                {
-                    ParseJsonObject(child, depth, newParent, parentNode);
-                }
-            }
-            else if (token is JArray jArray)
-            {
-                string newParent;
+                        if (!JsoncDictionary.NodeTypes.TryGetValue(token.GetType().Name, out var nodeType)) nodeType = JsoncNodeType.Unknown;
+                        if (!string.IsNullOrEmpty(saveValue))
+                        {
+                            var node = new MetaNode(jProperty.Name, parent, nodeType, depth, _reformatJson ? JsonShiftBrackets(saveValue) : saveValue, _fileName,
+                                _version);
+                            var errorString = newItem?.Add(node);
+                            if (!string.IsNullOrEmpty(errorString))
+                            {
+                                Invoke((MethodInvoker)delegate
+                                {
+                                    textBox_logText.Text += "\r\nNode add error: " + _fileName + "]:\r\n Node [" + jProperty.Name + "] " + errorString + "\r\n\r\n";
+                                });
+                            }
+                        }
 
-                if (!string.IsNullOrEmpty(jArray.Path))
-                {
-                    newParent = jArray.Path.EndsWith("]") ? jArray.Path.Substring(0, jArray.Path.LastIndexOf('[')) : jArray.Path;
-                    if (newParent.Contains(".")) newParent = newParent.Substring(newParent.LastIndexOf('.') + 1);
-                }
-                else
-                {
-                    newParent = parent;
-                }
+                        foreach (var child in jProperty.Children())
+                        {
+                            ParseJsonObject(child, depth + 1, jProperty.Path, childNode);
+                        }
+
+                        break;
+                    }
+                case JObject jObject:
+                    {
+                        string newParent;
+
+                        if (!string.IsNullOrEmpty(jObject.Path))
+                        {
+                            newParent = jObject.Path.EndsWith("]") ? jObject.Path.Substring(0, jObject.Path.LastIndexOf('[')) : jObject.Path;
+                            if (newParent.Contains(".")) newParent = newParent.Substring(newParent.LastIndexOf('.') + 1);
+                        }
+                        else
+                        {
+                            newParent = parent;
+                        }
+
+                        foreach (var child in jObject.Children())
+                        {
+                            ParseJsonObject(child, depth, newParent, parentNode);
+                        }
+
+                        break;
+                    }
+                case JArray jArray:
+                    {
+                        string newParent;
+
+                        if (!string.IsNullOrEmpty(jArray.Path))
+                        {
+                            newParent = jArray.Path.EndsWith("]") ? jArray.Path.Substring(0, jArray.Path.LastIndexOf('[')) : jArray.Path;
+                            if (newParent.Contains(".")) newParent = newParent.Substring(newParent.LastIndexOf('.') + 1);
+                        }
+                        else
+                        {
+                            newParent = parent;
+                        }
 
 
-                foreach (var child in jArray.Children())
-                {
-                    ParseJsonObject(child, depth, newParent, parentNode);
-                }
+                        foreach (var child in jArray.Children())
+                        {
+                            ParseJsonObject(child, depth, newParent, parentNode);
+                        }
+
+                        break;
+                    }
             }
         }
 
@@ -689,7 +737,7 @@ namespace JsonDictionary
 
             if (!JsoncDictionary.FileNames.TryGetValue(tokens[1], out var fileType)) return;
 
-            var obj = _metaDictionary?.Where(x => x.Type == fileType);
+            var obj = _metaDictionary?.Where(x => x.Type == fileType).ToArray();
 
             if (obj == null) return;
 
@@ -703,7 +751,7 @@ namespace JsonDictionary
             var element = obj.FirstOrDefault();
 
             var obj2 = element?.Nodes?.Where(n =>
-                n.Name == currentNode?.Text && n.Depth == tokens.Length - 3 &&
+                n.Name == currentNode.Text && n.Depth == tokens.Length - 3 &&
                 n.ParentName == tokens[tokens.Length - 2]);
 
             if (obj2 == null) return;
@@ -731,7 +779,6 @@ namespace JsonDictionary
             foreach (var record in obj2)
             {
                 var examples = record.ExamplesList;
-
                 if (examples == null) continue;
 
                 if (!versionCollection.Contains(record.Version)) versionCollection.Add(record.Version);
@@ -739,14 +786,14 @@ namespace JsonDictionary
                 foreach (var example in examples)
                 {
                     var newRow = _examplesTable.NewRow();
-                    newRow[_exampleGridColumns[0]] = record.Version;
-                    newRow[_exampleGridColumns[1]] = example.Key;
-                    newRow[_exampleGridColumns[2]] = example.Value;
+                    newRow[_exampleGridColumnsNames[0]] = record.Version;
+                    newRow[_exampleGridColumnsNames[1]] = example.Key;
+                    newRow[_exampleGridColumnsNames[2]] = example.Value;
                     _examplesTable.Rows.Add(newRow);
                 }
             }
 
-            comboBox_versions.Items.AddRange(versionCollection.ToArray());
+            comboBox_versions.Items.AddRange(versionCollection.ToArray() as string[]);
             this.comboBox_versions.SelectedIndexChanged += this.ComboBox_versions_SelectedIndexChanged;
             dataGridView_examples.DataSource = _examplesTable;
             dataGridView_examples.Invalidate();
@@ -853,8 +900,8 @@ namespace JsonDictionary
             }
 
             var transition = textBox_searchHistory.Text == "" ? "[" : " ->[";
-            var CsString = caseSensitive ? "CS:" : "";
-            textBox_searchHistory.Text += transition + CsString + comboBox_condition.SelectedItem.ToString() + "]\"" + searchString + "\"";
+            var csString = caseSensitive ? "CS:" : "";
+            textBox_searchHistory.Text += transition + csString + comboBox_condition.SelectedItem.ToString() + "]\"" + searchString + "\"";
         }
 
         private void FilterExamplesVersion(string versionString)
@@ -922,13 +969,14 @@ namespace JsonDictionary
             }
         }
 
+        // needed to get rid of exception on changing "dataGridView_examples.AutoSizeRowsMode"
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoOptimization | System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
         private static void LoopThroughRows(DataGridView dgv)
         {
-            DataGridViewRowCollection rows = dgv.Rows;
-            for (int i = rows.Count - 1; i >= 0; i--)
+            var rows = dgv.Rows;
+            for (var i = rows.Count - 1; i >= 0; i--)
             {
-                DataGridViewRow row = rows[i];
+                var row = rows[i];
             }
         }
 
@@ -949,74 +997,111 @@ namespace JsonDictionary
             this.Refresh();
         }
 
-        // to rework
-        private string ReFormatJson(string original)
+        // possibly to rework
+        private string JsonShiftBrackets(string original)
         {
             var searchTokens = new[] { ": {", ": [" };
             foreach (var token in searchTokens)
             {
-
-                var i = original.IndexOf(token);
-                while (i > 0)
+                var i = original.IndexOf(token, StringComparison.Ordinal);
+                int currentPos;
+                while (i >= 0)
                 {
-                    if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n')
+                    if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n') // not a single bracket
                     {
-                        original = original.Insert(i + 2, " ");
+                        currentPos = i + 3;
                     }
-                    else
+                    else // need to shift bracket down the line
                     {
-
                         var j = i - 1;
-                        var trail = "";
-                        while (original[j] != '\n' && original[j] != '\r')
-                        {
-                            j--;
-                            if (j <= 0) break;
-                        }
+                        var trail = 0;
 
-                        j++;
-                        while (original[j] == ' ')
+                        if (j >= 0)
                         {
-                            trail += " ";
-                            j++;
+                            while (original[j] != '\n' && original[j] != '\r' && j >= 0)
+                            {
+                                if (original[j] == ' ') trail++;
+                                else trail = 0;
+                                j--;
+                            }
                         }
+                        if (j < 0) j = 0;
 
-                        if (!(original[j] == '/' && original[j + 1] == '/'))
+                        if (!(original[j] == '/' && original[j + 1] == '/')) // if it's a comment
                         {
-                            original = original.Insert(i + 2, "\r\n" + trail);
+                            original = original.Insert(i + 2, "\r\n" + new string(' ', trail));
                         }
-                        else
-                        {
-                            original = original.Insert(i + 2, " ");
-                        }
+                        currentPos = i + 3;
                     }
 
-                    i = original.IndexOf(token);
+                    i = original.IndexOf(token, currentPos, StringComparison.Ordinal);
                 }
             }
 
             return original;
         }
 
-        // to rework
-        private string TrimMultiLineText(string original)
+        // simple version (2 times slower but no way to get exception)
+        private string TrimMultiLineText_v1(string original)
         {
             original = original.Trim();
-            var i = original.IndexOf("\n ");
+            var i = original.IndexOf("\n ", StringComparison.Ordinal);
             while (i >= 0)
             {
                 original = original.Replace("\n ", "\n");
-                i = original.IndexOf("\n ");
+                i = original.IndexOf("\n ", i, StringComparison.Ordinal);
             }
 
-            i = original.IndexOf("\n ");
+            i = original.IndexOf("\r ", StringComparison.Ordinal);
             while (i >= 0)
             {
-                original = original.Replace("\n ", "\n");
-                i = original.IndexOf("\n ");
+                original = original.Replace("\r ", "\r");
+                i = original.IndexOf("\r ", i, StringComparison.Ordinal);
             }
 
             return original;
+        }
+
+        // TrimMultiLineText fast replacement (not tested properly for exceptions)
+        private string TrimMultiLineText(string json)
+        {
+            try
+            {
+                return ReformatJson(json, Formatting.None);
+            }
+            catch
+            {
+                return json;
+            }
+        }
+
+        private string Beautify(string json)
+        {
+            return ReformatJson(json, Formatting.Indented);
+        }
+
+        private string ReformatJson(string json, Formatting formatting)
+        {
+            using (var stringReader = new StringReader(json))
+            {
+                using (var stringWriter = new StringWriter())
+                {
+                    ReformatJson(stringReader, stringWriter, formatting);
+                    return stringWriter.ToString();
+                }
+            }
+        }
+
+        private void ReformatJson(TextReader textReader, TextWriter textWriter, Formatting formatting)
+        {
+            using (var jsonReader = new JsonTextReader(textReader))
+            {
+                using (var jsonWriter = new JsonTextWriter(textWriter))
+                {
+                    jsonWriter.Formatting = formatting;
+                    jsonWriter.WriteToken(jsonReader);
+                }
+            }
         }
 
         #endregion
