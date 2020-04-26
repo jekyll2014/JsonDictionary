@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using NJsonSchema;
+using NJsonSchema.Validation;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,21 +28,9 @@ namespace JsonDictionary
         private JsoncContentType _fileType = JsoncContentType.DataViews;
         private TreeNode _rootNode;
         private string _oldFilterValue = "";
-        private int _lastSelectedCondition = -1;
+        private SearchCondition _lastSelectedCondition;
         private TreeNode _lastSelectedNode;
         private string _lastSelectedVersion;
-
-        private readonly string[] _exampleGridColumns = { "Version", "Example", "File Name" };
-
-        private const string DefaultVersionCaption = "Any";
-
-        private const string VersionTagName = "contentVersion";
-
-        private const string RootNodeName = "root";
-
-        DataTable _examplesTable;
-
-        private List<JsoncDictionary> _metaDictionary = new List<JsoncDictionary>();
 
         private enum SearchCondition
         {
@@ -48,12 +39,33 @@ namespace JsonDictionary
             EndsWith
         }
 
+        private readonly string[] _exampleGridColumns = { "Version", "Example", "File Name" };
+
+        private const string DefaultVersionCaption = "Any";
+
+        private const string VersionTagName = "contentVersion";
+
+        private readonly string[] _suppressErrors = {
+            "#/imports[0]",
+        };
+
+        private readonly string _schemaTag = "\"$schema\": \"";
+
+        private const string RootNodeName = "root";
+
+        DataTable _examplesTable;
+
+        private List<JsoncDictionary> _metaDictionary = new List<JsoncDictionary>();
+
+        private Dictionary<string, string> _schemaList = new Dictionary<string, string>();
+
         #region GUI
 
         public Form1()
         {
             InitializeComponent();
 
+            comboBox_condition.Items.AddRange(items: typeof(SearchCondition).GetEnumNames());
             comboBox_condition.SelectedIndex = 0;
 
             foreach (var fileName in JsoncDictionary.FileNames)
@@ -151,7 +163,7 @@ namespace JsonDictionary
             ActivateUiControls(true);
         }
 
-        private async void Button_openDirectory_Click(object sender, EventArgs e)
+        private async void Button_collectDatabase_Click(object sender, EventArgs e)
         {
             if (folderBrowserDialog1.ShowDialog() != DialogResult.OK)
             {
@@ -193,8 +205,52 @@ namespace JsonDictionary
                 }).ConfigureAwait(true);
             }
 
+            textBox_logText.Text += "\r\nFiles parsed: " + filesList.Count.ToString() + "\r\n";
+
             treeView_json.Nodes.Add(_rootNode);
             treeView_json.Nodes[0].Expand();
+            ActivateUiControls(true);
+        }
+
+        private async void Button_validateFiles_Click(object sender, EventArgs e)
+        {
+            if (folderBrowserDialog1.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            ActivateUiControls(false);
+
+            var startPath = folderBrowserDialog1.SelectedPath;
+
+            var filesList = new List<string>();
+            foreach (var fileName in checkedListBox_params.CheckedItems)
+            {
+                filesList.AddRange(Directory.GetFiles(startPath, fileName.ToString(), SearchOption.AllDirectories));
+            }
+
+            var filesNumber = filesList.Count;
+            var currentFileNumber = 0;
+            var oldProgress = 0;
+            progressBar1.Maximum = 100;
+            progressBar1.Value = 0;
+            foreach (var file in filesList)
+            {
+                currentFileNumber++;
+                var newProgress = (ushort)((float)currentFileNumber / (float)filesNumber * 100);
+                if (newProgress >= oldProgress + 5)
+                {
+                    progressBar1.Value = oldProgress = newProgress;
+                }
+
+                await Task.Run(() =>
+                {
+                    ValidateFile(file);
+                }).ConfigureAwait(true);
+            }
+
+            textBox_logText.Text += "\r\nFiles validated: " + filesList.Count.ToString() + "\r\n";
+
             ActivateUiControls(true);
         }
 
@@ -225,7 +281,7 @@ namespace JsonDictionary
 
         private void DataGridView_examples_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (_collectAllFileNames && e.ColumnIndex == 2)
+            if (!_collectAllFileNames && e.ColumnIndex == 2)
             {
                 var fileName = dataGridView_examples.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
                 try
@@ -259,7 +315,10 @@ namespace JsonDictionary
 
             ActivateUiControls(false);
             dataGridView_examples.DataSource = null;
-            FilterExamples(comboBox_condition.SelectedIndex, textBox_searchString.Text, checkBox_seachCaseSensitive.Checked);
+
+            //Enum.TryParse(comboBox_condition.SelectedItem.ToString(), out SearchCondition condition);
+            _lastSelectedCondition = (SearchCondition)comboBox_condition.SelectedIndex;
+            FilterExamples(_lastSelectedCondition, textBox_searchString.Text, checkBox_seachCaseSensitive.Checked);
             dataGridView_examples.DataSource = _examplesTable;
             ActivateUiControls(true);
             e.SuppressKeyPress = true;
@@ -372,6 +431,98 @@ namespace JsonDictionary
 
         #region Helpers
 
+        private void ValidateFile(string fullFileName)
+        {
+            string jsonText;
+            try
+            {
+                jsonText = File.ReadAllText(fullFileName);
+            }
+            catch (Exception ex)
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    textBox_logText.Text += "\r\nFile read exception: [" + fullFileName + "]:\r\n" + ex.Message + "\r\n\r\n";
+                });
+
+                return;
+            }
+
+            var versionIndex = jsonText.IndexOf(_schemaTag);
+            if (versionIndex <= 0) return;
+
+            versionIndex += _schemaTag.Length;
+            var strEnd = versionIndex;
+            while (strEnd < jsonText.Length && jsonText[strEnd] != '"' && jsonText[strEnd] != '\r' && jsonText[strEnd] != '\n') strEnd++;
+
+            var schemaUrl = jsonText.Substring(versionIndex, strEnd - versionIndex);
+
+            if (!schemaUrl.EndsWith(".json"))
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    textBox_logText.Text += "\r\n" + fullFileName + ": URL not found [" + schemaUrl + "]\r\n\r\n";
+                });
+                return;
+            }
+
+            if (!_schemaList.ContainsKey(schemaUrl))
+            {
+                try
+                {
+                    using (var webClient = new System.Net.WebClient())
+                    {
+                        var schemaData = webClient.DownloadString(schemaUrl);
+                        _schemaList.Add(schemaUrl, schemaData);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Invoke((MethodInvoker)delegate
+                    {
+                        textBox_logText.Text += "\r\n" + fullFileName + "schema download exception: [" + schemaUrl + "]:\r\n" + ex.Message + "\r\n\r\n";
+                    });
+                    _schemaList.Add(schemaUrl, "");
+                }
+            }
+            var schemaText = _schemaList[schemaUrl];
+
+            if (string.IsNullOrEmpty(schemaText))
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    textBox_logText.Text += "\r\n" + fullFileName + " schema not loaded : [" + schemaUrl + "]:\r\n\r\n";
+                });
+
+                return;
+            }
+
+            ICollection<ValidationError> errors;
+            try
+            {
+                var schema = JsonSchema.FromJsonAsync(schemaText).Result;
+                errors = schema.Validate(jsonText);
+            }
+            catch (Exception ex)
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    textBox_logText.Text += "\r\nFile validation exception: [" + fullFileName + "]:\r\n" + ex.Message + "\r\n\r\n";
+                });
+
+                return;
+            }
+
+            foreach (var error in errors)
+            {
+                if (!_suppressErrors.Contains(error.Path))
+                    Invoke((MethodInvoker)delegate
+                    {
+                        textBox_logText.Text += "\r\n" + fullFileName + ": line " + error.LineNumber + " " + error.Path + ": " + error.Kind + "\r\n";
+                    });
+            }
+        }
+
         private void DeserializeFile(string fullFileName, string shortFileName, TreeNode parentNode)
         {
             try
@@ -402,7 +553,7 @@ namespace JsonDictionary
                 Invoke((MethodInvoker)delegate
                 {
                     // File.WriteAllText(fullFileName + ".error", ReFormatJson(File.ReadAllText(fullFileName)));
-                    textBox_logText.Text += "File parse error: " + _fileName + "]:\r\n" + ex.Message + "\r\n\r\n";
+                    textBox_logText.Text += "\r\nFile parse error: " + _fileName + "]:\r\n" + ex.Message + "\r\n\r\n";
                 });
             }
         }
@@ -417,7 +568,7 @@ namespace JsonDictionary
                 {
                     Invoke((MethodInvoker)delegate
                     {
-                        textBox_logText.Text += "More than 1 similar file types found on parse\r\n\r\n";
+                        textBox_logText.Text += "\r\nMore than 1 similar file types found on parse\r\n\r\n";
                     });
                 }
                 newItem = obj.FirstOrDefault();
@@ -426,7 +577,7 @@ namespace JsonDictionary
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    textBox_logText.Text += "Content parse error: " + _fileName + "]:\r\n" + ex.Message + "\r\n\r\n";
+                    textBox_logText.Text += "\r\nContent parse error: " + _fileName + "]:\r\n" + ex.Message + "\r\n\r\n";
                 });
 
                 return;
@@ -454,7 +605,7 @@ namespace JsonDictionary
                 {
                     Invoke((MethodInvoker)delegate
                     {
-                        textBox_logText.Text += "More than 1 similar object found in the tree:\r\n" + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next) + "\r\n\r\n";
+                        textBox_logText.Text += "\r\nMore than 1 similar object found in the tree:\r\n" + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next) + "\r\n\r\n";
                     });
                 }
                 var exNode = obj.FirstOrDefault();
@@ -546,7 +697,7 @@ namespace JsonDictionary
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    textBox_logText.Text += "More than 1 similar file types found on example print-out:\r\n" + obj.Select(n => n.Nodes).Aggregate("", (current, next) => current + ", " + next) + "\r\n\r\n";
+                    textBox_logText.Text += "\r\nMore than 1 similar file types found on example print-out:\r\n" + obj.Select(n => n.Nodes).Aggregate("", (current, next) => current + ", " + next) + "\r\n\r\n";
                 });
             }
             var element = obj.FirstOrDefault();
@@ -601,9 +752,9 @@ namespace JsonDictionary
             dataGridView_examples.Invalidate();
         }
 
-        private void FilterExamples(int condition, string searchString, bool caseSensitive = false, bool trimMultiline = false)
+        private void FilterExamples(SearchCondition condition, string searchString, bool caseSensitive = false, bool trimMultiline = false)
         {
-            if (_oldFilterValue == searchString && _lastSelectedCondition == condition) return;
+            if (_oldFilterValue == searchString && _lastSelectedCondition == condition) return; // && _lastCaseSensitive == caseSensitive
 
             _oldFilterValue = searchString;
 
@@ -623,7 +774,7 @@ namespace JsonDictionary
 
             switch (condition)
             {
-                case (int)SearchCondition.Contains:
+                case SearchCondition.Contains:
                     for (var i = 0; i < _examplesTable.Rows.Count; i++)
                     {
                         currentRowNumber++;
@@ -646,7 +797,7 @@ namespace JsonDictionary
                         }
                     }
                     break;
-                case (int)SearchCondition.StartsWith:
+                case SearchCondition.StartsWith:
                     for (var i = 0; i < _examplesTable.Rows.Count; i++)
                     {
                         currentRowNumber++;
@@ -670,7 +821,7 @@ namespace JsonDictionary
                     }
 
                     break;
-                case (int)SearchCondition.EndsWith:
+                case SearchCondition.EndsWith:
                     for (var i = 0; i < _examplesTable.Rows.Count; i++)
                     {
                         currentRowNumber++;
@@ -696,7 +847,7 @@ namespace JsonDictionary
                 default:
                     Invoke((MethodInvoker)delegate
                     {
-                        textBox_logText.Text += "Incorrect filter condition: " + condition.ToString() + "\r\n\r\n";
+                        MessageBox.Show("Incorrect filter condition: " + condition.ToString());
                     });
                     break;
             }
@@ -784,7 +935,8 @@ namespace JsonDictionary
         private void ActivateUiControls(bool active)
         {
             checkedListBox_params.Enabled = active;
-            button_openDirectory.Enabled = active;
+            button_validateFiles.Enabled = active;
+            button_collectDatabase.Enabled = active;
             button_loadDb.Enabled = active;
             button_saveDb.Enabled = active;
             comboBox_versions.Enabled = active;
@@ -866,6 +1018,7 @@ namespace JsonDictionary
 
             return original;
         }
+
         #endregion
 
     }

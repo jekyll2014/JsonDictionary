@@ -1,6 +1,6 @@
 Short manual:
 1) Select file types needed in the check list.
-2) Push "Open directory" button to show root folder of the MetaUI repository. It'll search all files marked before to parse. A tree and a examples table is generated. It may take a couple of minutes.
+2) Push "Collect database" button to show root folder of the MetaUI repository. It'll search all files marked before to parse. A tree and a examples table is generated. It may take a couple of minutes.
 3) Database collected can be saved (binary serializer format) with "Save database" button to avoid regenerating it next time. There are 2 files saved - .metalib database and .metalib.tree tree.
 4) "Samples tree" contains a tree to select keywerd needed and dsiplay samples with double-click on a tree element.
 5) Examples table can be filtered by schema version (got from "contentVersion" field) and a search phrase. Filter is applied to a current grid view so filters can be applied sequentially. Filtering can be slow on huge amount of data so may take some time.
@@ -13,18 +13,20 @@ Short manual:
 12) Field+value can also be executed with right clicking at the grid cell.
 13) Use Readjust button to adjust grid rows height (70% of grid control height) if needed (will be reset to auto-height on next grid refill).
 14) Single column height can be auto-adjusted with double-click on row header as well.
+15) "Validate files" button execute all files selected validation against scheme (referenced inside the file itself with "$schema" tag). Schema used is downloaded from URL and kept in memory in run-time.
 
 Tech. notes:
 Only the first file name for every unique field/example is saved to database (otherwise there'll be hundreds of files for some fields).
 UI critical controls are inactive on long operations.
 It's possible to re-format json-queries to palce starting brackets ("[,{") on the next line (I personally prefer this way). Works on database creation time. Can only be enabled in the code for now.
 It's possible to save all file names for the fielsd/examples. Works on database creation time. Can only be enabled in the code for now.
+Some minor(?) validation errors are suppressed. - the possible reason is outdated schema specification used by NJsonSchema library.
 
 ====
 Russian
 Краткая инструкция:
 1) Выделяем интересующие нас типы файлов в чек-листе.
-2) Кнопкой "Open directory" указываем корневую папку с MetaUI. По "Ок" программа ищет все указанные ранее файлы и парсит их, выгребая ключевые слова. Строится дерево и к нему библиотека значений (примеров). Это может занять пару минут.
+2) Кнопкой "Collect database" указываем корневую папку с MetaUI. По "Ок" программа ищет все указанные ранее файлы и парсит их, выгребая ключевые слова. Строится дерево и к нему библиотека значений (примеров). Это может занять пару минут.
 3) Собранную базу можно сохранить (в формате binary serializer), чтобы не генерить опять по "Save database". Сохраняются 2 файла - .metalib с базой и .metalib.tree с деревом.
 4) Во вкладке "Samples tree" можно в дереве выбрать интересующее ключевое слово и по двойному клику на нем справа в гриде появится табличка с найденными на него примерами.
 5) Табличку можно отфильтровать фильтрами сверху - по версии (из поля "contentVersion") и по ключевой фразе. Фильтр накладывается при нажатии ENTER в текстовом поле. Фильтруется текущее содержимое грида, так что можно последовательно наложить несколько фильтров. Фильтрация идет довольно медленно - при большом объеме данных в списке примеров может занять десятки секунд.
@@ -37,13 +39,14 @@ Russian
 12) Поиск упоминания поля и значения в родительском объекте запускается по правому клику на ячейку со значением в таблице.
 13) Высота колонок таблицы может быть поправлена до 70% от высоты таблицы кнопкой Readjust.
 14) Высота конкретной колонки может поправлена до 70% от высоты таблицы двойным кликом на заголовок столбца.
+15) Кнопка "Validate files" запускает проверку выбранных файлов на соответствие схеме (указана в самом файле с тегом "$schema"). Схемы берутся по указанному URL и хранятся в памяти до завершения программы.
 
 Особенности работы:
-
 В базу пишется имя только первого файла для каждого уникального ключевого поля (иначе к некоторым полям будет по сотне и более файлов)
 На время всех длительных операций все критичные контролы на UI дезактивируются.
 Предусмотрена возможность переформатировать json-выражения для выставления верхних/нижних скобок на один уровень в отдельную строку (по-умолчанию верхние скобки остаются на строке объекта). Срабатывает при создании базы. Включается пока только в коде.
 Предусмотрена возможность сохранять все имена фалов для каждого поля. Срабатывает при создании базы. Включается пока только в коде.
+Некоторые незначительные(?) ошибки валидации не выводятся - возможно, они вызваны устаревшей версией описания схем в библиотеке NJsonSchema.
 
 ----
 andrey.kalugin@epicor.com

@@ -29,15 +29,16 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.checkedListBox_params = new System.Windows.Forms.CheckedListBox();
             this.button_saveDb = new System.Windows.Forms.Button();
             this.button_loadDb = new System.Windows.Forms.Button();
-            this.button_openDirectory = new System.Windows.Forms.Button();
+            this.button_validateFiles = new System.Windows.Forms.Button();
+            this.button_collectDatabase = new System.Windows.Forms.Button();
             this.textBox_logText = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -108,7 +109,8 @@
             this.splitContainer2.Panel1.Controls.Add(this.checkedListBox_params);
             this.splitContainer2.Panel1.Controls.Add(this.button_saveDb);
             this.splitContainer2.Panel1.Controls.Add(this.button_loadDb);
-            this.splitContainer2.Panel1.Controls.Add(this.button_openDirectory);
+            this.splitContainer2.Panel1.Controls.Add(this.button_validateFiles);
+            this.splitContainer2.Panel1.Controls.Add(this.button_collectDatabase);
             this.splitContainer2.Panel1MinSize = 120;
             // 
             // splitContainer2.Panel2
@@ -128,7 +130,7 @@
             this.checkedListBox_params.HorizontalScrollbar = true;
             this.checkedListBox_params.Location = new System.Drawing.Point(0, 0);
             this.checkedListBox_params.Name = "checkedListBox_params";
-            this.checkedListBox_params.Size = new System.Drawing.Size(208, 589);
+            this.checkedListBox_params.Size = new System.Drawing.Size(208, 574);
             this.checkedListBox_params.TabIndex = 15;
             // 
             // button_saveDb
@@ -155,17 +157,29 @@
             this.button_loadDb.UseVisualStyleBackColor = true;
             this.button_loadDb.Click += new System.EventHandler(this.Button_loadDb_Click);
             // 
-            // button_openDirectory
+            // button_validateFiles
             // 
-            this.button_openDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.button_validateFiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openDirectory.Location = new System.Drawing.Point(-1, 613);
-            this.button_openDirectory.Name = "button_openDirectory";
-            this.button_openDirectory.Size = new System.Drawing.Size(208, 23);
-            this.button_openDirectory.TabIndex = 0;
-            this.button_openDirectory.Text = "Open directory";
-            this.button_openDirectory.UseVisualStyleBackColor = true;
-            this.button_openDirectory.Click += new System.EventHandler(this.Button_openDirectory_Click);
+            this.button_validateFiles.Location = new System.Drawing.Point(0, 584);
+            this.button_validateFiles.Name = "button_validateFiles";
+            this.button_validateFiles.Size = new System.Drawing.Size(208, 23);
+            this.button_validateFiles.TabIndex = 0;
+            this.button_validateFiles.Text = "Validate files";
+            this.button_validateFiles.UseVisualStyleBackColor = true;
+            this.button_validateFiles.Click += new System.EventHandler(this.Button_validateFiles_Click);
+            // 
+            // button_collectDatabase
+            // 
+            this.button_collectDatabase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_collectDatabase.Location = new System.Drawing.Point(-1, 613);
+            this.button_collectDatabase.Name = "button_collectDatabase";
+            this.button_collectDatabase.Size = new System.Drawing.Size(208, 23);
+            this.button_collectDatabase.TabIndex = 0;
+            this.button_collectDatabase.Text = "Collect database";
+            this.button_collectDatabase.UseVisualStyleBackColor = true;
+            this.button_collectDatabase.Click += new System.EventHandler(this.Button_collectDatabase_Click);
             // 
             // textBox_logText
             // 
@@ -283,10 +297,6 @@
             // 
             this.comboBox_condition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_condition.FormattingEnabled = true;
-            this.comboBox_condition.Items.AddRange(new object[] {
-            "Contains",
-            "StartsWith",
-            "EndsWith"});
             this.comboBox_condition.Location = new System.Drawing.Point(67, 0);
             this.comboBox_condition.Name = "comboBox_condition";
             this.comboBox_condition.Size = new System.Drawing.Size(70, 21);
@@ -302,21 +312,21 @@
             this.dataGridView_examples.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_examples.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_examples.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridView_examples.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_examples.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_examples.Name = "dataGridView_examples";
             this.dataGridView_examples.RowHeadersWidth = 20;
-            dataGridViewCellStyle4.NullValue = "Adjust";
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.NullValue = "Adjust";
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView_examples.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_examples.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_examples.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
@@ -355,12 +365,12 @@
             this.contextMenuStrip_findValue.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.FindAllStripMenuItem});
             this.contextMenuStrip_findValue.Name = "contextMenuStrip_findInParent";
-            this.contextMenuStrip_findValue.Size = new System.Drawing.Size(181, 48);
+            this.contextMenuStrip_findValue.Size = new System.Drawing.Size(179, 26);
             // 
             // FindAllStripMenuItem
             // 
             this.FindAllStripMenuItem.Name = "FindAllStripMenuItem";
-            this.FindAllStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.FindAllStripMenuItem.Size = new System.Drawing.Size(178, 22);
             this.FindAllStripMenuItem.Text = "Find value in parent";
             this.FindAllStripMenuItem.Click += new System.EventHandler(this.FindAllToolStripMenuItem_Click);
             // 
@@ -418,7 +428,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox textBox_logText;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private System.Windows.Forms.Button button_openDirectory;
+        private System.Windows.Forms.Button button_collectDatabase;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.CheckedListBox checkedListBox_params;
         private System.Windows.Forms.Button button_saveDb;
@@ -437,6 +447,7 @@
         private System.Windows.Forms.ToolStripMenuItem FindAllStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_findField;
         private System.Windows.Forms.ToolStripMenuItem FindFieldToolStripMenuItem;
+        private System.Windows.Forms.Button button_validateFiles;
     }
 }
 

@@ -16,6 +16,9 @@ namespace JsonDictionary
         [EnumMember] Search,
         [EnumMember] Combo,
         [EnumMember] Tools,
+        [EnumMember] PageTemplate,
+        [EnumMember] Template,
+        [EnumMember] Strings,
     }
 
     [DataContract, Serializable]
@@ -25,6 +28,27 @@ namespace JsonDictionary
         [EnumMember] Property,
         [EnumMember] Object,
         [EnumMember] Array,
+    }
+
+    [DataContract, Serializable]
+    public class MetaNode
+    {
+        [DataMember] public int Depth;
+        [DataMember] public string ParentName;
+        [DataMember] public string Name;
+        [DataMember] public JsoncNodeType Type;
+        [DataMember] public string Version;
+        [DataMember] public Dictionary<string, string> ExamplesList;
+
+        public MetaNode(string name, string parentName, JsoncNodeType type, int depth, string example, string fileName, string version)
+        {
+            this.Name = name;
+            this.ParentName = parentName;
+            this.Type = type;
+            this.Depth = depth;
+            this.Version = version;
+            this.ExamplesList = new Dictionary<string, string>() { { example, fileName } };
+        }
     }
 
     [DataContract, Serializable]
@@ -40,6 +64,9 @@ namespace JsonDictionary
             { "search.jsonc", JsoncContentType.Search},
             { "combo.jsonc", JsoncContentType.Combo},
             { "tools.jsonc", JsoncContentType.Tools},
+            { "pagetemplate.jsonc", JsoncContentType.PageTemplate},
+            { "template.jsonc", JsoncContentType.Template},
+            { "strings.jsonc", JsoncContentType.Strings},
         };
 
         [DataMember]
@@ -108,24 +135,4 @@ namespace JsonDictionary
         }
     }
 
-    [DataContract, Serializable]
-    public class MetaNode
-    {
-        [DataMember] public int Depth;
-        [DataMember] public string ParentName;
-        [DataMember] public string Name;
-        [DataMember] public JsoncNodeType Type;
-        [DataMember] public string Version;
-        [DataMember] public Dictionary<string, string> ExamplesList;
-
-        public MetaNode(string name, string parentName, JsoncNodeType type, int depth, string example, string fileName, string version)
-        {
-            this.Name = name;
-            this.ParentName = parentName;
-            this.Type = type;
-            this.Depth = depth;
-            this.Version = version;
-            this.ExamplesList = new Dictionary<string, string>() { { example, fileName } };
-        }
-    }
 }
