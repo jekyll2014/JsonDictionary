@@ -93,10 +93,10 @@ namespace JsonDictionary
             if (newNode == null) return "No data to add";
 
             var node = Nodes?.Where(n => n?.Depth == newNode.Depth
-                                         && n.ParentName == newNode.ParentName
-                                         && n.Name == newNode.Name
+                                         && n.ParentName.Equals(newNode.ParentName, StringComparison.Ordinal)
+                                         && n.Name.Equals(newNode.Name, StringComparison.Ordinal)
                                          && n.Type == newNode.Type
-                                         && n.Version == newNode.Version).ToArray();
+                                         && n.Version.Equals(newNode.Version, StringComparison.Ordinal)).ToArray();
             if (node == null)
             {
                 return "Can't fine node " + newNode.Name + " to add new data";

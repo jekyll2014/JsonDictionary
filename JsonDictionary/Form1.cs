@@ -20,18 +20,33 @@ namespace JsonDictionary
 {
     public partial class Form1 : Form
     {
+        // pre-defined constants
+        private readonly string[] _exampleGridColumnsNames = { "Version", "Example", "File Name" };
+        private const string DefaultVersionCaption = "Any";
+        private const string VersionTagName = "contentVersion";
+        private readonly string[] _suppressErrors = { "#/imports[0]" };
+        private readonly string _schemaTag = "\"$schema\": \"";
+        private const string RootNodeName = "root";
+
         // experimental options
         private readonly bool _reformatJson;
         private readonly bool _collectAllFileNames;
 
+        // global variables
         private string _version = "";
         private string _fileName = "";
         private JsoncContentType _fileType = JsoncContentType.DataViews;
         private TreeNode _rootNode;
-        private string _oldFilterValue = "";
-        private SearchCondition _lastSelectedCondition;
+        DataTable _examplesTable;
+        private List<JsoncDictionary> _metaDictionary = new List<JsoncDictionary>();
+        private Dictionary<string, string> _schemaList = new Dictionary<string, string>();
+
+        // last used values for UI processing optimization
         private TreeNode _lastSelectedNode;
         private string _lastSelectedVersion;
+        private string _lastFilterValue = "";
+        private SearchCondition _lastSelectedCondition;
+        private bool _lastCaseSensitive;
 
         private enum SearchCondition
         {
@@ -39,26 +54,6 @@ namespace JsonDictionary
             StartsWith,
             EndsWith
         }
-
-        private readonly string[] _exampleGridColumnsNames = { "Version", "Example", "File Name" };
-
-        private const string DefaultVersionCaption = "Any";
-
-        private const string VersionTagName = "contentVersion";
-
-        private readonly string[] _suppressErrors = {
-            "#/imports[0]",
-        };
-
-        private readonly string _schemaTag = "\"$schema\": \"";
-
-        private const string RootNodeName = "root";
-
-        DataTable _examplesTable;
-
-        private List<JsoncDictionary> _metaDictionary = new List<JsoncDictionary>();
-
-        private Dictionary<string, string> _schemaList = new Dictionary<string, string>();
 
         #region GUI
 
@@ -319,12 +314,16 @@ namespace JsonDictionary
         {
             if (e.KeyCode != Keys.Enter) return;
 
+            var condition = (SearchCondition)comboBox_condition.SelectedIndex;
+            var searchString = textBox_searchString.Text;
+            var caseSensitive = checkBox_seachCaseSensitive.Checked;
+            if (_lastFilterValue == searchString && _lastSelectedCondition == condition && _lastCaseSensitive == caseSensitive) return;
+
             ActivateUiControls(false);
             dataGridView_examples.DataSource = null;
 
             //Enum.TryParse(comboBox_condition.SelectedItem.ToString(), out SearchCondition condition);
-            _lastSelectedCondition = (SearchCondition)comboBox_condition.SelectedIndex;
-            FilterExamples(_lastSelectedCondition, textBox_searchString.Text, checkBox_seachCaseSensitive.Checked);
+            FilterExamples(condition, searchString, caseSensitive);
             dataGridView_examples.DataSource = _examplesTable;
             ActivateUiControls(true);
             e.SuppressKeyPress = true;
@@ -386,6 +385,7 @@ namespace JsonDictionary
             FillGrid(e.Node);
             dataGridView_examples.Invalidate();
             ActivateUiControls(true);
+            _lastFilterValue = "";
         }
 
         private void FindValueToolStripMenuItem_Click(object sender, EventArgs e)
@@ -801,9 +801,11 @@ namespace JsonDictionary
 
         private void FilterExamples(SearchCondition condition, string searchString, bool caseSensitive = false, bool trimMultiline = false)
         {
-            if (_oldFilterValue == searchString && _lastSelectedCondition == condition) return; // && _lastCaseSensitive == caseSensitive
+            if (_lastFilterValue == searchString && _lastSelectedCondition == condition) return; // && _lastCaseSensitive == caseSensitive
 
-            _oldFilterValue = searchString;
+            _lastFilterValue = searchString;
+            _lastSelectedCondition = condition;
+            _lastCaseSensitive = caseSensitive;
 
             if (string.IsNullOrEmpty(searchString))
             {
@@ -928,7 +930,7 @@ namespace JsonDictionary
             progressBar1.Maximum = 100;
             progressBar1.Value = 0;
 
-            for (int i = 0; i < _examplesTable.Rows.Count; i++)
+            for (var i = 0; i < _examplesTable.Rows.Count; i++)
             {
                 currentRowNumber++;
                 var newProgress = (ushort)((float)currentRowNumber / (float)rowsNumber * 100);
