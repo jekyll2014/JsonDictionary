@@ -9,5 +9,6 @@ Read quick note inside for use tips.
 
 To do:
 
-1. combobox grid cell for multuple file names
+1. Comfortable way to show multiple file names for each example cell
 2. file masks for initial filenames list to include \*.layout.jsonc from /pages and /views
+3. show title/description from schema for each node in the tree.

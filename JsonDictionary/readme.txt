@@ -13,7 +13,8 @@ Short manual:
 12) Field+value can also be executed with right clicking at the grid cell.
 13) Use Readjust button to adjust grid rows height (70% of grid control height) if needed (will be reset to auto-height on next grid refill).
 14) Single column height can be auto-adjusted with double-click on row header as well.
-15) "Validate files" button execute all files selected validation against scheme (referenced inside the file itself with "$schema" tag). Schema used is downloaded from URL and kept in memory in run-time.
+15) "Validate files" button execute all files selected validation against scheme (referenced inside the file itself with "$schema" tag). SchemaS used are downloaded from URL and saved to "\schemas\" directory with ".original" extension.
+16) It's possible to validate using local schema files as program tries to get it from "\schemas\" folder first (remove ".original" extension to use saved schema files).
 
 Tech. notes:
 Only the first file name for every unique field/example is saved to database (otherwise there'll be hundreds of files for some fields).
@@ -39,7 +40,8 @@ Russian
 12) Поиск упоминания поля и значения в родительском объекте запускается по правому клику на ячейку со значением в таблице.
 13) Высота колонок таблицы может быть поправлена до 70% от высоты таблицы кнопкой Readjust.
 14) Высота конкретной колонки может поправлена до 70% от высоты таблицы двойным кликом на заголовок столбца.
-15) Кнопка "Validate files" запускает проверку выбранных файлов на соответствие схеме (указана в самом файле с тегом "$schema"). Схемы берутся по указанному URL и хранятся в памяти до завершения программы.
+15) Кнопка "Validate files" запускает проверку выбранных файлов на соответствие схеме (указана в самом файле с тегом "$schema"). Схемы берутся по указанному URL и сохраняются на диск в каталог "\schemas\" с расширением ".original".
+16) Для валидации можно использовать локальные файлы схем - программа сначала пытается взять фалй схем из каталога "\schemas\" (можно убрать расширение ".original" с сохраненных файлов).
 
 Особенности работы:
 В базу пишется имя только первого файла для каждого уникального ключевого поля (иначе к некоторым полям будет по сотне и более файлов)

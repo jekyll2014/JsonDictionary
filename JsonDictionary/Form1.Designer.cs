@@ -131,8 +131,8 @@
             this.checkedListBox_params.HorizontalScrollbar = true;
             this.checkedListBox_params.Location = new System.Drawing.Point(0, 0);
             this.checkedListBox_params.Name = "checkedListBox_params";
-            this.checkedListBox_params.Size = new System.Drawing.Size(208, 574);
-            this.checkedListBox_params.TabIndex = 15;
+            this.checkedListBox_params.Size = new System.Drawing.Size(208, 562);
+            this.checkedListBox_params.TabIndex = 0;
             // 
             // button_saveDb
             // 
@@ -141,7 +141,7 @@
             this.button_saveDb.Location = new System.Drawing.Point(0, 671);
             this.button_saveDb.Name = "button_saveDb";
             this.button_saveDb.Size = new System.Drawing.Size(208, 23);
-            this.button_saveDb.TabIndex = 17;
+            this.button_saveDb.TabIndex = 4;
             this.button_saveDb.Text = "Save database";
             this.button_saveDb.UseVisualStyleBackColor = true;
             this.button_saveDb.Click += new System.EventHandler(this.Button_saveDb_Click);
@@ -153,7 +153,7 @@
             this.button_loadDb.Location = new System.Drawing.Point(0, 642);
             this.button_loadDb.Name = "button_loadDb";
             this.button_loadDb.Size = new System.Drawing.Size(208, 23);
-            this.button_loadDb.TabIndex = 16;
+            this.button_loadDb.TabIndex = 3;
             this.button_loadDb.Text = "Load database";
             this.button_loadDb.UseVisualStyleBackColor = true;
             this.button_loadDb.Click += new System.EventHandler(this.Button_loadDb_Click);
@@ -165,7 +165,7 @@
             this.button_validateFiles.Location = new System.Drawing.Point(0, 584);
             this.button_validateFiles.Name = "button_validateFiles";
             this.button_validateFiles.Size = new System.Drawing.Size(208, 23);
-            this.button_validateFiles.TabIndex = 0;
+            this.button_validateFiles.TabIndex = 1;
             this.button_validateFiles.Text = "Validate files";
             this.button_validateFiles.UseVisualStyleBackColor = true;
             this.button_validateFiles.Click += new System.EventHandler(this.Button_validateFiles_Click);
@@ -177,7 +177,7 @@
             this.button_collectDatabase.Location = new System.Drawing.Point(-1, 613);
             this.button_collectDatabase.Name = "button_collectDatabase";
             this.button_collectDatabase.Size = new System.Drawing.Size(208, 23);
-            this.button_collectDatabase.TabIndex = 0;
+            this.button_collectDatabase.TabIndex = 2;
             this.button_collectDatabase.Text = "Collect database";
             this.button_collectDatabase.UseVisualStyleBackColor = true;
             this.button_collectDatabase.Click += new System.EventHandler(this.Button_collectDatabase_Click);
@@ -192,7 +192,7 @@
             this.textBox_logText.ReadOnly = true;
             this.textBox_logText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox_logText.Size = new System.Drawing.Size(761, 694);
-            this.textBox_logText.TabIndex = 1;
+            this.textBox_logText.TabIndex = 0;
             // 
             // tabPage2
             // 
@@ -248,7 +248,7 @@
             this.button_reAdjust.Location = new System.Drawing.Point(571, 0);
             this.button_reAdjust.Name = "button_reAdjust";
             this.button_reAdjust.Size = new System.Drawing.Size(75, 23);
-            this.button_reAdjust.TabIndex = 12;
+            this.button_reAdjust.TabIndex = 4;
             this.button_reAdjust.Text = "Readjust";
             this.button_reAdjust.UseVisualStyleBackColor = true;
             this.button_reAdjust.Click += new System.EventHandler(this.Button_readjust_Click);
@@ -262,7 +262,7 @@
             this.comboBox_versions.Location = new System.Drawing.Point(0, 0);
             this.comboBox_versions.Name = "comboBox_versions";
             this.comboBox_versions.Size = new System.Drawing.Size(61, 21);
-            this.comboBox_versions.TabIndex = 11;
+            this.comboBox_versions.TabIndex = 0;
             this.comboBox_versions.SelectedIndexChanged += new System.EventHandler(this.ComboBox_versions_SelectedIndexChanged);
             // 
             // checkBox_seachCaseSensitive
@@ -272,7 +272,7 @@
             this.checkBox_seachCaseSensitive.Location = new System.Drawing.Point(471, 3);
             this.checkBox_seachCaseSensitive.Name = "checkBox_seachCaseSensitive";
             this.checkBox_seachCaseSensitive.Size = new System.Drawing.Size(94, 17);
-            this.checkBox_seachCaseSensitive.TabIndex = 10;
+            this.checkBox_seachCaseSensitive.TabIndex = 3;
             this.checkBox_seachCaseSensitive.Text = "Case sensitive";
             this.checkBox_seachCaseSensitive.UseVisualStyleBackColor = true;
             // 
@@ -284,7 +284,7 @@
             this.textBox_searchHistory.Name = "textBox_searchHistory";
             this.textBox_searchHistory.ReadOnly = true;
             this.textBox_searchHistory.Size = new System.Drawing.Size(646, 20);
-            this.textBox_searchHistory.TabIndex = 9;
+            this.textBox_searchHistory.TabIndex = 6;
             // 
             // textBox_searchString
             // 
@@ -293,7 +293,7 @@
             this.textBox_searchString.Location = new System.Drawing.Point(143, 0);
             this.textBox_searchString.Name = "textBox_searchString";
             this.textBox_searchString.Size = new System.Drawing.Size(322, 20);
-            this.textBox_searchString.TabIndex = 8;
+            this.textBox_searchString.TabIndex = 2;
             this.textBox_searchString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_searchString_KeyDown);
             // 
             // comboBox_condition
@@ -303,7 +303,7 @@
             this.comboBox_condition.Location = new System.Drawing.Point(67, 0);
             this.comboBox_condition.Name = "comboBox_condition";
             this.comboBox_condition.Size = new System.Drawing.Size(70, 21);
-            this.comboBox_condition.TabIndex = 7;
+            this.comboBox_condition.TabIndex = 1;
             // 
             // dataGridView_examples
             // 
@@ -334,7 +334,7 @@
             this.dataGridView_examples.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_examples.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGridView_examples.Size = new System.Drawing.Size(646, 646);
-            this.dataGridView_examples.TabIndex = 6;
+            this.dataGridView_examples.TabIndex = 5;
             this.dataGridView_examples.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_examples_CellContentDoubleClick);
             this.dataGridView_examples.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_examples_CellMouseDown);
             this.dataGridView_examples.RowHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_examples_RowHeaderMouseDoubleClick);
@@ -346,7 +346,7 @@
             this.progressBar1.Location = new System.Drawing.Point(0, 723);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(988, 23);
-            this.progressBar1.TabIndex = 2;
+            this.progressBar1.TabIndex = 1;
             // 
             // openFileDialog1
             // 
