@@ -480,7 +480,7 @@ namespace JsonDictionary
             }
             catch (Exception ex)
             {
-                textLog.AppendLine("\r\nFile read exception: [" + fullFileName + "]:\r\n" + ex.Message + "\r\n");
+                textLog.AppendLine("\r\nFile read exception: [" + fullFileName + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
                 return;
             }
 
@@ -528,7 +528,7 @@ namespace JsonDictionary
                 }
                 catch (Exception ex)
                 {
-                    textLog.AppendLine("\r\n" + fullFileName + "schema download exception: [" + schemaUrl + "]:\r\n" + ex.Message + "\r\n");
+                    textLog.AppendLine("\r\n" + fullFileName + "schema download exception: [" + schemaUrl + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
                     _schemaList.Add(schemaUrl, "");
                 }
             }
@@ -548,29 +548,40 @@ namespace JsonDictionary
             }
             catch (Exception ex)
             {
-                textLog.AppendLine("\r\nFile validation exception: [" + fullFileName + "]:\r\n" + ex.Message + "\r\n");
+                textLog.AppendLine("\r\nFile validation exception: [" + fullFileName + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
                 return;
             }
 
             foreach (var error in errors)
             {
-                if (!_suppressErrors.Contains(error.Path))
+                if (_suppressErrors.Contains(error.Path)) continue;
+                var errorItem = error.Path;
+                try
                 {
-                    var errorItem = error.Path;
-                    try
-                    {
-                        errorItem = ((ChildSchemaValidationError)error).Errors.Values.ToList().FirstOrDefault()?.ToList().FirstOrDefault()?.Path;
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
-
-                    if (string.IsNullOrEmpty(errorItem)) errorItem = error.Path;
-                    textLog.AppendLine(fullFileName + ": line #" + error.LineNumber + ", path=" + errorItem + ": " +
-                                       error.Kind);
+                    errorItem = ((ChildSchemaValidationError)error).Errors.Values.ToList().FirstOrDefault()?.ToList().FirstOrDefault()?.Path;
                 }
+                catch
+                {
+                    // ignored
+                }
+
+                if (string.IsNullOrEmpty(errorItem)) errorItem = error.Path;
+                textLog.AppendLine(fullFileName + ": line #" + error.LineNumber + ", path=" + errorItem + ": " +
+                                   error.Kind);
             }
+        }
+
+        private string ExceptionPrint(Exception ex)
+        {
+            var exceptionMessage = new StringBuilder();
+
+            exceptionMessage.AppendLine(ex.Message);
+            if (ex.InnerException != null)
+            {
+                exceptionMessage.AppendLine(ExceptionPrint(ex.InnerException));
+            }
+
+            return exceptionMessage.ToString();
         }
 
         private void DeserializeFile(string fullFileName, string shortFileName, TreeNode parentNode)
@@ -604,7 +615,7 @@ namespace JsonDictionary
             }
             catch (Exception ex)
             {
-                textLog.AppendLine("\r\nFile parse exception: " + _fileName + "]:\r\n" + ex.Message + "\r\n");
+                textLog.AppendLine("\r\nFile parse exception: " + _fileName + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
             }
         }
 
@@ -622,7 +633,7 @@ namespace JsonDictionary
             }
             catch (Exception ex)
             {
-                textLog.AppendLine("\r\nContent parse exception: " + _fileName + "]:\r\n" + ex.Message + "\r\n");
+                textLog.AppendLine("\r\nContent parse exception: " + _fileName + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
                 return;
             }
 
