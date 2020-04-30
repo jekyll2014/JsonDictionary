@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JsonDictionary.Properties;
+using ScintillaNET.Demo;
 
 namespace JsonDictionary
 {
@@ -85,28 +86,14 @@ namespace JsonDictionary
             {
                 _examplesTable.Columns.Add(_exampleGridColumnsNames[i]);
                 _examplesTable.Columns[i].ReadOnly = true;
+
+                var column = new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = _exampleGridColumnsNames[i],
+                    Name = _exampleGridColumnsNames[i]
+                };
+                dataGridView_examples.Columns.Add(column);
             }
-
-            var col0 = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = _exampleGridColumnsNames[0],
-                Name = _exampleGridColumnsNames[0]
-            };
-            dataGridView_examples.Columns.Add(col0);
-
-            var col1 = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = _exampleGridColumnsNames[1],
-                Name = _exampleGridColumnsNames[1]
-            };
-            dataGridView_examples.Columns.Add(col1);
-
-            var col2 = new DataGridViewLinkColumn
-            {
-                DataPropertyName = _exampleGridColumnsNames[2],
-                Name = _exampleGridColumnsNames[2]
-            };
-            dataGridView_examples.Columns.Add(col2);
 
             dataGridView_examples.DataError += delegate { };
 
@@ -306,31 +293,24 @@ namespace JsonDictionary
 
         private void DataGridView_examples_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (!_collectAllFileNames && e.ColumnIndex == 2)
+            var column = e.ColumnIndex;
+            if (!_collectAllFileNames && column == 2)
             {
-                var fileName = dataGridView_examples.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString();
-                try
+                var editor = new JsonViewerMainForm(dataGridView_examples.Rows[e.RowIndex].Cells[column].Value.ToString(), "");
+                editor.Show();
+
+                if (FindTextLines(editor.EditorText, dataGridView_examples.Rows[e.RowIndex].Cells[1].Value.ToString(), out var startLine, out var lineNum))
                 {
-                    var process = new Process
-                    {
-                        StartInfo =
-                    {
-                        FileName = fileName
-                    }
-                    };
-                    process.Start();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("File execution exception [" + fileName + "]: " + ex.Message);
+                    editor.SelectTextLines(startLine, lineNum);
                 }
             }
-            else if (e.ColumnIndex == 1)
+            else if (column == 1)
             {
-                var cell = dataGridView_examples.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                var cell = dataGridView_examples.Rows[e.RowIndex].Cells[column];
                 dataGridView_examples.CurrentCell = cell;
-                dataGridView_examples.CurrentCell.ReadOnly = false;
-                dataGridView_examples.BeginEdit(true);
+
+                var editor = new JsonViewerMainForm(dataGridView_examples.Rows[e.RowIndex].Cells[2].Value.ToString(), cell.Value.ToString());
+                editor.Show();
             }
         }
 
@@ -1062,6 +1042,35 @@ namespace JsonDictionary
             this.Refresh();
         }
 
+        private bool FindTextLines(string text, string sample, out int startLine, out int lineNum)
+        {
+            startLine = 0;
+            lineNum = 0;
+            var compactText = TrimJson(text, true);
+            var compactSample = TrimJson(sample, true);
+            var startIndex = compactText.IndexOf(compactSample, StringComparison.Ordinal);
+            if (startIndex < 0) return false;
+
+            startLine = CountLines(compactText, 0, startIndex);
+            lineNum = CountLines(compactText, startIndex, startIndex + compactSample.Length);
+
+            return true;
+        }
+
+        private int CountLines(string text, int startIndex, int endIndex)
+        {
+            var linesCount = 0;
+            for (; startIndex < endIndex; startIndex++)
+            {
+                if (text[startIndex] != '\r' && text[startIndex] != '\n') continue;
+
+                linesCount++;
+                if (text[startIndex] != text[startIndex + 1] && (text[startIndex + 1] == '\r' || text[startIndex + 1] == '\n')) startIndex++;
+            }
+
+            return linesCount;
+        }
+
         // possibly need rework
         private string JsonShiftBrackets(string original)
         {
@@ -1106,16 +1115,23 @@ namespace JsonDictionary
             return original;
         }
 
-        // simple version (2 times slower but no way to get exception), works with beautified samples
-        private string CompactJson_v1(string original)
+        private string TrimJson(string original, bool trimEol)
         {
             original = original.Trim();
+            if (trimEol)
+            {
+                original = original.Replace("\r\n", "\n");
+                original = original.Replace('\r', '\n');
+            }
+
             var i = original.IndexOf("\n ", StringComparison.Ordinal);
             while (i >= 0)
             {
                 original = original.Replace("\n ", "\n");
                 i = original.IndexOf("\n ", i, StringComparison.Ordinal);
             }
+
+            if (trimEol) return original;
 
             i = original.IndexOf("\r ", StringComparison.Ordinal);
             while (i >= 0)

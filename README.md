@@ -7,6 +7,10 @@ The tool collects database of the fields and values of the project .jsonc files 
 
 Read quick note inside for use tips.
 
+Created using 
+https://github.com/RicoSuter/NJsonSchema
+https://github.com/robinrodricks/ScintillaNET.Demo
+
 To do:
 
 1. Comfortable way to show multiple file names for each example cell
