@@ -45,6 +45,7 @@ namespace JsonDictionary
         private List<JsoncDictionary> _metaDictionary = new List<JsoncDictionary>();
         private Dictionary<string, string> _schemaList = new Dictionary<string, string>();
         private StringBuilder textLog = new StringBuilder();
+        private volatile bool _isDoubleClick;
 
         // last used values for UI processing optimization
         private TreeNode _lastSelectedNode;
@@ -115,6 +116,8 @@ namespace JsonDictionary
 
             dataGridView_examples.ContextMenuStrip = contextMenuStrip_findValue;
             treeView_json.ContextMenuStrip = contextMenuStrip_findField;
+
+
 
             _currentDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName);
         }
@@ -388,13 +391,27 @@ namespace JsonDictionary
 
         private void TreeView_json_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node == null) return;
+            if (e.Node == null || e.Node.Parent.Text == RootNodeName) return;
 
             ActivateUiControls(false);
             FillGrid(e.Node);
             dataGridView_examples.Invalidate();
             ActivateUiControls(true);
             _lastFilterValue = "";
+        }
+
+        private void TreeView_json_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter) return;
+
+            if (treeView_json.SelectedNode == null || treeView_json.SelectedNode.Parent.Text == RootNodeName) return;
+
+            ActivateUiControls(false);
+            FillGrid(treeView_json.SelectedNode);
+            dataGridView_examples.Invalidate();
+            ActivateUiControls(true);
+            _lastFilterValue = "";
+
         }
 
         private void FindValueToolStripMenuItem_Click(object sender, EventArgs e)
@@ -466,6 +483,29 @@ namespace JsonDictionary
             if (treeView_json.SelectedNode?.Parent?.Parent?.Parent == null || treeView_json.SelectedNode.Parent.Parent.Text == RootNodeName) FindFieldToolStripMenuItem.Enabled = false;
             else FindFieldToolStripMenuItem.Enabled = true;
         }
+
+        #region Prevent_treenode_collapse
+        private void TreeView_json_MouseDown(object sender, MouseEventArgs e)
+        {
+            _isDoubleClick = e.Clicks > 1;
+        }
+
+        private void TreeView_json_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+            if (!_isDoubleClick || e.Action != TreeViewAction.Expand) return;
+
+            _isDoubleClick = false;
+            e.Cancel = true;
+        }
+
+        private void TreeView_json_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
+        {
+            if (!_isDoubleClick || e.Action != TreeViewAction.Collapse) return;
+
+            _isDoubleClick = false;
+            e.Cancel = true;
+        }
+        #endregion
 
         #endregion
 
