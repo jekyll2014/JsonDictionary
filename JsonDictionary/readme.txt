@@ -8,9 +8,9 @@ Short manual:
 7) Version filter always reset grid content on new value applied. Be aware the string filters will be reset.
 8) To reset the filtering double-click on the tree item again to clear the search textbox and press Enter. Version filter set to "Any" does the same.
 9) Double click on grid cell text opens it for editing (to select/copy string needed). Changes won't be saved.
-10) File link in the grid cell can be opened with double-click.
+10) File showed the grid cell can be opened with double-click on it. Will be opened with example text selected if possible.
 11) Field search in the parent node can be executed by right clicking on the node tree.
-12) Field+value can also be executed with right clicking at the grid cell.
+12) Field+value search can also be executed with right click at the grid cell.
 13) Use Readjust button to adjust grid rows height (70% of grid control height) if needed (will be reset to auto-height on next grid refill).
 14) Single column height can be auto-adjusted with double-click on row header as well.
 15) "Validate files" button execute all files selected validation against scheme (referenced inside the file itself with "$schema" tag). SchemaS used are downloaded from URL and saved to "\schemas\" directory with ".original" extension.
@@ -35,7 +35,7 @@ Russian
 7) Фильтр по версии всегда пересоздает сщдержимое таблицы при изменении версии. Текстовые фильтры при этом сбрасываются.
 8) Для сброса фильтра можно очистить строку поиска или сделать двойной клик на элемент в дереве.
 9) Двойным кликом в гриде на примере можно открыть ячейку на редактирование чтобы, например, скопировать какие-то отдельные слова. Изменения не сохраняются.
-10) Двойным кликом на ссылке на файл в гриде можно открыть файл, в котором найден этот пример.
+10) Двойным кликом на имя файла в гриде можно открыть файл, в котором найден этот пример. Пример будет выделен, если это возможно.
 11) Поиск упоминания поля в родительском объекте запускается по правому клику на ноду в дереве.
 12) Поиск упоминания поля и значения в родительском объекте запускается по правому клику на ячейку со значением в таблице.
 13) Высота колонок таблицы может быть поправлена до 70% от высоты таблицы кнопкой Readjust.

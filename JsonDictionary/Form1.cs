@@ -16,7 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JsonDictionary.Properties;
-using ScintillaNET.Demo;
+using ScintillaNETviewer;
 
 namespace JsonDictionary
 {
