@@ -7,7 +7,8 @@ The tool collects database of the fields and values of the project .jsonc files 
 
 Read quick note inside for use tips.
 
-Created using 
+Created using
+
 https://github.com/RicoSuter/NJsonSchema
 
 https://github.com/robinrodricks/ScintillaNET.Demo
