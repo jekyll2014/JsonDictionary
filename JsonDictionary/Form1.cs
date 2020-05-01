@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using JsonDictionary.Properties;
+
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using NJsonSchema;
@@ -15,8 +17,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using JsonDictionary.Properties;
-using ScintillaNETviewer;
 
 namespace JsonDictionary
 {
@@ -33,7 +33,7 @@ namespace JsonDictionary
         private const float CellHeightAdjust = 0.7f;
 
         // experimental options
-        private readonly bool _reformatJson;
+        private static bool _reformatJson;
         private readonly bool _collectAllFileNames;
 
         // global variables
@@ -296,7 +296,7 @@ namespace JsonDictionary
             var column = e.ColumnIndex;
             if (!_collectAllFileNames && column == 2)
             {
-                var editor = new JsonViewerMainForm(dataGridView_examples.Rows[e.RowIndex].Cells[column].Value.ToString(), "");
+                var editor = new JsonViewer(dataGridView_examples.Rows[e.RowIndex].Cells[column].Value.ToString(), "");
                 editor.Show();
 
                 if (FindTextLines(editor.EditorText, dataGridView_examples.Rows[e.RowIndex].Cells[1].Value.ToString(), out var startLine, out var lineNum))
@@ -309,7 +309,7 @@ namespace JsonDictionary
                 var cell = dataGridView_examples.Rows[e.RowIndex].Cells[column];
                 dataGridView_examples.CurrentCell = cell;
 
-                var editor = new JsonViewerMainForm(dataGridView_examples.Rows[e.RowIndex].Cells[2].Value.ToString(), cell.Value.ToString());
+                var editor = new JsonViewer(dataGridView_examples.Rows[e.RowIndex].Cells[2].Value.ToString(), cell.Value.ToString());
                 editor.Show();
             }
         }
@@ -1072,7 +1072,7 @@ namespace JsonDictionary
         }
 
         // possibly need rework
-        private string JsonShiftBrackets(string original)
+        private static string JsonShiftBrackets(string original)
         {
             var searchTokens = new[] { ": {", ": [" };
             foreach (var token in searchTokens)
@@ -1156,7 +1156,7 @@ namespace JsonDictionary
             }
         }
 
-        private string BeautifyJson(string json)
+        public static string BeautifyJson(string json)
         {
             json = json.Trim();
             try
@@ -1169,7 +1169,7 @@ namespace JsonDictionary
             }
         }
 
-        private string ReformatJson(string json, Formatting formatting)
+        private static string ReformatJson(string json, Formatting formatting)
         {
             using (var stringReader = new StringReader(json))
             {
@@ -1181,7 +1181,7 @@ namespace JsonDictionary
             }
         }
 
-        private void ReformatJson(TextReader textReader, TextWriter textWriter, Formatting formatting)
+        private static void ReformatJson(TextReader textReader, TextWriter textWriter, Formatting formatting)
         {
             using (var jsonReader = new JsonTextReader(textReader))
             {
