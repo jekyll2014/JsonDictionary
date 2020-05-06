@@ -11,6 +11,37 @@ namespace JsonDictionary
 {
     public partial class JsonViewer : Form
     {
+        /// <summary>
+        /// the background color of the text area
+        /// </summary>
+        private readonly Color BACK_COLOR = Color.DarkCyan;
+
+        /// <summary>
+        /// default text color of the text area
+        /// </summary>
+        private readonly Color FORE_COLOR = Color.White;
+
+        /// <summary>
+        /// change this to whatever margin you want the line numbers to show in
+        /// </summary>
+        private const int NUMBER_MARGIN = 1;
+
+        /// <summary>
+        /// change this to whatever margin you want the bookmarks/breakpoints to show in
+        /// </summary>
+        private const int BOOKMARK_MARGIN = 2;
+        private const int BOOKMARK_MARKER = 2;
+
+        /// <summary>
+        /// change this to whatever margin you want the code folding tree (+/-) to show in
+        /// </summary>
+        private const int FOLDING_MARGIN = 3;
+
+        /// <summary>
+        /// set this true to show circular buttons for code folding (the [+] and [-] buttons on the margin)
+        /// </summary>
+        private const bool CODEFOLDING_CIRCULAR = true;
+
         public JsonViewer()
         {
             InitializeComponent();
@@ -79,12 +110,14 @@ namespace JsonDictionary
         {
             // register the hotkeys with the form
             HotKeyManager.AddHotKey(this, OpenSearch, Keys.F, true);
-            HotKeyManager.AddHotKey(this, Uppercase, Keys.U, true);
-            HotKeyManager.AddHotKey(this, Lowercase, Keys.L, true);
+            HotKeyManager.AddHotKey(this, Uppercase, Keys.Up, true);
+            HotKeyManager.AddHotKey(this, Lowercase, Keys.Down, true);
             HotKeyManager.AddHotKey(this, ZoomIn, Keys.Oemplus, true);
             HotKeyManager.AddHotKey(this, ZoomOut, Keys.OemMinus, true);
             HotKeyManager.AddHotKey(this, ZoomDefault, Keys.D0, true);
             HotKeyManager.AddHotKey(this, CloseSearch, Keys.Escape);
+            HotKeyManager.AddHotKey(this, CollapseAll, Keys.Left, true);
+            HotKeyManager.AddHotKey(this, ExpandAll, Keys.Right, true);
 
             // remove conflicting hotkeys from scintilla
             _textArea.ClearCmdKey(Keys.Control | Keys.F);
@@ -104,78 +137,25 @@ namespace JsonDictionary
             _textArea.Styles[Style.Default].ForeColor = FORE_COLOR;
             _textArea.StyleClearAll();
 
-            // Configure the CPP (C#) lexer styles
-            _textArea.Styles[Style.Json.Default].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.BlockComment].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.CompactIRI].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.Error].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.EscapeSequence].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.Keyword].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.LdKeyword].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.LineComment].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.Number].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.Operator].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.PropertyName].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.String].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.StringEol].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Json.Uri].ForeColor = IntToColor(0xD0DAE2);
-
-
-            _textArea.Styles[Style.Cpp.Identifier].ForeColor = IntToColor(0xD0DAE2);
-            _textArea.Styles[Style.Cpp.Comment].ForeColor = IntToColor(0xBD758B);
-            _textArea.Styles[Style.Cpp.CommentLine].ForeColor = IntToColor(0x40BF57);
-            _textArea.Styles[Style.Cpp.CommentDoc].ForeColor = IntToColor(0x2FAE35);
-            _textArea.Styles[Style.Cpp.Number].ForeColor = IntToColor(0xFFFF00);
-            _textArea.Styles[Style.Cpp.String].ForeColor = IntToColor(0xFFFF00);
-            _textArea.Styles[Style.Cpp.Character].ForeColor = IntToColor(0xE95454);
-            _textArea.Styles[Style.Cpp.Preprocessor].ForeColor = IntToColor(0x8AAFEE);
-            _textArea.Styles[Style.Cpp.Operator].ForeColor = IntToColor(0xE0E0E0);
-            _textArea.Styles[Style.Cpp.Regex].ForeColor = IntToColor(0xff00ff);
-            _textArea.Styles[Style.Cpp.CommentLineDoc].ForeColor = IntToColor(0x77A7DB);
-            _textArea.Styles[Style.Cpp.Word].ForeColor = IntToColor(0x48A8EE);
-            _textArea.Styles[Style.Cpp.Word2].ForeColor = IntToColor(0xF98906);
-            _textArea.Styles[Style.Cpp.CommentDocKeyword].ForeColor = IntToColor(0xB3D991);
-            _textArea.Styles[Style.Cpp.CommentDocKeywordError].ForeColor = IntToColor(0xFF0000);
-            _textArea.Styles[Style.Cpp.GlobalClass].ForeColor = IntToColor(0x48A8EE);
-
-
-
+            _textArea.Styles[Style.Json.Default].ForeColor = FORE_COLOR;
+            _textArea.Styles[Style.Json.BlockComment].ForeColor = Color.DarkGray;
+            _textArea.Styles[Style.Json.CompactIRI].ForeColor = Color.OrangeRed;
+            _textArea.Styles[Style.Json.Error].ForeColor = Color.DarkGray;
+            _textArea.Styles[Style.Json.EscapeSequence].ForeColor = Color.Orange;
+            _textArea.Styles[Style.Json.Keyword].ForeColor = Color.GreenYellow;
+            _textArea.Styles[Style.Json.LdKeyword].ForeColor = Color.DarkGreen;
+            _textArea.Styles[Style.Json.LineComment].ForeColor = Color.DarkGray;
+            _textArea.Styles[Style.Json.Number].ForeColor = Color.Aqua;
+            _textArea.Styles[Style.Json.Operator].ForeColor = Color.Magenta;
+            _textArea.Styles[Style.Json.PropertyName].ForeColor = Color.GreenYellow;
+            _textArea.Styles[Style.Json.String].ForeColor = Color.Yellow;
+            _textArea.Styles[Style.Json.StringEol].ForeColor = Color.White;
+            _textArea.Styles[Style.Json.Uri].ForeColor = Color.Blue;
 
             _textArea.Lexer = Lexer.Json;
         }
 
         #region Numbers, Bookmarks, Code Folding
-
-        /// <summary>
-        /// the background color of the text area
-        /// </summary>
-        private readonly Color BACK_COLOR = Color.SlateGray;
-
-        /// <summary>
-        /// default text color of the text area
-        /// </summary>
-        private readonly Color FORE_COLOR = Color.White;
-
-        /// <summary>
-        /// change this to whatever margin you want the line numbers to show in
-        /// </summary>
-        private const int NUMBER_MARGIN = 1;
-
-        /// <summary>
-        /// change this to whatever margin you want the bookmarks/breakpoints to show in
-        /// </summary>
-        private const int BOOKMARK_MARGIN = 2;
-        private const int BOOKMARK_MARKER = 2;
-
-        /// <summary>
-        /// change this to whatever margin you want the code folding tree (+/-) to show in
-        /// </summary>
-        private const int FOLDING_MARGIN = 3;
-
-        /// <summary>
-        /// set this true to show circular buttons for code folding (the [+] and [-] buttons on the margin)
-        /// </summary>
-        private const bool CODEFOLDING_CIRCULAR = true;
 
         private void InitNumberMargin()
         {
@@ -395,6 +375,16 @@ namespace JsonDictionary
         }
 
         private void ExpandAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _textArea.FoldAll(FoldAction.Expand);
+        }
+
+        private void CollapseAll()
+        {
+            _textArea.FoldAll(FoldAction.Contract);
+        }
+
+        private void ExpandAll()
         {
             _textArea.FoldAll(FoldAction.Expand);
         }

@@ -701,7 +701,6 @@ namespace JsonDictionary
                         if (!JsoncDictionary.NodeTypes.TryGetValue(token.GetType().Name, out var nodeType)) nodeType = JsoncNodeType.Unknown;
                         if (!string.IsNullOrEmpty(saveValue))
                         {
-                            saveValue = saveValue.Trim(new[] { '\r', '\n' }).Trim();
                             var node = new MetaNode(jProperty.Name, parent, nodeType, depth, saveValue, _fileName, _version);
                             var errorString = newItem?.Add(node);
                             if (!string.IsNullOrEmpty(errorString))
@@ -1183,7 +1182,7 @@ namespace JsonDictionary
                 }
             }
 
-            return result.ToString();
+            return result.ToString().Trim();
         }
 
         private static string[] ConvertTextToStringList(string data)
