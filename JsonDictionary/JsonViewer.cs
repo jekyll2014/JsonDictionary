@@ -149,7 +149,7 @@ namespace JsonDictionary
         /// <summary>
         /// the background color of the text area
         /// </summary>
-        private readonly Color BACK_COLOR = Color.Black;
+        private readonly Color BACK_COLOR = Color.SlateGray;
 
         /// <summary>
         /// default text color of the text area

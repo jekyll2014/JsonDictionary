@@ -500,7 +500,7 @@ namespace JsonDictionary
             }
             catch (Exception ex)
             {
-                textLog.AppendLine("\r\nFile read exception: [" + fullFileName + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
+                textLog.AppendLine(Environment.NewLine + "File read exception: [" + fullFileName + "]:" + Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
                 return;
             }
 
@@ -515,7 +515,7 @@ namespace JsonDictionary
 
             if (!schemaUrl.EndsWith(".json"))
             {
-                textLog.AppendLine("\r\n" + fullFileName + ": URL not found [" + schemaUrl + "]\r\n");
+                textLog.AppendLine(Environment.NewLine + fullFileName + ": URL not found [" + schemaUrl + "]" + Environment.NewLine);
                 return;
             }
 
@@ -548,7 +548,7 @@ namespace JsonDictionary
                 }
                 catch (Exception ex)
                 {
-                    textLog.AppendLine("\r\n" + fullFileName + "schema download exception: [" + schemaUrl + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
+                    textLog.AppendLine(Environment.NewLine + fullFileName + "schema download exception: [" + schemaUrl + "]:" + Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
                     _schemaList.Add(schemaUrl, "");
                 }
             }
@@ -556,7 +556,7 @@ namespace JsonDictionary
 
             if (string.IsNullOrEmpty(schemaText))
             {
-                textLog.AppendLine("\r\n" + fullFileName + " schema not loaded : [" + schemaUrl + "]:\r\n");
+                textLog.AppendLine(Environment.NewLine + fullFileName + " schema not loaded : [" + schemaUrl + "]:" + Environment.NewLine);
                 return;
             }
 
@@ -568,7 +568,7 @@ namespace JsonDictionary
             }
             catch (Exception ex)
             {
-                textLog.AppendLine("\r\nFile validation exception: [" + fullFileName + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
+                textLog.AppendLine(Environment.NewLine + "File validation exception: [" + fullFileName + "]:" + Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
                 return;
             }
 
@@ -635,7 +635,7 @@ namespace JsonDictionary
             }
             catch (Exception ex)
             {
-                textLog.AppendLine("\r\nFile parse exception: " + _fileName + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
+                textLog.AppendLine(Environment.NewLine + "File parse exception: " + _fileName + "]:" + Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
             }
         }
 
@@ -647,13 +647,13 @@ namespace JsonDictionary
                 var obj = _metaDictionary.Where(n => n.Type == _fileType).ToArray();
                 if (obj.Count() > 1)
                 {
-                    textLog.AppendLine("\r\nMore than 1 similar file types found on parse\r\n");
+                    textLog.AppendLine(Environment.NewLine + "More than 1 similar file types found on parse" + Environment.NewLine);
                 }
                 newItem = obj.FirstOrDefault();
             }
             catch (Exception ex)
             {
-                textLog.AppendLine("\r\nContent parse exception: " + _fileName + "]:\r\n" + ExceptionPrint(ex) + "\r\n");
+                textLog.AppendLine(Environment.NewLine + "Content parse exception: " + _fileName + "]:" + Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
                 return;
             }
 
@@ -679,7 +679,7 @@ namespace JsonDictionary
 
                         if (obj.Count() > 1)
                         {
-                            textLog.AppendLine("\r\nMore than 1 similar object found in the tree:\r\n" + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next) + "\r\n");
+                            textLog.AppendLine(Environment.NewLine + "More than 1 similar object found in the tree:" + Environment.NewLine + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next) + Environment.NewLine);
                         }
                         var exNode = obj.FirstOrDefault();
 
@@ -701,11 +701,12 @@ namespace JsonDictionary
                         if (!JsoncDictionary.NodeTypes.TryGetValue(token.GetType().Name, out var nodeType)) nodeType = JsoncNodeType.Unknown;
                         if (!string.IsNullOrEmpty(saveValue))
                         {
+                            saveValue = saveValue.Trim(new[] { '\r', '\n' }).Trim();
                             var node = new MetaNode(jProperty.Name, parent, nodeType, depth, saveValue, _fileName, _version);
                             var errorString = newItem?.Add(node);
                             if (!string.IsNullOrEmpty(errorString))
                             {
-                                textLog.AppendLine("\r\nNode add error: " + _fileName + "]:\r\n Node [" + jProperty.Name + "] " + errorString + "\r\n");
+                                textLog.AppendLine(Environment.NewLine + "Node add error: " + _fileName + "]:" + Environment.NewLine + " Node [" + jProperty.Name + "] " + errorString + Environment.NewLine);
                             }
                         }
 
@@ -778,7 +779,7 @@ namespace JsonDictionary
 
             if (obj.Count() > 1)
             {
-                textLog.AppendLine("\r\nMore than 1 similar file types found on example print-out:\r\n" + obj.Select(n => n.Nodes).Aggregate("", (current, next) => current + ", " + next) + "\r\n");
+                textLog.AppendLine(Environment.NewLine + "More than 1 similar file types found on example print-out:" + Environment.NewLine + obj.Select(n => n.Nodes).Aggregate("", (current, next) => current + ", " + next) + Environment.NewLine);
             }
             var element = obj.FirstOrDefault();
 
@@ -1103,7 +1104,7 @@ namespace JsonDictionary
 
                         if (!(original[j] == '/' && original[j + 1] == '/')) // if it's a comment
                         {
-                            original = original.Insert(i + 2, "\r\n" + new string(' ', trail));
+                            original = original.Insert(i + 2, Environment.NewLine + new string(' ', trail));
                         }
                         currentPos = i + 3;
                     }
@@ -1113,6 +1114,101 @@ namespace JsonDictionary
             }
 
             return original;
+        }
+
+        // possibly need rework
+        private static string JsonShiftBrackets_v2(string original)
+        {
+            var searchTokens = new[] { ": {", ": [" };
+            foreach (var token in searchTokens)
+            {
+                var i = original.IndexOf(token, StringComparison.Ordinal);
+                while (i >= 0)
+                {
+                    var currentPos = 0;
+                    if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n') // not a single bracket
+                    {
+                        currentPos = i + 3;
+                    }
+                    else // need to shift bracket down the line
+                    {
+                        var j = i - 1;
+                        var trail = 0;
+
+                        if (j >= 0)
+                        {
+                            while (original[j] != '\n' && original[j] != '\r' && j >= 0)
+                            {
+                                if (original[j] == ' ') trail++;
+                                else trail = 0;
+                                j--;
+                            }
+                        }
+                        if (j < 0) j = 0;
+
+                        if (!(original[j] == '/' && original[j + 1] == '/')) // if it's a comment
+                        {
+                            original = original.Insert(i + 2, Environment.NewLine + new string(' ', trail));
+                        }
+                        currentPos = i + 3;
+                    }
+
+                    i = original.IndexOf(token, currentPos, StringComparison.Ordinal);
+                }
+            }
+
+            var stringList = ConvertTextToStringList(original);
+
+            const char prefixItem = ' ';
+            const int prefixStep = 2;
+            var openBrackets = new[] { '{', '[' };
+            var closeBrackets = new[] { '}', ']' };
+
+            var prefixLength = 0;
+            var prefix = "";
+            var result = new StringBuilder();
+            for (var i = 0; i < stringList.Count(); i++)
+            {
+                stringList[i] = stringList[i].Trim();
+                if (closeBrackets.Contains(stringList[i][0]))
+                {
+                    prefixLength -= prefixStep;
+                    prefix = new string(prefixItem, prefixLength);
+                }
+                result.AppendLine(prefix + stringList[i]);
+                if (openBrackets.Contains(stringList[i][0]))
+                {
+                    prefixLength += prefixStep;
+                    prefix = new string(prefixItem, prefixLength);
+                }
+            }
+
+            return result.ToString();
+        }
+
+        private static string[] ConvertTextToStringList(string data)
+        {
+            var lineDivider = new List<char>() { '\x0d', '\x0a' };
+            var stringCollection = new List<string>();
+            var unparsedData = "";
+            foreach (var t in data)
+            {
+                if (lineDivider.Contains(t))
+                {
+                    if (unparsedData.Length > 0)
+                    {
+                        stringCollection.Add(unparsedData);
+                        unparsedData = "";
+                    }
+                }
+                else
+                {
+                    unparsedData += t;
+                }
+            }
+
+            if (unparsedData.Length > 0) stringCollection.Add(unparsedData);
+            return stringCollection.ToArray();
         }
 
         private string TrimJson(string original, bool trimEol)
@@ -1161,12 +1257,12 @@ namespace JsonDictionary
             json = json.Trim();
             try
             {
-                return _reformatJson ? JsonShiftBrackets(ReformatJson(json, Formatting.Indented)) : ReformatJson(json, Formatting.Indented);
+                json = ReformatJson(json, Formatting.Indented);
             }
             catch
             {
-                return json;
             }
+            return _reformatJson ? JsonShiftBrackets_v2(json) : json;
         }
 
         private static string ReformatJson(string json, Formatting formatting)

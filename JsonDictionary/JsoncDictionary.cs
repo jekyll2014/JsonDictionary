@@ -127,7 +127,7 @@ namespace JsonDictionary
                     if (!examples.ContainsKey(newExample.Key)) examples.Add(newExample.Key, newExample.Value);
                     else if (CollectAllFileNames)
                     {
-                        examples[newExample.Key] += "\r\n" + newExample.Value;
+                        examples[newExample.Key] += Environment.NewLine + newExample.Value;
                     }
                 }
             }
