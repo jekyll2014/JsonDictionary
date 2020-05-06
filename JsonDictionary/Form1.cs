@@ -613,17 +613,17 @@ namespace JsonDictionary
                 _fileName = fullFileName;
                 if (!JsoncDictionary.FileNames.TryGetValue(shortFileName, out _fileType)) return;
 
-                TreeNode childNode;
+                TreeNode fileNode;
 
                 if (_metaDictionary.Any(n => n.Type == _fileType))
                 {
-                    childNode = _rootNode.Nodes[_rootNode.Nodes.Count - 1];
+                    fileNode = _rootNode.Nodes[_rootNode.Nodes.Count - 1];
                 }
                 else
                 {
                     _metaDictionary.Add(new JsoncDictionary(_fileType, _collectAllFileNames));
-                    childNode = new TreeNode(shortFileName);
-                    parentNode.Nodes.Add(childNode);
+                    fileNode = new TreeNode(shortFileName);
+                    parentNode.Nodes.Add(fileNode);
                 }
 
                 var jsonSettings = new JsonSerializerSettings()
@@ -631,7 +631,7 @@ namespace JsonDictionary
                     Formatting = Formatting.None,
                 };
                 dynamic jsonObject = JsonConvert.DeserializeObject(jsonStr, jsonSettings);
-                if (jsonObject != null) ParseJsonObject(jsonObject, 0, shortFileName, childNode);
+                if (jsonObject != null) ParseJsonObject(jsonObject, 0, shortFileName, fileNode);
             }
             catch (Exception ex)
             {
