@@ -139,10 +139,10 @@ namespace JsonDictionary
 
             _textArea.Styles[Style.Json.Default].ForeColor = FORE_COLOR;
             _textArea.Styles[Style.Json.BlockComment].ForeColor = Color.DarkGray;
-            _textArea.Styles[Style.Json.CompactIRI].ForeColor = Color.OrangeRed;
-            _textArea.Styles[Style.Json.Error].ForeColor = Color.DarkGray;
+            _textArea.Styles[Style.Json.CompactIRI].ForeColor = Color.White;
+            _textArea.Styles[Style.Json.Error].ForeColor = Color.OrangeRed;
             _textArea.Styles[Style.Json.EscapeSequence].ForeColor = Color.Orange;
-            _textArea.Styles[Style.Json.Keyword].ForeColor = Color.GreenYellow;
+            _textArea.Styles[Style.Json.Keyword].ForeColor = Color.White;
             _textArea.Styles[Style.Json.LdKeyword].ForeColor = Color.DarkGreen;
             _textArea.Styles[Style.Json.LineComment].ForeColor = Color.DarkGray;
             _textArea.Styles[Style.Json.Number].ForeColor = Color.Aqua;
