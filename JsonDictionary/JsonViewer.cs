@@ -274,7 +274,7 @@ namespace JsonDictionary
             if (!File.Exists(path)) return;
 
             this.Text += path;
-            _textArea.Text = File.ReadAllText(path);
+            _textArea.Text = JsonDictionary.Form1.BeautifyJson(File.ReadAllText(path));
         }
 
         public void SelectTextLines(int lineStart, int lineNum)
