@@ -109,6 +109,7 @@
             this.BtnCloseSearch.TabIndex = 12;
             this.BtnCloseSearch.Tag = "Close (Esc)";
             this.BtnCloseSearch.UseVisualStyleBackColor = true;
+            this.BtnCloseSearch.Click += new System.EventHandler(this.BtnCloseSearch_Click);
             // 
             // BtnNextSearch
             // 
@@ -123,6 +124,7 @@
             this.BtnNextSearch.TabIndex = 11;
             this.BtnNextSearch.Tag = "Find next (Enter)";
             this.BtnNextSearch.UseVisualStyleBackColor = true;
+            this.BtnNextSearch.Click += new System.EventHandler(this.BtnNextSearch_Click);
             // 
             // BtnPrevSearch
             // 
@@ -137,6 +139,7 @@
             this.BtnPrevSearch.TabIndex = 10;
             this.BtnPrevSearch.Tag = "Find previous (Shift+Enter)";
             this.BtnPrevSearch.UseVisualStyleBackColor = true;
+            this.BtnPrevSearch.Click += new System.EventHandler(this.BtnPrevSearch_Click);
             // 
             // TxtSearch
             // 

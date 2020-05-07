@@ -371,12 +371,12 @@ namespace JsonDictionary
 
         private void CollapseAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _textArea.FoldAll(FoldAction.Contract);
+            CollapseAll();
         }
 
         private void ExpandAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _textArea.FoldAll(FoldAction.Expand);
+            ExpandAll();
         }
 
         private void CollapseAll()
@@ -508,7 +508,7 @@ namespace JsonDictionary
             });
         }
 
-        private void BtnClearSearch_Click(object sender, EventArgs e)
+        private void BtnCloseSearch_Click(object sender, EventArgs e)
         {
             CloseSearch();
         }
@@ -543,11 +543,6 @@ namespace JsonDictionary
         #endregion
 
         #region Utils
-
-        private static Color IntToColor(int rgb)
-        {
-            return Color.FromArgb(255, (byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb);
-        }
 
         private void InvokeIfNeeded(Action action)
         {

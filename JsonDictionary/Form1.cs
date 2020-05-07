@@ -564,30 +564,40 @@ namespace JsonDictionary
             try
             {
                 var schema = JsonSchema.FromJsonAsync(schemaText).Result;
-                errors = schema.Validate(jsonText);
+
+                try
+                {
+                    errors = schema.Validate(jsonText);
+                }
+                catch (Exception ex)
+                {
+                    textLog.AppendLine(Environment.NewLine + "File validation exception: [" + fullFileName + "]:" + Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
+                    return;
+                }
             }
             catch (Exception ex)
             {
-                textLog.AppendLine(Environment.NewLine + "File validation exception: [" + fullFileName + "]:" + Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
+                textLog.AppendLine(Environment.NewLine + "Schema parse exception: [" + schemaUrl + "]:" + Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
                 return;
             }
+
 
             foreach (var error in errors)
             {
                 if (_suppressErrors.Contains(error.Path)) continue;
-                var errorItem = error.Path;
-                try
-                {
-                    errorItem = ((ChildSchemaValidationError)error).Errors.Values.ToList().FirstOrDefault()?.ToList().FirstOrDefault()?.Path;
-                }
-                catch
-                {
-                    // ignored
-                }
 
-                if (string.IsNullOrEmpty(errorItem)) errorItem = error.Path;
-                textLog.AppendLine(fullFileName + ": line #" + error.LineNumber + ", path=" + errorItem + ": " +
-                                   error.Kind);
+                textLog.AppendLine(fullFileName + ": line #" + error.LineNumber + " " + error.Kind + ", path=" + error.Path);
+
+                if (error is ChildSchemaValidationError subErrorCollection)
+                {
+                    foreach (var subError in subErrorCollection.Errors)
+                    {
+                        foreach (var subErrorItem in subError.Value)
+                        {
+                            textLog.AppendLine("\t" + "- line #" + subErrorItem.LineNumber + " " + subErrorItem.Kind + ", path=" + subErrorItem.Path);
+                        }
+                    }
+                }
             }
         }
 
@@ -1174,11 +1184,18 @@ namespace JsonDictionary
                     prefixLength -= prefixStep;
                     prefix = new string(prefixItem, prefixLength);
                 }
+
                 result.AppendLine(prefix + stringList[i]);
+
                 if (openBrackets.Contains(stringList[i][0]))
                 {
                     prefixLength += prefixStep;
                     prefix = new string(prefixItem, prefixLength);
+                    if (stringList[i].Length > 1 && closeBrackets.Contains(stringList[i][stringList[i].Length - 1]))
+                    {
+                        prefixLength -= prefixStep;
+                        prefix = new string(prefixItem, prefixLength);
+                    }
                 }
             }
 
