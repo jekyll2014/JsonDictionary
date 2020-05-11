@@ -15,6 +15,7 @@ Short manual:
 14) Single column height can be auto-adjusted with double-click on row header as well.
 15) "Validate files" button execute all files selected validation against scheme (referenced inside the file itself with "$schema" tag). SchemaS used are downloaded from URL and saved to "\schemas\" directory with ".original" extension.
 16) It's possible to validate using local schema files as program tries to get it from "\schemas\" folder first (remove ".original" extension to use saved schema files).
+17) Due to a schema file could be outdated I consider some errors as usual/non critical and only save them in a log file "hiddenErrors.log" in a program folder. Namely: "ArrayItemNotValid", "PropertyRequired", "NoAdditionalPropertiesAllowed". Because the are lots of them when using current schema files...
 
 Tech. notes:
 Only the first file name for every unique field/example is saved to database (otherwise there'll be hundreds of files for some fields).
@@ -42,13 +43,14 @@ Russian
 14) Высота конкретной колонки может поправлена до 70% от высоты таблицы двойным кликом на заголовок столбца.
 15) Кнопка "Validate files" запускает проверку выбранных файлов на соответствие схеме (указана в самом файле с тегом "$schema"). Схемы берутся по указанному URL и сохраняются на диск в каталог "\schemas\" с расширением ".original".
 16) Для валидации можно использовать локальные файлы схем - программа сначала пытается взять фалй схем из каталога "\schemas\" (можно убрать расширение ".original" с сохраненных файлов).
+17) Так как файлы схем бывают несоответствующими текущему API, я считаю некоторые ошибки некритичными и сохраняю их в файл "hiddenErrors.log" в текущем каталоге программы. А именно: "ArrayItemNotValid", "PropertyRequired", "NoAdditionalPropertiesAllowed". Потому что их очень много при использовании текущих схем...
+
 
 Особенности работы:
 В базу пишется имя только первого файла для каждого уникального ключевого поля (иначе к некоторым полям будет по сотне и более файлов)
 На время всех длительных операций все критичные контролы на UI дезактивируются.
 Предусмотрена возможность переформатировать json-выражения для выставления верхних/нижних скобок на один уровень в отдельную строку (по-умолчанию верхние скобки остаются на строке объекта). Срабатывает при создании базы. Включается настройкой "ReformatJson" в JsonDictionary.exe.config .
 Предусмотрена возможность сохранять все имена фалов для каждого поля. Срабатывает при создании базы. Включается настройкой "CollectAllFileNames" в JsonDictionary.exe.config .
-Некоторые незначительные(?) ошибки валидации не выводятся - возможно, они вызваны устаревшей версией описания схем в библиотеке NJsonSchema.
 
 ----
 andrey.kalugin@epicor.com
