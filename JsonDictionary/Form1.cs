@@ -26,11 +26,12 @@ namespace JsonDictionary
         private readonly string[] _exampleGridColumnsNames = { "Version", "Example", "File Name" };
         private const string DefaultVersionCaption = "Any";
         private const string VersionTagName = "contentVersion";
-        private readonly string[] _suppressErrors = { "#/imports[0]" };
+        private readonly ValidationErrorKind[] _suppressErrors = { ValidationErrorKind.ArrayItemNotValid, ValidationErrorKind.PropertyRequired, ValidationErrorKind.NoAdditionalPropertiesAllowed };
         private const string SchemaTag = "\"$schema\": \"";
         private const string RootNodeName = "root";
         private const int MinProgressDisplay = 5;
         private const float CellHeightAdjust = 0.7f;
+        private const string LogFileName = "hiddenerrors.log";
 
         // experimental options
         private static bool _reformatJson;
@@ -99,6 +100,9 @@ namespace JsonDictionary
 
             comboBox_versions?.Items.Clear();
             comboBox_versions?.Items.Add(DefaultVersionCaption);
+            comboBox_versions.SelectedIndexChanged -= this.ComboBox_versions_SelectedIndexChanged;
+            comboBox_versions.SelectedIndex = 0;
+            comboBox_versions.SelectedIndexChanged += this.ComboBox_versions_SelectedIndexChanged;
             _lastSelectedVersion = DefaultVersionCaption;
 
             dataGridView_examples.ContextMenuStrip = contextMenuStrip_findValue;
@@ -326,7 +330,7 @@ namespace JsonDictionary
             ActivateUiControls(false);
             dataGridView_examples.DataSource = null;
 
-            FilterExamples(condition, searchString, comboBox_versions.SelectedItem.ToString(), caseSensitive);
+            FilterExamples(condition, searchString, comboBox_versions.SelectedItem?.ToString(), caseSensitive);
             dataGridView_examples.DataSource = _examplesTable;
             ActivateUiControls(true);
             e.SuppressKeyPress = true;
@@ -584,21 +588,35 @@ namespace JsonDictionary
 
             foreach (var error in errors)
             {
-                if (_suppressErrors.Contains(error.Path)) continue;
-
-                textLog.AppendLine(fullFileName + ": line #" + error.LineNumber + " " + error.Kind + ", path=" + error.Path);
-
-                if (error is ChildSchemaValidationError subErrorCollection)
+                var errorText = PrintError(fullFileName, error);
+                if (_suppressErrors.Contains(error.Kind))
                 {
-                    foreach (var subError in subErrorCollection.Errors)
+                    File.AppendAllText(LogFileName, errorText);
+                }
+                else
+                {
+                    textLog.Append(errorText);
+                }
+            }
+        }
+
+        private string PrintError(string fullFileName, ValidationError error)
+        {
+            var errorText = new StringBuilder();
+            errorText.AppendLine(fullFileName + ": line #" + error.LineNumber + " " + error.Kind + ", path=" + error.Path);
+
+            if (error is ChildSchemaValidationError subErrorCollection)
+            {
+                foreach (var subError in subErrorCollection.Errors)
+                {
+                    foreach (var subErrorItem in subError.Value)
                     {
-                        foreach (var subErrorItem in subError.Value)
-                        {
-                            textLog.AppendLine("\t" + "- line #" + subErrorItem.LineNumber + " " + subErrorItem.Kind + ", path=" + subErrorItem.Path);
-                        }
+                        errorText.AppendLine("\t" + "- line #" + subErrorItem.LineNumber + " " + subErrorItem.Kind + ", path=" + subErrorItem.Path);
                     }
                 }
             }
+
+            return errorText.ToString();
         }
 
         private string ExceptionPrint(Exception ex)
