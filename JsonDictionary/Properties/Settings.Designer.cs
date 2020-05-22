@@ -58,5 +58,17 @@ namespace JsonDictionary.Properties {
                 this["ReformatJson"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IgnoreHttpsError {
+            get {
+                return ((bool)(this["IgnoreHttpsError"]));
+            }
+            set {
+                this["IgnoreHttpsError"] = value;
+            }
+        }
     }
 }
