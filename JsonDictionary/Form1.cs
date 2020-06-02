@@ -874,7 +874,7 @@ namespace JsonDictionary
 
                     var currentFileNode = parentNode.Nodes.Find(_fileName, true);
 
-                    if (currentFileNode == null || currentFileNode?.Count() <= 0)
+                    if (currentFileNode == null || currentFileNode.Count() <= 0)
                     {
                         var fileNode = new TreeNode(_fileName)
                         {
