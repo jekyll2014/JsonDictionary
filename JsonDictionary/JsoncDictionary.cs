@@ -41,12 +41,12 @@ namespace JsonDictionary
 
         public MetaNode(string name, string parentName, JsoncNodeType type, int depth, string example, string fileName, string version)
         {
-            this.Name = name;
-            this.ParentName = parentName;
-            this.Type = type;
-            this.Depth = depth;
-            this.Version = version;
-            this.ExamplesList = new Dictionary<string, string>() { { example, fileName } };
+            Name = name;
+            ParentName = parentName;
+            Type = type;
+            Depth = depth;
+            Version = version;
+            ExamplesList = new Dictionary<string, string>() { { example, fileName } };
         }
     }
 
@@ -83,8 +83,8 @@ namespace JsonDictionary
 
         public JsoncDictionary(JsoncContentType type, bool collectAllFileNames = false)
         {
-            this.CollectAllFileNames = collectAllFileNames;
-            this.Type = type;
+            CollectAllFileNames = collectAllFileNames;
+            Type = type;
             Nodes = new List<MetaNode>();
         }
 

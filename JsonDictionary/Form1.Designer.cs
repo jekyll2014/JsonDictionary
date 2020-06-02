@@ -29,10 +29,12 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage_DataCollection = new System.Windows.Forms.TabPage();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.checkedListBox_params = new System.Windows.Forms.CheckedListBox();
             this.button_saveDb = new System.Windows.Forms.Button();
@@ -40,7 +42,7 @@
             this.button_validateFiles = new System.Windows.Forms.Button();
             this.button_collectDatabase = new System.Windows.Forms.Button();
             this.textBox_logText = new System.Windows.Forms.TextBox();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabPage_SamplesTree = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView_json = new System.Windows.Forms.TreeView();
             this.button_reAdjust = new System.Windows.Forms.Button();
@@ -58,13 +60,23 @@
             this.FindAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip_findField = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.FindFieldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tabPage_Keywords = new System.Windows.Forms.TabPage();
+            this.dataGridView_properties = new System.Windows.Forms.DataGridView();
+            this.treeView_properties = new System.Windows.Forms.TreeView();
+            this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.button_p_reAdjust = new System.Windows.Forms.Button();
+            this.comboBox_p_versions = new System.Windows.Forms.ComboBox();
+            this.checkBox_p_seachCaseSensitive = new System.Windows.Forms.CheckBox();
+            this.textBox_p_searchHistory = new System.Windows.Forms.TextBox();
+            this.textBox_p_searchString = new System.Windows.Forms.TextBox();
+            this.comboBox_p_condition = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
+            this.tabPage_DataCollection.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            this.tabPage_SamplesTree.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -72,6 +84,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_examples)).BeginInit();
             this.contextMenuStrip_findValue.SuspendLayout();
             this.contextMenuStrip_findField.SuspendLayout();
+            this.tabPage_Keywords.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView_properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
+            this.splitContainer3.Panel1.SuspendLayout();
+            this.splitContainer3.Panel2.SuspendLayout();
+            this.splitContainer3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -79,24 +97,25 @@
             this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage_DataCollection);
+            this.tabControl1.Controls.Add(this.tabPage_SamplesTree);
+            this.tabControl1.Controls.Add(this.tabPage_Keywords);
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(988, 726);
             this.tabControl1.TabIndex = 0;
             // 
-            // tabPage1
+            // tabPage_DataCollection
             // 
-            this.tabPage1.Controls.Add(this.splitContainer2);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(980, 700);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Data collection";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.tabPage_DataCollection.Controls.Add(this.splitContainer2);
+            this.tabPage_DataCollection.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_DataCollection.Name = "tabPage_DataCollection";
+            this.tabPage_DataCollection.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage_DataCollection.Size = new System.Drawing.Size(980, 700);
+            this.tabPage_DataCollection.TabIndex = 0;
+            this.tabPage_DataCollection.Text = "Data collection";
+            this.tabPage_DataCollection.UseVisualStyleBackColor = true;
             // 
             // splitContainer2
             // 
@@ -194,16 +213,16 @@
             this.textBox_logText.Size = new System.Drawing.Size(761, 694);
             this.textBox_logText.TabIndex = 0;
             // 
-            // tabPage2
+            // tabPage_SamplesTree
             // 
-            this.tabPage2.Controls.Add(this.splitContainer1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(980, 700);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Samples tree";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabPage_SamplesTree.Controls.Add(this.splitContainer1);
+            this.tabPage_SamplesTree.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_SamplesTree.Name = "tabPage_SamplesTree";
+            this.tabPage_SamplesTree.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage_SamplesTree.Size = new System.Drawing.Size(980, 700);
+            this.tabPage_SamplesTree.TabIndex = 1;
+            this.tabPage_SamplesTree.Text = "Samples tree";
+            this.tabPage_SamplesTree.UseVisualStyleBackColor = true;
             // 
             // splitContainer1
             // 
@@ -319,21 +338,21 @@
             this.dataGridView_examples.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_examples.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_examples.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle5;
             this.dataGridView_examples.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_examples.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_examples.Name = "dataGridView_examples";
             this.dataGridView_examples.RowHeadersWidth = 20;
-            dataGridViewCellStyle8.NullValue = "Adjust";
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle6.NullValue = "Adjust";
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dataGridView_examples.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_examples.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_examples.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
@@ -398,6 +417,142 @@
             this.FindFieldToolStripMenuItem.Text = "Find field in parent";
             this.FindFieldToolStripMenuItem.Click += new System.EventHandler(this.FindFieldToolStripMenuItem_Click);
             // 
+            // tabPage_Keywords
+            // 
+            this.tabPage_Keywords.Controls.Add(this.splitContainer3);
+            this.tabPage_Keywords.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_Keywords.Name = "tabPage_Keywords";
+            this.tabPage_Keywords.Size = new System.Drawing.Size(980, 700);
+            this.tabPage_Keywords.TabIndex = 2;
+            this.tabPage_Keywords.Text = "Keywords";
+            this.tabPage_Keywords.UseVisualStyleBackColor = true;
+            // 
+            // dataGridView_properties
+            // 
+            this.dataGridView_properties.AllowUserToAddRows = false;
+            this.dataGridView_properties.AllowUserToDeleteRows = false;
+            this.dataGridView_properties.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView_properties.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            this.dataGridView_properties.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
+            this.dataGridView_properties.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_properties.DefaultCellStyle = dataGridViewCellStyle7;
+            this.dataGridView_properties.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.dataGridView_properties.Location = new System.Drawing.Point(0, 26);
+            this.dataGridView_properties.Name = "dataGridView_properties";
+            this.dataGridView_properties.RowHeadersWidth = 20;
+            dataGridViewCellStyle8.NullValue = "Adjust";
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_properties.RowsDefaultCellStyle = dataGridViewCellStyle8;
+            this.dataGridView_properties.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
+            this.dataGridView_properties.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_properties.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.dataGridView_properties.Size = new System.Drawing.Size(651, 652);
+            this.dataGridView_properties.TabIndex = 5;
+            // 
+            // treeView_properties
+            // 
+            this.treeView_properties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeView_properties.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.treeView_properties.HideSelection = false;
+            this.treeView_properties.Location = new System.Drawing.Point(0, 0);
+            this.treeView_properties.Name = "treeView_properties";
+            this.treeView_properties.Size = new System.Drawing.Size(325, 700);
+            this.treeView_properties.TabIndex = 0;
+            // 
+            // splitContainer3
+            // 
+            this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer3.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer3.Name = "splitContainer3";
+            // 
+            // splitContainer3.Panel1
+            // 
+            this.splitContainer3.Panel1.Controls.Add(this.treeView_properties);
+            this.splitContainer3.Panel1MinSize = 100;
+            // 
+            // splitContainer3.Panel2
+            // 
+            this.splitContainer3.Panel2.Controls.Add(this.button_p_reAdjust);
+            this.splitContainer3.Panel2.Controls.Add(this.comboBox_p_versions);
+            this.splitContainer3.Panel2.Controls.Add(this.checkBox_p_seachCaseSensitive);
+            this.splitContainer3.Panel2.Controls.Add(this.textBox_p_searchHistory);
+            this.splitContainer3.Panel2.Controls.Add(this.textBox_p_searchString);
+            this.splitContainer3.Panel2.Controls.Add(this.comboBox_p_condition);
+            this.splitContainer3.Panel2.Controls.Add(this.dataGridView_properties);
+            this.splitContainer3.Panel2MinSize = 350;
+            this.splitContainer3.Size = new System.Drawing.Size(980, 700);
+            this.splitContainer3.SplitterDistance = 325;
+            this.splitContainer3.TabIndex = 2;
+            // 
+            // button_p_reAdjust
+            // 
+            this.button_p_reAdjust.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_p_reAdjust.Location = new System.Drawing.Point(576, 0);
+            this.button_p_reAdjust.Name = "button_p_reAdjust";
+            this.button_p_reAdjust.Size = new System.Drawing.Size(75, 23);
+            this.button_p_reAdjust.TabIndex = 4;
+            this.button_p_reAdjust.Text = "Readjust";
+            this.button_p_reAdjust.UseVisualStyleBackColor = true;
+            // 
+            // comboBox_p_versions
+            // 
+            this.comboBox_p_versions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_p_versions.FormattingEnabled = true;
+            this.comboBox_p_versions.Items.AddRange(new object[] {
+            "Any"});
+            this.comboBox_p_versions.Location = new System.Drawing.Point(0, 0);
+            this.comboBox_p_versions.Name = "comboBox_p_versions";
+            this.comboBox_p_versions.Size = new System.Drawing.Size(61, 21);
+            this.comboBox_p_versions.TabIndex = 0;
+            // 
+            // checkBox_p_seachCaseSensitive
+            // 
+            this.checkBox_p_seachCaseSensitive.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBox_p_seachCaseSensitive.AutoSize = true;
+            this.checkBox_p_seachCaseSensitive.Location = new System.Drawing.Point(476, 3);
+            this.checkBox_p_seachCaseSensitive.Name = "checkBox_p_seachCaseSensitive";
+            this.checkBox_p_seachCaseSensitive.Size = new System.Drawing.Size(94, 17);
+            this.checkBox_p_seachCaseSensitive.TabIndex = 3;
+            this.checkBox_p_seachCaseSensitive.Text = "Case sensitive";
+            this.checkBox_p_seachCaseSensitive.UseVisualStyleBackColor = true;
+            // 
+            // textBox_p_searchHistory
+            // 
+            this.textBox_p_searchHistory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_p_searchHistory.Location = new System.Drawing.Point(0, 680);
+            this.textBox_p_searchHistory.Name = "textBox_p_searchHistory";
+            this.textBox_p_searchHistory.ReadOnly = true;
+            this.textBox_p_searchHistory.Size = new System.Drawing.Size(651, 20);
+            this.textBox_p_searchHistory.TabIndex = 6;
+            // 
+            // textBox_p_searchString
+            // 
+            this.textBox_p_searchString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_p_searchString.Location = new System.Drawing.Point(143, 0);
+            this.textBox_p_searchString.Name = "textBox_p_searchString";
+            this.textBox_p_searchString.Size = new System.Drawing.Size(327, 20);
+            this.textBox_p_searchString.TabIndex = 2;
+            // 
+            // comboBox_p_condition
+            // 
+            this.comboBox_p_condition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_p_condition.FormattingEnabled = true;
+            this.comboBox_p_condition.Location = new System.Drawing.Point(67, 0);
+            this.comboBox_p_condition.Name = "comboBox_p_condition";
+            this.comboBox_p_condition.Size = new System.Drawing.Size(70, 21);
+            this.comboBox_p_condition.TabIndex = 1;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -409,14 +564,15 @@
             this.Name = "Form1";
             this.Text = "KineticJsonDictionary";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
+            this.tabPage_DataCollection.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             this.splitContainer2.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
+            this.tabPage_SamplesTree.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
@@ -425,6 +581,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_examples)).EndInit();
             this.contextMenuStrip_findValue.ResumeLayout(false);
             this.contextMenuStrip_findField.ResumeLayout(false);
+            this.tabPage_Keywords.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView_properties)).EndInit();
+            this.splitContainer3.Panel1.ResumeLayout(false);
+            this.splitContainer3.Panel2.ResumeLayout(false);
+            this.splitContainer3.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
+            this.splitContainer3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -432,8 +595,8 @@
         #endregion
 
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabPage_DataCollection;
+        private System.Windows.Forms.TabPage tabPage_SamplesTree;
         private System.Windows.Forms.TreeView treeView_json;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox textBox_logText;
@@ -458,6 +621,16 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_findField;
         private System.Windows.Forms.ToolStripMenuItem FindFieldToolStripMenuItem;
         private System.Windows.Forms.Button button_validateFiles;
+        private System.Windows.Forms.TabPage tabPage_Keywords;
+        private System.Windows.Forms.SplitContainer splitContainer3;
+        private System.Windows.Forms.TreeView treeView_properties;
+        private System.Windows.Forms.Button button_p_reAdjust;
+        private System.Windows.Forms.ComboBox comboBox_p_versions;
+        private System.Windows.Forms.CheckBox checkBox_p_seachCaseSensitive;
+        private System.Windows.Forms.TextBox textBox_p_searchHistory;
+        private System.Windows.Forms.TextBox textBox_p_searchString;
+        private System.Windows.Forms.ComboBox comboBox_p_condition;
+        private System.Windows.Forms.DataGridView dataGridView_properties;
     }
 }
 

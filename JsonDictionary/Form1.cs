@@ -45,6 +45,7 @@ namespace JsonDictionary
         private string _fileName = "";
         private JsoncContentType _fileType = JsoncContentType.DataViews;
         private TreeNode _rootNode;
+        private TreeNode _rootNodeKeywords;
         private DataTable _examplesTable;
         private List<JsoncDictionary> _metaDictionary = new List<JsoncDictionary>();
         private Dictionary<string, string> _schemaList = new Dictionary<string, string>();
@@ -101,8 +102,8 @@ namespace JsonDictionary
 
             dataGridView_examples.DataError += delegate { };
 
-            comboBox_versions?.Items.Clear();
-            comboBox_versions?.Items.Add(DefaultVersionCaption);
+            comboBox_versions.Items.Clear();
+            comboBox_versions.Items.Add(DefaultVersionCaption);
             comboBox_versions.SelectedIndexChanged -= ComboBox_versions_SelectedIndexChanged;
             comboBox_versions.SelectedIndex = 0;
             comboBox_versions.SelectedIndexChanged += ComboBox_versions_SelectedIndexChanged;
@@ -111,9 +112,57 @@ namespace JsonDictionary
             dataGridView_examples.ContextMenuStrip = contextMenuStrip_findValue;
             treeView_json.ContextMenuStrip = contextMenuStrip_findField;
 
-
-
             _currentDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName);
+
+        }
+
+        private async void Form1_Load(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(Settings.Default.LastDbName))
+            {
+                ActivateUiControls(false);
+
+                List<JsoncDictionary> dataCollection = null;
+                TreeNode nodeCollection = null;
+                TreeNode nodeCollectionKeywords = null;
+
+                try
+                {
+                    dataCollection = JsonIo.LoadBinary<List<JsoncDictionary>>(Settings.Default.LastDbName);
+                    nodeCollection = JsonIo.LoadBinary<TreeNode>(Settings.Default.LastDbName + ".tree");
+                    nodeCollectionKeywords = JsonIo.LoadBinary<TreeNode>(Settings.Default.LastDbName + ".keywords");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("File read exception [" + openFileDialog1.FileName + "]: " + ex.Message);
+                }
+
+                if (dataCollection == null || nodeCollection == null) return;
+
+                _metaDictionary = dataCollection;
+
+                _rootNode = nodeCollection;
+                treeView_json.Nodes.Clear();
+                treeView_json.Nodes.Add(_rootNode);
+                treeView_json.Sort();
+                treeView_json.Nodes[0].Expand();
+
+                ActivateUiControls(true);
+
+                if (nodeCollectionKeywords == null) return;
+
+                tabControl1.SelectedTab = tabControl1.TabPages[1];
+
+                tabControl1.TabPages[2].IsAccessible = false;
+
+                _rootNodeKeywords = nodeCollectionKeywords;
+                treeView_properties.Nodes.Clear();
+                treeView_properties.Nodes.Add(_rootNodeKeywords);
+                treeView_properties.Sort();
+                treeView_properties.Nodes[0].Expand();
+
+                tabControl1.TabPages[2].IsAccessible = true;
+            }
         }
 
         private void Button_loadDb_Click(object sender, EventArgs e)
@@ -128,10 +177,26 @@ namespace JsonDictionary
         private async void OpenFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
             ActivateUiControls(false);
+
+            var result = await LoadDb(openFileDialog1.FileName);
+
+            ActivateUiControls(true);
+
+            if (result)
+            {
+                tabControl1.SelectedTab = tabControl1.TabPages[1];
+                Settings.Default.LastDbName = openFileDialog1.FileName;
+                Settings.Default.Save();
+            }
+        }
+
+        private async Task<bool> LoadDb(string FileName)
+        {
             List<JsoncDictionary> dataCollection = null;
             TreeNode nodeCollection = null;
+            TreeNode nodeCollectionKeywords = null;
 
-            progressBar1.Maximum = 2;
+            progressBar1.Maximum = 3;
             progressBar1.Value = 0;
             await Task.Run(() =>
             {
@@ -139,29 +204,42 @@ namespace JsonDictionary
                 {
                     Invoke((MethodInvoker)delegate
                     {
-                        dataCollection = JsonIo.LoadBinary<List<JsoncDictionary>>(openFileDialog1.FileName);
+                        dataCollection = JsonIo.LoadBinary<List<JsoncDictionary>>(FileName);
                         progressBar1.Value = 1;
 
                         nodeCollection = JsonIo.LoadBinary<TreeNode>(openFileDialog1.FileName + ".tree");
                         progressBar1.Value = 2;
+
+                        if (dataCollection == null || nodeCollection == null) return;
+
+                        _metaDictionary = dataCollection;
+
+                        _rootNode = nodeCollection;
+                        treeView_json.Nodes.Clear();
+                        treeView_json.Nodes.Add(_rootNode);
+                        treeView_json.Sort();
+                        treeView_json.Nodes[0].Expand();
+
+                        tabControl1.TabPages[2].IsAccessible = false;
+                        nodeCollectionKeywords = JsonIo.LoadBinary<TreeNode>(openFileDialog1.FileName + ".keywords");
+                        progressBar1.Value = 3;
+
+                        if (nodeCollectionKeywords == null) return;
+                        _rootNodeKeywords = nodeCollectionKeywords;
+                        treeView_properties.Nodes.Clear();
+                        treeView_properties.Nodes.Add(_rootNodeKeywords);
+                        treeView_properties.Sort();
+                        treeView_properties.Nodes[0].Expand();
+                        tabControl1.TabPages[2].IsAccessible = true;
                     });
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("File read exception [" + openFileDialog1.FileName + "]: " + ex.Message);
                 }
-
-                if (dataCollection == null || nodeCollection == null) return;
-
-                _metaDictionary = dataCollection;
-                _rootNode = nodeCollection;
             }).ConfigureAwait(true);
 
-            treeView_json.Nodes.Clear();
-            treeView_json.Nodes.Add(_rootNode);
-            treeView_json.Sort();
-            treeView_json.Nodes[0].Expand();
-            ActivateUiControls(true);
+            return true;
         }
 
         private async void Button_collectDatabase_Click(object sender, EventArgs e)
@@ -205,16 +283,31 @@ namespace JsonDictionary
                 }).ConfigureAwait(true);
             }
 
+
             textLog.AppendLine("Files parsed: " + filesList.Count.ToString());
             textBox_logText.Text += textLog.ToString();
             textLog.Clear();
             textBox_logText.SelectionStart = textBox_logText.Text.Length;
             textBox_logText.ScrollToCaret();
 
+            if (_rootNode == null) return;
+
             treeView_json.Nodes.Add(_rootNode);
             treeView_json.Sort();
             treeView_json.Nodes[0].Expand();
+
             ActivateUiControls(true);
+
+            tabControl1.TabPages[2].IsAccessible = false;
+            _rootNodeKeywords = new TreeNode(RootNodeName);
+            await CollectKeywords(_metaDictionary, _rootNodeKeywords);
+
+            if (_rootNodeKeywords == null) return;
+
+            treeView_properties.Nodes.Add(_rootNodeKeywords);
+            treeView_properties.Sort();
+            treeView_properties.Nodes[0].Expand();
+            tabControl1.TabPages[2].IsAccessible = true;
         }
 
         private async void Button_validateFiles_Click(object sender, EventArgs e)
@@ -278,6 +371,7 @@ namespace JsonDictionary
                 {
                     JsonIo.SaveBinary<List<JsoncDictionary>>(_metaDictionary, saveFileDialog1.FileName);
                     JsonIo.SaveBinary<TreeNode>(_rootNode, saveFileDialog1.FileName + ".tree");
+                    JsonIo.SaveBinary<TreeNode>(_rootNodeKeywords, saveFileDialog1.FileName + ".keywords");
                 }
                 catch (Exception ex)
                 {
@@ -492,13 +586,17 @@ namespace JsonDictionary
             }
 
             var versionIndex = jsonText.IndexOf(SchemaTag, StringComparison.Ordinal);
-            if (versionIndex <= 0) return;
+            if (versionIndex <= 0)
+            {
+                textLog.AppendLine(Environment.NewLine + fullFileName + " schema not found" + Environment.NewLine);
+                return;
+            }
 
             versionIndex += SchemaTag.Length;
             var strEnd = versionIndex;
             while (strEnd < jsonText.Length && jsonText[strEnd] != '"' && jsonText[strEnd] != '\r' && jsonText[strEnd] != '\n') strEnd++;
 
-            var schemaUrl = jsonText.Substring(versionIndex, strEnd - versionIndex);
+            var schemaUrl = jsonText.Substring(versionIndex, strEnd - versionIndex).Trim();
 
             if (!schemaUrl.EndsWith(".json"))
             {
@@ -621,7 +719,11 @@ namespace JsonDictionary
                 else
                 {
                     _metaDictionary.Add(new JsoncDictionary(_fileType, _collectAllFileNames));
-                    fileNode = new TreeNode(shortFileName);
+                    fileNode = new TreeNode(shortFileName)
+                    {
+                        Name = shortFileName,
+                        //Tag = shortFileName
+                    };
                     parentNode.Nodes.Add(fileNode);
                 }
 
@@ -673,7 +775,14 @@ namespace JsonDictionary
 
                         var obj = parentNode.Nodes.Cast<TreeNode>().Where(r => r.Text == jProperty.Name).ToArray();
 
-                        if (obj.Count() > 1) textLog.AppendLine(Environment.NewLine + "More than 1 similar object found in the tree:" + Environment.NewLine + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next) + Environment.NewLine);
+                        if (obj.Count() > 1)
+                        {
+                            textLog.AppendLine(Environment.NewLine
+                                + "More than 1 similar object found in the tree:"
+                                + Environment.NewLine
+                                + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next)
+                                + Environment.NewLine);
+                        }
                         var exNode = obj.FirstOrDefault();
 
                         if (exNode != null)
@@ -682,13 +791,21 @@ namespace JsonDictionary
                         }
                         else
                         {
-                            childNode = new TreeNode(jProperty.Name);
+                            childNode = new TreeNode(jProperty.Name)
+                            {
+                                Name = jProperty.Name,
+                                //Tag = jProperty.Name
+                            };
                             parentNode.Nodes.Add(childNode);
                         }
 
                         if (jProperty.Name == VersionTagName) _version = printValue;
 
-                        if (!JsoncDictionary.NodeTypes.TryGetValue(token.GetType().Name, out var nodeType)) nodeType = JsoncNodeType.Unknown;
+                        if (!JsoncDictionary.NodeTypes.TryGetValue(token.GetType().Name, out var nodeType))
+                        {
+                            nodeType = JsoncNodeType.Unknown;
+                            textLog.AppendLine(Environment.NewLine + _fileName + " node type unknown: " + Environment.NewLine + " Node [" + jProperty.Name + "] " + Environment.NewLine);
+                        }
                         if (!string.IsNullOrEmpty(saveValue))
                         {
                             var node = new MetaNode(jProperty.Name, parent, nodeType, depth, saveValue, _fileName, _version);
@@ -697,7 +814,6 @@ namespace JsonDictionary
                         }
 
                         foreach (var child in jProperty.Children()) ParseJsonObject(child, depth + 1, jProperty.Path, childNode);
-
                         break;
                     }
                 case JObject jObject:
@@ -715,7 +831,6 @@ namespace JsonDictionary
                         }
 
                         foreach (var child in jObject.Children()) ParseJsonObject(child, depth, newParent, parentNode);
-
                         break;
                     }
                 case JArray jArray:
@@ -732,12 +847,132 @@ namespace JsonDictionary
                             newParent = parent;
                         }
 
-
                         foreach (var child in jArray.Children()) ParseJsonObject(child, depth, newParent, parentNode);
-
                         break;
                     }
             }
+        }
+
+        private async Task<bool> CollectKeywords(List<JsoncDictionary> sourceCollection, TreeNode parentNode)
+        {
+            progressBar1.Maximum = sourceCollection.Count;
+            progressBar1.Value = 0;
+
+            await Task.Run(() =>
+            {
+                foreach (var fileType in sourceCollection)
+                {
+                    string _fileName = "";
+                    foreach (var s in JsoncDictionary.FileNames)
+                    {
+                        if (s.Value == fileType.Type)
+                        {
+                            _fileName = s.Key;
+                            break;
+                        }
+                    }
+
+                    var currentFileNode = parentNode.Nodes.Find(_fileName, true);
+
+                    if (currentFileNode == null || currentFileNode?.Count() <= 0)
+                    {
+                        var fileNode = new TreeNode(_fileName)
+                        {
+                            Name = _fileName,
+                            //Tag = _fileName
+                        };
+                        parentNode.Nodes.Add(fileNode);
+                        currentFileNode = parentNode.Nodes.Find(_fileName, false);
+                    }
+
+                    //if (currentFileNode?.Count() > 1)
+                    {
+                        //not possible
+                    }
+
+                    foreach (var record in fileType.Nodes)
+                    {
+                        TreeNode[] parNodeList;
+                        if (record.ParentName == "action")
+                            record.ParentName = "actions";
+                        if (record.Name == "action")
+                            record.Name = "actions";
+
+                        if (record.ParentName == _fileName)
+                        {
+                            parNodeList = currentFileNode;
+                        }
+                        else
+                        {
+                            parNodeList = currentFileNode[0].Nodes.Find(record.ParentName, true);
+                            if (parNodeList == null || parNodeList.Count() <= 0)
+                            {
+                                var newNode = new TreeNode(record.ParentName)
+                                {
+                                    Name = record.ParentName,
+                                    //Tag = record.ParentName
+                                };
+                                currentFileNode[0].Nodes.Add(newNode);
+                                parNodeList = currentFileNode[0].Nodes.Find(record.ParentName, false);
+                            }
+                        }
+                        //if (parNodeList?.Count() > 1)
+                        {
+                            //very often
+                            //try to find proper parent to attach value
+                        }
+
+                        var chldNodesList = parNodeList[0].Nodes.Find(record.Name, false);
+                        if (chldNodesList == null || chldNodesList.Count() <= 0)
+                        {
+                            var newNode = new TreeNode(record.Name)
+                            {
+                                Name = record.Name,
+                                //Tag = record.Name
+                            };
+                            parNodeList[0].Nodes.Add(newNode);
+                            chldNodesList = parNodeList[0].Nodes.Find(record.Name, false);
+                        }
+                        //if (chldNodesList?.Count() > 1)
+                        {
+                            //not likely
+                        }
+
+                        if (record.Type == JsoncNodeType.Property)
+                        {
+                            foreach (var prop in record.ExamplesList)
+                            {
+                                var propValue = prop.Key.TrimStart();
+                                if (propValue.StartsWith("{") || propValue.StartsWith("[")) continue;
+
+                                var propNodesList = chldNodesList[0].Nodes.Find(propValue, false);
+                                if (propNodesList == null || propNodesList.Count() <= 0)
+                                {
+                                    var newNode = new TreeNode(propValue)
+                                    {
+                                        Name = propValue,
+                                        //Tag = propValue
+                                    };
+                                    chldNodesList[0].Nodes.Add(newNode);
+                                    //propNodesList = chldNodesList[0].Nodes.Find(record.ParentName, false);
+                                }
+                                //if (propNodesList?.Count() > 1)
+                                {
+                                    //not likely
+                                }
+
+                            }
+                        }
+                    }
+
+                    Invoke((MethodInvoker)delegate
+                    {
+                        progressBar1.Value++;
+                    });
+                }
+            }).ConfigureAwait(true);
+
+            return true;
         }
 
         private void FillGrid(TreeNode currentNode, string filterVersion = DefaultVersionCaption, string searchString = "", SearchCondition condition = SearchCondition.Contains, bool caseSensitive = false)
@@ -748,18 +983,33 @@ namespace JsonDictionary
 
             if (tokens.Length < 3) return;
 
-            if (!JsoncDictionary.FileNames.TryGetValue(tokens[1], out var fileType)) return;
+            if (!JsoncDictionary.FileNames.TryGetValue(tokens[1], out var fileType))
+            {
+                textLog.AppendLine(Environment.NewLine
+                    + "Unknown file type in the node: "
+                    + tokens[1]
+                    + Environment.NewLine);
+                return;
+            }
 
             var obj = _metaDictionary?.Where(x => x.Type == fileType).ToArray();
 
             if (obj == null) return;
 
-            if (obj.Count() > 1) textLog.AppendLine(Environment.NewLine + "More than 1 similar file types found on example print-out:" + Environment.NewLine + obj.Select(n => n.Nodes).Aggregate("", (current, next) => current + ", " + next) + Environment.NewLine);
+            if (obj.Count() > 1)
+            {
+                textLog.AppendLine(Environment.NewLine
+                    + "More than 1 similar file types found on example print-out:"
+                    + Environment.NewLine
+                    + obj.Select(n => n.Nodes).Aggregate("", (current, next) => current + ", " + next)
+                    + Environment.NewLine);
+            }
             var element = obj.FirstOrDefault();
 
             var obj2 = element?.Nodes?.Where(n =>
-                n.Name == currentNode.Text && n.Depth == tokens.Length - 3 &&
-                n.ParentName == tokens[tokens.Length - 2]);
+                n.Name == currentNode.Text
+                && n.Depth == tokens.Length - 3
+                && n.ParentName == tokens[tokens.Length - 2]);
 
             if (obj2 == null) return;
 
