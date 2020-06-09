@@ -250,6 +250,7 @@ namespace JsonDictionary
             ActivateUiControls(false);
 
             treeView_json.Nodes.Clear();
+            treeView_properties.Nodes.Clear();
             _examplesTable.Clear();
             _rootNode = new TreeNode(RootNodeName);
             _metaDictionary = new List<JsoncDictionary>();
