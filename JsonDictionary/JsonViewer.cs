@@ -50,11 +50,57 @@ namespace JsonDictionary
         public JsonViewer(string fileName, string text)
         {
             InitializeComponent();
-            this._fileName = fileName;
-            this._text = text;
+            _fileName = fileName;
+            _text = text;
         }
 
-        public string EditorText => _textArea.Text;
+        public bool ReformatJson = false;
+
+        public string EditorText
+        {
+            get => _textArea.Text;
+            set => _textArea.Text = value;
+        }
+
+        public bool WordWrap
+        {
+            get => wordWrapItem.Checked;
+            set
+            {
+                wordWrapItem.Checked = value;
+                _textArea.WrapMode = wordWrapItem.Checked ? WrapMode.Word : WrapMode.None;
+            }
+        }
+
+        public bool IndentGuides
+        {
+            get => indentGuidesItem.Checked;
+            set
+            {
+                indentGuidesItem.Checked = value;
+                _textArea.IndentationGuides = indentGuidesItem.Checked ? IndentView.LookBoth : IndentView.None;
+            }
+        }
+
+        public bool ShowWhiteSpace
+        {
+            get => hiddenCharactersItem.Checked;
+            set
+            {
+                hiddenCharactersItem.Checked = value;
+                _textArea.ViewWhitespace = hiddenCharactersItem.Checked ? WhitespaceMode.VisibleAlways : WhitespaceMode.Invisible;
+            }
+        }
+
+        public bool AlwaysOnTop
+        {
+            get => TopMost;
+            set
+            {
+                alwaysOnTopToolStripMenuItem.Checked = value;
+                TopMost = alwaysOnTopToolStripMenuItem.Checked;
+            }
+        }
 
         private Scintilla _textArea;
         private readonly string _text = "";
@@ -253,17 +299,8 @@ namespace JsonDictionary
         {
             if (!File.Exists(path)) return;
 
-            this.Text += path;
-            _textArea.Text = JsonDictionary.Form1.BeautifyJson(File.ReadAllText(path));
-        }
-
-        public void SelectTextLines(int lineStart, int lineNum)
-        {
-            var startLine = _textArea.Lines[lineStart];
-            var endLine = _textArea.Lines[lineStart + lineNum];
-            _textArea.SetSelection(startLine.Position, endLine.Position + endLine.Length);
-
-            _textArea.ScrollCaret();
+            Text += path;
+            _textArea.Text = JsonIo.BeautifyJson(File.ReadAllText(path), ReformatJson);
         }
 
         #endregion
@@ -342,7 +379,7 @@ namespace JsonDictionary
 
         private void FormatToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _textArea.Text = JsonDictionary.Form1.BeautifyJson(_textArea.Text);
+            _textArea.Text = JsonIo.BeautifyJson(_textArea.Text, ReformatJson);
             _textArea.SelectionStart = _textArea.SelectionEnd = 0;
             _textArea.ScrollCaret();
         }
@@ -387,6 +424,12 @@ namespace JsonDictionary
         private void ExpandAll()
         {
             _textArea.FoldAll(FoldAction.Expand);
+        }
+
+        private void AlwaysOnTopToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            alwaysOnTopToolStripMenuItem.Checked = !alwaysOnTopToolStripMenuItem.Checked;
+            TopMost = alwaysOnTopToolStripMenuItem.Checked;
         }
 
         #endregion
@@ -546,14 +589,57 @@ namespace JsonDictionary
 
         private void InvokeIfNeeded(Action action)
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
-                this.BeginInvoke(action);
+                BeginInvoke(action);
             }
             else
             {
                 action.Invoke();
             }
+        }
+
+        public void SelectText(string text)
+        {
+            if (FindTextLines(Text, text, out var startLine, out var lineNum)) SelectTextLines(startLine, lineNum);
+        }
+
+        private static bool FindTextLines(string text, string sample, out int startLine, out int lineNum)
+        {
+            startLine = 0;
+            lineNum = 0;
+            var compactText = JsonIo.TrimJson(text, true);
+            var compactSample = JsonIo.TrimJson(sample, true);
+            var startIndex = compactText.IndexOf(compactSample, StringComparison.Ordinal);
+            if (startIndex < 0) return false;
+
+            startLine = CountLines(compactText, 0, startIndex);
+            lineNum = CountLines(compactText, startIndex, startIndex + compactSample.Length);
+
+            return true;
+        }
+
+        private static int CountLines(string text, int startIndex, int endIndex)
+        {
+            var linesCount = 0;
+            for (; startIndex < endIndex; startIndex++)
+            {
+                if (text[startIndex] != '\r' && text[startIndex] != '\n') continue;
+
+                linesCount++;
+                if (text[startIndex] != text[startIndex + 1] && (text[startIndex + 1] == '\r' || text[startIndex + 1] == '\n')) startIndex++;
+            }
+
+            return linesCount;
+        }
+
+        public void SelectTextLines(int lineStart, int lineNum)
+        {
+            var startLine = _textArea.Lines[lineStart];
+            var endLine = _textArea.Lines[lineStart + lineNum];
+            _textArea.SetSelection(startLine.Position, endLine.Position + endLine.Length);
+
+            _textArea.ScrollCaret();
         }
 
         #endregion

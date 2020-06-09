@@ -14,7 +14,7 @@ namespace ScintillaNETviewer.Utils
 
         public static void Find(bool next, bool incremental)
         {
-            var first = LastSearch != SearchBox.Text;
+            //var first = LastSearch != SearchBox.Text;
 
             LastSearch = SearchBox.Text;
             if (LastSearch.Length > 0)

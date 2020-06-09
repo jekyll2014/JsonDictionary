@@ -66,6 +66,7 @@
             this.collapseAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.alwaysOnTopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TextPanel.SuspendLayout();
             this.PanelSearch.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -324,7 +325,8 @@
             this.zoom100ToolStripMenuItem,
             this.toolStripSeparator5,
             this.collapseAllToolStripMenuItem,
-            this.expandAllToolStripMenuItem});
+            this.expandAllToolStripMenuItem,
+            this.alwaysOnTopToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(50, 23);
             this.viewToolStripMenuItem.Text = "View";
@@ -406,6 +408,13 @@
             this.openFileDialog.FileName = "New File";
             this.openFileDialog.Filter = "All files|*.*";
             // 
+            // alwaysOnTopToolStripMenuItem
+            // 
+            this.alwaysOnTopToolStripMenuItem.Name = "alwaysOnTopToolStripMenuItem";
+            this.alwaysOnTopToolStripMenuItem.Size = new System.Drawing.Size(221, 24);
+            this.alwaysOnTopToolStripMenuItem.Text = "AlwaysOnTop";
+            this.alwaysOnTopToolStripMenuItem.Click += new System.EventHandler(this.AlwaysOnTopToolStripMenuItem_Click);
+            // 
             // JsonViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -470,5 +479,6 @@
         private System.Windows.Forms.Button BtnNextSearch;
         private System.Windows.Forms.Button BtnPrevSearch;
         private System.Windows.Forms.ToolStripMenuItem formatToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem alwaysOnTopToolStripMenuItem;
     }
 }
