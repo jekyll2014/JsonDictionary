@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_DataCollection = new System.Windows.Forms.TabPage();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -49,7 +49,7 @@
             this.textBox_logText = new System.Windows.Forms.TextBox();
             this.tabPage_SamplesTree = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.treeView_json = new System.Windows.Forms.TreeView();
+            this.treeView_examples = new System.Windows.Forms.TreeView();
             this.button_reAdjust = new System.Windows.Forms.Button();
             this.comboBox_versions = new System.Windows.Forms.ComboBox();
             this.checkBox_seachCaseSensitive = new System.Windows.Forms.CheckBox();
@@ -67,7 +67,6 @@
             this.textBox_p_searchString = new System.Windows.Forms.TextBox();
             this.comboBox_p_condition = new System.Windows.Forms.ComboBox();
             this.dataGridView_keywords = new System.Windows.Forms.DataGridView();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
@@ -75,6 +74,9 @@
             this.FindAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip_findField = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.FindFieldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.tabControl1.SuspendLayout();
             this.tabPage_DataCollection.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
@@ -95,6 +97,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_keywords)).BeginInit();
             this.contextMenuStrip_findValue.SuspendLayout();
             this.contextMenuStrip_findField.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -302,7 +305,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.treeView_json);
+            this.splitContainer1.Panel1.Controls.Add(this.treeView_examples);
             this.splitContainer1.Panel1MinSize = 100;
             // 
             // splitContainer1.Panel2
@@ -319,21 +322,21 @@
             this.splitContainer1.SplitterDistance = 324;
             this.splitContainer1.TabIndex = 1;
             // 
-            // treeView_json
+            // treeView_examples
             // 
-            this.treeView_json.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeView_json.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.treeView_json.HideSelection = false;
-            this.treeView_json.Location = new System.Drawing.Point(0, 0);
-            this.treeView_json.Name = "treeView_json";
-            this.treeView_json.Size = new System.Drawing.Size(324, 694);
-            this.treeView_json.TabIndex = 0;
-            this.treeView_json.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_json_BeforeCollapse);
-            this.treeView_json.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_json_BeforeExpand);
-            this.treeView_json.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_json_NodeMouseClick);
-            this.treeView_json.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_json_NodeMouseDoubleClick);
-            this.treeView_json.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TreeView_json_KeyDown);
-            this.treeView_json.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TreeView_json_MouseDown);
+            this.treeView_examples.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeView_examples.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.treeView_examples.HideSelection = false;
+            this.treeView_examples.Location = new System.Drawing.Point(0, 0);
+            this.treeView_examples.Name = "treeView_examples";
+            this.treeView_examples.Size = new System.Drawing.Size(324, 694);
+            this.treeView_examples.TabIndex = 0;
+            this.treeView_examples.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_No_Expand_Collapse);
+            this.treeView_examples.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_No_Expand_Collapse);
+            this.treeView_examples.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseClick);
+            this.treeView_examples.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_examples_NodeMouseDoubleClick);
+            this.treeView_examples.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TreeView_examples_KeyDown);
+            this.treeView_examples.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TreeView_MouseDown);
             // 
             // button_reAdjust
             // 
@@ -408,30 +411,30 @@
             this.dataGridView_examples.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_examples.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_examples.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridView_examples.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_examples.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_examples.Name = "dataGridView_examples";
             this.dataGridView_examples.RowHeadersWidth = 20;
-            dataGridViewCellStyle8.NullValue = "Adjust";
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle2.NullValue = "Adjust";
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView_examples.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_examples.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_examples.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGridView_examples.Size = new System.Drawing.Size(646, 646);
             this.dataGridView_examples.TabIndex = 5;
-            this.dataGridView_examples.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_examples_CellContentDoubleClick);
-            this.dataGridView_examples.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_examples_CellMouseDown);
-            this.dataGridView_examples.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_examples_RowEnter);
-            this.dataGridView_examples.RowHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_examples_RowHeaderMouseDoubleClick);
+            this.dataGridView_examples.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentDoubleClick);
+            this.dataGridView_examples.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_CellMouseDown);
+            this.dataGridView_examples.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_RowEnter);
+            this.dataGridView_examples.RowHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_RowHeaderMouseDoubleClick);
             // 
             // tabPage_Keywords
             // 
@@ -477,12 +480,12 @@
             this.treeView_keywords.Name = "treeView_keywords";
             this.treeView_keywords.Size = new System.Drawing.Size(325, 700);
             this.treeView_keywords.TabIndex = 0;
-            this.treeView_keywords.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_json_BeforeCollapse);
-            this.treeView_keywords.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_json_BeforeExpand);
-            this.treeView_keywords.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_keywords_NodeMouseClick);
+            this.treeView_keywords.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_No_Expand_Collapse);
+            this.treeView_keywords.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_No_Expand_Collapse);
+            this.treeView_keywords.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseClick);
             this.treeView_keywords.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_keywords_NodeMouseDoubleClick);
             this.treeView_keywords.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TreeView_keywords_KeyDown);
-            this.treeView_keywords.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TreeView_json_MouseDown);
+            this.treeView_keywords.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TreeView_MouseDown);
             // 
             // button_p_reAdjust
             // 
@@ -557,39 +560,30 @@
             this.dataGridView_keywords.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_keywords.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_keywords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_keywords.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_keywords.DefaultCellStyle = dataGridViewCellStyle3;
             this.dataGridView_keywords.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_keywords.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_keywords.Name = "dataGridView_keywords";
             this.dataGridView_keywords.RowHeadersWidth = 20;
-            dataGridViewCellStyle6.NullValue = "Adjust";
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_keywords.RowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle4.NullValue = "Adjust";
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_keywords.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dataGridView_keywords.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_keywords.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_keywords.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGridView_keywords.Size = new System.Drawing.Size(651, 652);
             this.dataGridView_keywords.TabIndex = 5;
-            this.dataGridView_keywords.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_keywords_CellContentDoubleClick);
-            this.dataGridView_keywords.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_keywords_CellMouseDown);
-            this.dataGridView_keywords.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_keywords_RowEnter);
-            this.dataGridView_keywords.RowHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_keywords_RowHeaderMouseDoubleClick);
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.Location = new System.Drawing.Point(0, 723);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(988, 23);
-            this.progressBar1.TabIndex = 1;
+            this.dataGridView_keywords.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentDoubleClick);
+            this.dataGridView_keywords.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_CellMouseDown);
+            this.dataGridView_keywords.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_RowEnter);
+            this.dataGridView_keywords.RowHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_RowHeaderMouseDoubleClick);
             // 
             // openFileDialog1
             // 
@@ -637,13 +631,35 @@
             this.FindFieldToolStripMenuItem.Text = "Find field in parent";
             this.FindFieldToolStripMenuItem.Click += new System.EventHandler(this.FindFieldToolStripMenuItem_Click);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1,
+            this.toolStripProgressBar1});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 727);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(988, 22);
+            this.statusStrip1.TabIndex = 2;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
+            // toolStripProgressBar1
+            // 
+            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(988, 749);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.tabControl1);
-            this.Controls.Add(this.progressBar1);
             this.MinimumSize = new System.Drawing.Size(600, 400);
             this.Name = "Form1";
             this.Text = "KineticJsonDictionary";
@@ -673,7 +689,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_keywords)).EndInit();
             this.contextMenuStrip_findValue.ResumeLayout(false);
             this.contextMenuStrip_findField.ResumeLayout(false);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -682,12 +701,11 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage_DataCollection;
         private System.Windows.Forms.TabPage tabPage_SamplesTree;
-        private System.Windows.Forms.TreeView treeView_json;
+        private System.Windows.Forms.TreeView treeView_examples;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.TextBox textBox_logText;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.Button button_collectDatabase;
-        private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.CheckedListBox checkedListBox_params;
         private System.Windows.Forms.Button button_saveDb;
         private System.Windows.Forms.Button button_loadDb;
@@ -721,6 +739,9 @@
         private System.Windows.Forms.CheckBox checkBox_ignoreHttpsError;
         private System.Windows.Forms.CheckBox checkBox_reformatJson;
         private System.Windows.Forms.CheckBox checkBox_collectAllFileNames;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
     }
 }
 

@@ -35,7 +35,7 @@ namespace JsonDictionary
         private const string LogFileName = "hiddenerrors.log";
         private const string PreViewCaption = "Preview";
         private const string FormCaption = "KineticJsonDictionary";
-
+        private const string BackupSchemaExtension = ".original";
         // experimental options
         private static bool _reformatJson;
         private bool _collectAllFileNames;
@@ -48,7 +48,7 @@ namespace JsonDictionary
         private string _version = "";
         private string _fileName = "";
         private JsoncContentType _fileType = JsoncContentType.DataViews;
-        private TreeNode _rootNode;
+        private TreeNode _rootNodeExamples;
         private TreeNode _rootNodeKeywords;
         private DataTable _examplesTable;
         private DataTable _keywordsTable;
@@ -57,17 +57,17 @@ namespace JsonDictionary
         private volatile bool _isDoubleClick;
 
         // last used values for UI processing optimization
-        private TreeNode _lastSelectedNode;
-        private string _lastSelectedVersion;
-        private string _lastFilterValue = "";
-        private SearchCondition _lastSelectedCondition;
-        private bool _lastCaseSensitive;
+        private TreeNode _lastExSelectedNode;
+        private string _lastExSelectedVersion;
+        private string _lastExFilterValue = "";
+        private SearchCondition _lastExSelectedCondition;
+        private StringComparison _lastExCaseSensitive;
 
         private TreeNode _lastKwSelectedNode;
         private string _lastKwSelectedVersion;
         private string _lastKwFilterValue = "";
         private SearchCondition _lastKwSelectedCondition;
-        private bool _lastKwCaseSensitive;
+        private StringComparison _lastKwCaseSensitive;
 
         private JsonViewer _sideViewer;
         private enum SearchCondition
@@ -75,6 +75,12 @@ namespace JsonDictionary
             Contains,
             StartsWith,
             EndsWith
+        }
+
+        public sealed override string Text
+        {
+            get { return base.Text; }
+            set { base.Text = value; }
         }
 
         #region GUI
@@ -147,7 +153,7 @@ namespace JsonDictionary
             comboBox_versions.SelectedIndexChanged -= ComboBox_versions_SelectedIndexChanged;
             comboBox_versions.SelectedIndex = 0;
             comboBox_versions.SelectedIndexChanged += ComboBox_versions_SelectedIndexChanged;
-            _lastSelectedVersion = DefaultVersionCaption;
+            _lastExSelectedVersion = DefaultVersionCaption;
 
             comboBox_p_versions.Items.Clear();
             comboBox_p_versions.Items.Add(DefaultVersionCaption);
@@ -157,7 +163,7 @@ namespace JsonDictionary
             _lastKwSelectedVersion = DefaultVersionCaption;
 
             dataGridView_examples.ContextMenuStrip = contextMenuStrip_findValue;
-            treeView_json.ContextMenuStrip = contextMenuStrip_findField;
+            treeView_examples.ContextMenuStrip = contextMenuStrip_findField;
 
             if (_showPreview)
             {
@@ -168,19 +174,18 @@ namespace JsonDictionary
 
         private async void Form1_Load(object sender, EventArgs e)
         {
+            Text = FormCaption;
+
             if (string.IsNullOrEmpty(Settings.Default.LastDbName)) return;
 
             ActivateUiControls(false);
-            tabControl1.TabPages[2].IsAccessible = false;
-
-            Text = FormCaption;
-
+            toolStripStatusLabel1.Text = "Loading database...";
             try
             {
                 await Task.Run(() =>
                     {
                         _metaDictionary = JsonIo.LoadBinary<List<JsoncDictionary>>(Settings.Default.LastDbName);
-                        _rootNode = JsonIo.LoadBinary<TreeNode>(Settings.Default.LastDbName + ".tree");
+                        _rootNodeExamples = JsonIo.LoadBinary<TreeNode>(Settings.Default.LastDbName + ".tree");
                         _rootNodeKeywords = JsonIo.LoadBinary<TreeNode>(Settings.Default.LastDbName + ".keywords");
                     }
                 ).ConfigureAwait(true);
@@ -190,28 +195,24 @@ namespace JsonDictionary
                 MessageBox.Show("File read exception [" + Settings.Default.LastDbName + "]: " + ex.Message);
             }
 
-            if (_metaDictionary != null && _rootNode != null)
+            if (_metaDictionary != null && _rootNodeExamples != null)
             {
                 Text = FormCaption + " " + ShortFileName(Settings.Default.LastDbName);
+                treeView_examples.Nodes.Clear();
+                treeView_examples.Nodes.Add(_rootNodeExamples);
+                treeView_examples.Sort();
+                treeView_examples.Nodes[0].Expand();
 
-                treeView_json.Nodes.Clear();
-                treeView_json.Nodes.Add(_rootNode);
-                treeView_json.Sort();
-                treeView_json.Nodes[0].Expand();
-
-
-                if (_rootNodeKeywords == null) return;
-
-                tabControl1.SelectedTab = tabControl1.TabPages[1];
-
-                treeView_keywords.Nodes.Clear();
-                treeView_keywords.Nodes.Add(_rootNodeKeywords);
-                treeView_keywords.Sort();
-                treeView_keywords.Nodes[0].Expand();
-
+                if (_rootNodeKeywords != null)
+                {
+                    tabControl1.SelectedTab = tabControl1.TabPages[1];
+                    treeView_keywords.Nodes.Clear();
+                    treeView_keywords.Nodes.Add(_rootNodeKeywords);
+                    treeView_keywords.Sort();
+                    treeView_keywords.Nodes[0].Expand();
+                }
             }
-
-            tabControl1.TabPages[2].IsAccessible = true;
+            toolStripStatusLabel1.Text = "";
             ActivateUiControls(true);
         }
 
@@ -227,18 +228,14 @@ namespace JsonDictionary
         private async void OpenFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
             ActivateUiControls(false);
-
-            var result = await LoadDb(openFileDialog1.FileName);
-
-            ActivateUiControls(true);
-
-            if (result)
+            if (await LoadDb(openFileDialog1.FileName))
             {
                 Text = FormCaption + " " + ShortFileName(openFileDialog1.FileName);
                 tabControl1.SelectedTab = tabControl1.TabPages[1];
                 Settings.Default.LastDbName = openFileDialog1.FileName;
                 Settings.Default.Save();
             }
+            ActivateUiControls(true);
         }
 
         private async void Button_collectDatabase_Click(object sender, EventArgs e)
@@ -246,68 +243,82 @@ namespace JsonDictionary
             if (folderBrowserDialog1.ShowDialog() != DialogResult.OK) return;
 
             ActivateUiControls(false);
-
-            treeView_json.Nodes.Clear();
+            treeView_examples.Nodes.Clear();
             treeView_keywords.Nodes.Clear();
             _examplesTable.Clear();
-            _rootNode = new TreeNode(RootNodeName);
+            _keywordsTable.Clear();
+            _rootNodeExamples = new TreeNode(RootNodeName);
+            _rootNodeKeywords = new TreeNode(RootNodeName);
             _metaDictionary = new List<JsoncDictionary>();
-
             var startPath = folderBrowserDialog1.SelectedPath;
-
             var filesList = new List<string>();
-            foreach (var fileName in checkedListBox_params.CheckedItems) filesList.AddRange(Directory.GetFiles(startPath, fileName.ToString(), SearchOption.AllDirectories));
-
-            var filesNumber = filesList.Count;
-            var currentFileNumber = 0;
-            var oldProgress = 0;
-            progressBar1.Maximum = 100;
-            progressBar1.Value = 0;
-            foreach (var file in filesList)
-            {
-                currentFileNumber++;
-                var newProgress = (ushort)((float)currentFileNumber / filesNumber * 100);
-                if (newProgress >= oldProgress + MinProgressDisplay)
+            toolStripStatusLabel1.Text = "Searching files...";
+            var filesCount = 0;
+            await Task.Run(() =>
                 {
-                    progressBar1.Value = oldProgress = newProgress;
-                    textBox_logText.Text += textLog.ToString();
-                    textLog.Clear();
-                    textBox_logText.SelectionStart = textBox_logText.Text.Length;
-                    textBox_logText.ScrollToCaret();
+                    foreach (var fileName in checkedListBox_params.CheckedItems)
+                    {
+                        filesList.AddRange(Directory.GetFiles(startPath, fileName.ToString(),
+                            SearchOption.AllDirectories));
+                        var filesNumber = filesList.Count;
+                        /*var currentFileNumber = 0;
+                        var oldProgress = 0;
+                        toolStripProgressBar1.Maximum = 100;
+                        toolStripProgressBar1.Value = 0;*/
+                        Invoke((MethodInvoker)delegate
+                       {
+                           toolStripStatusLabel1.Text =
+                               "Collecting \"" + fileName + "\" database from " + filesNumber + " files";
+                       });
+                        foreach (var file in filesList)
+                        {
+                            /*currentFileNumber++;
+                            var newProgress = (int)((float)currentFileNumber / filesNumber * 100);
+                            if (newProgress >= oldProgress + MinProgressDisplay)
+                            {
+                                toolStripProgressBar1.Value = oldProgress = newProgress <= toolStripProgressBar1.Maximum
+                                    ? newProgress
+                                    : toolStripProgressBar1.Maximum;
+                                if (textLog.Length > 0)
+                                {
+                                    textBox_logText.Text += textLog.ToString();
+                                    textLog.Clear();
+                                    textBox_logText.SelectionStart = textBox_logText.Text.Length;
+                                    textBox_logText.ScrollToCaret();
+                                }
+                            }*/
+
+                            _version = "";
+                            DeserializeFile(file, file.Substring(file.LastIndexOf('\\') + 1), _rootNodeExamples);
+                        }
+
+                        filesCount += filesList.Count;
+                        filesList.Clear();
+                    }
                 }
-
-                _version = "";
-                await Task.Run(() =>
-                {
-                    DeserializeFile(file, file.Substring(file.LastIndexOf('\\') + 1), _rootNode);
-                }).ConfigureAwait(true);
-            }
+            ).ConfigureAwait(true);
 
 
-            textLog.AppendLine("Files parsed: " + filesList.Count.ToString());
+            toolStripStatusLabel1.Text = "";
+            textLog.AppendLine("Files parsed: " + filesCount.ToString());
             textBox_logText.Text += textLog.ToString();
             textLog.Clear();
             textBox_logText.SelectionStart = textBox_logText.Text.Length;
             textBox_logText.ScrollToCaret();
 
-            if (_rootNode == null) return;
+            if (_rootNodeExamples == null) return;
 
-            treeView_json.Nodes.Add(_rootNode);
-            treeView_json.Sort();
-            treeView_json.Nodes[0].Expand();
-
+            treeView_examples.Nodes.Add(_rootNodeExamples);
+            treeView_examples.Sort();
+            treeView_examples.Nodes[0].Expand();
+            CollectKeywords(_metaDictionary, _rootNodeKeywords);
+            if (_rootNodeKeywords != null)
+            {
+                treeView_keywords.Nodes.Add(_rootNodeKeywords);
+                treeView_keywords.Sort();
+                treeView_keywords.Nodes[0].Expand();
+            }
             ActivateUiControls(true);
-
-            tabControl1.TabPages[2].IsAccessible = false;
-            _rootNodeKeywords = new TreeNode(RootNodeName);
-            await CollectKeywords(_metaDictionary, _rootNodeKeywords);
-
-            if (_rootNodeKeywords == null) return;
-
-            treeView_keywords.Nodes.Add(_rootNodeKeywords);
-            treeView_keywords.Sort();
-            treeView_keywords.Nodes[0].Expand();
-            tabControl1.TabPages[2].IsAccessible = true;
         }
 
         private async void Button_validateFiles_Click(object sender, EventArgs e)
@@ -319,24 +330,31 @@ namespace JsonDictionary
             var startPath = folderBrowserDialog1.SelectedPath;
 
             var filesList = new List<string>();
+            toolStripStatusLabel1.Text = "Searching files...";
             foreach (var fileName in checkedListBox_params.CheckedItems) filesList.AddRange(Directory.GetFiles(startPath, fileName.ToString(), SearchOption.AllDirectories));
 
             var filesNumber = filesList.Count;
             var currentFileNumber = 0;
             var oldProgress = 0;
-            progressBar1.Maximum = 100;
-            progressBar1.Value = 0;
+            toolStripProgressBar1.Maximum = 100;
+            toolStripProgressBar1.Value = 0;
+            toolStripStatusLabel1.Text = "Validating " + filesNumber + " files";
             foreach (var file in filesList)
             {
                 currentFileNumber++;
-                var newProgress = (ushort)((float)currentFileNumber / filesNumber * 100);
+                var newProgress = (int)((float)currentFileNumber / filesNumber * 100);
                 if (newProgress >= oldProgress + MinProgressDisplay)
                 {
-                    progressBar1.Value = oldProgress = newProgress;
-                    textBox_logText.Text += textLog.ToString();
-                    textLog.Clear();
-                    textBox_logText.SelectionStart = textBox_logText.Text.Length;
-                    textBox_logText.ScrollToCaret();
+                    toolStripProgressBar1.Value = oldProgress = newProgress <= toolStripProgressBar1.Maximum
+                        ? newProgress
+                        : toolStripProgressBar1.Maximum;
+                    if (textLog.Length > 0)
+                    {
+                        textBox_logText.Text += textLog.ToString();
+                        textLog.Clear();
+                        textBox_logText.SelectionStart = textBox_logText.Text.Length;
+                        textBox_logText.ScrollToCaret();
+                    }
                 }
 
                 await Task.Run(() =>
@@ -344,6 +362,7 @@ namespace JsonDictionary
                     ValidateFile(file);
                 }).ConfigureAwait(true);
             }
+            toolStripStatusLabel1.Text = "";
 
             textLog.AppendLine("Files validated: " + filesList.Count.ToString());
             textBox_logText.Text += textLog.ToString();
@@ -369,7 +388,7 @@ namespace JsonDictionary
                 try
                 {
                     JsonIo.SaveBinary<List<JsoncDictionary>>(_metaDictionary, saveFileDialog1.FileName);
-                    JsonIo.SaveBinary<TreeNode>(_rootNode, saveFileDialog1.FileName + ".tree");
+                    JsonIo.SaveBinary<TreeNode>(_rootNodeExamples, saveFileDialog1.FileName + ".tree");
                     JsonIo.SaveBinary<TreeNode>(_rootNodeKeywords, saveFileDialog1.FileName + ".keywords");
                 }
                 catch (Exception ex)
@@ -382,44 +401,15 @@ namespace JsonDictionary
         private void Button_readjust_Click(object sender, EventArgs e)
         {
             ActivateUiControls(false, false);
-
-            var rowsNumber = dataGridView_examples.RowCount;
-            var currentRowNumber = 0;
-            var oldProgress = 0;
-            progressBar1.Maximum = 100;
-            progressBar1.Value = 0;
-
-            for (var i = 0; i < dataGridView_examples.RowCount; i++)
-            {
-                currentRowNumber++;
-                var newProgress = (ushort)((float)currentRowNumber / (float)rowsNumber * 100);
-                if (newProgress >= oldProgress + MinProgressDisplay) progressBar1.Value = oldProgress = newProgress;
-
-                ReadjustRow(dataGridView_examples, i);
-            }
+            ReadjustRows(dataGridView_examples);
             ActivateUiControls(true);
         }
 
         private void Button_p_reAdjust_Click(object sender, EventArgs e)
         {
             ActivateUiControls(false, false);
-
-            var rowsNumber = dataGridView_keywords.RowCount;
-            var currentRowNumber = 0;
-            var oldProgress = 0;
-            progressBar1.Maximum = 100;
-            progressBar1.Value = 0;
-
-            for (var i = 0; i < dataGridView_keywords.RowCount; i++)
-            {
-                currentRowNumber++;
-                var newProgress = (ushort)((float)currentRowNumber / (float)rowsNumber * 100);
-                if (newProgress >= oldProgress + MinProgressDisplay) progressBar1.Value = oldProgress = newProgress;
-
-                ReadjustRow(dataGridView_keywords, i);
-            }
+            ReadjustRows(dataGridView_keywords);
             ActivateUiControls(true);
-
         }
 
         private void TextBox_searchString_KeyDown(object sender, KeyEventArgs e)
@@ -428,8 +418,8 @@ namespace JsonDictionary
 
             var condition = (SearchCondition)comboBox_condition.SelectedIndex;
             var searchString = textBox_searchString.Text;
-            var caseSensitive = checkBox_seachCaseSensitive.Checked;
-            if (_lastFilterValue == searchString && _lastSelectedCondition == condition && _lastCaseSensitive == caseSensitive) return;
+            var caseSensitive = checkBox_seachCaseSensitive.Checked ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            if (_lastExFilterValue == searchString && _lastExSelectedCondition == condition && _lastExCaseSensitive == caseSensitive) return;
 
             ActivateUiControls(false);
             dataGridView_examples.DataSource = null;
@@ -446,12 +436,11 @@ namespace JsonDictionary
 
             var condition = (SearchCondition)comboBox_p_condition.SelectedIndex;
             var searchString = textBox_p_searchString.Text;
-            var caseSensitive = checkBox_p_seachCaseSensitive.Checked;
+            var caseSensitive = checkBox_p_seachCaseSensitive.Checked ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
             if (_lastKwFilterValue == searchString && _lastKwSelectedCondition == condition && _lastKwCaseSensitive == caseSensitive) return;
 
             ActivateUiControls(false);
             dataGridView_keywords.DataSource = null;
-
             FilterKeywords(condition, searchString, comboBox_p_versions.SelectedItem?.ToString(), caseSensitive);
             dataGridView_keywords.DataSource = _examplesTable;
             ActivateUiControls(true);
@@ -475,97 +464,14 @@ namespace JsonDictionary
             ActivateUiControls(true);
         }
 
-        private void DataGridView_examples_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            var column = e.ColumnIndex;
-            if (!_collectAllFileNames && column == 2)
-            {
-                var editor = new JsonViewer(dataGridView_examples.Rows[e.RowIndex].Cells[column].Value.ToString(), "")
-                {
-                    ReformatJson = _reformatJson
-                };
-                editor.Show();
-
-                editor.SelectText(dataGridView_examples.Rows[e.RowIndex].Cells[1].Value.ToString());
-            }
-            else if (column == 1)
-            {
-                var cell = dataGridView_examples.Rows[e.RowIndex].Cells[column];
-                dataGridView_examples.CurrentCell = cell;
-
-                var editor = new JsonViewer(dataGridView_examples.Rows[e.RowIndex].Cells[2].Value.ToString(),
-                    cell.Value.ToString())
-                {
-                    ReformatJson = _reformatJson
-                };
-                editor.Show();
-            }
-        }
-
-        private void DataGridView_examples_RowHeaderMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            ReadjustRow(dataGridView_examples, e.RowIndex);
-        }
-
-        private void DataGridView_examples_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            if (e.Button != MouseButtons.Right) return;
-
-            dataGridView_examples.ClearSelection();
-            dataGridView_examples.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected = true;
-        }
-
-        private void DataGridView_examples_RowEnter(object sender, DataGridViewCellEventArgs e)
-        {
-            if (!_showPreview) return;
-
-            if (_sideViewer == null || _sideViewer.IsDisposed)
-            {
-                _sideViewer = new JsonViewer(PreViewCaption, " ") { AlwaysOnTop = _alwaysOnTop, ReformatJson = _reformatJson };
-                _sideViewer.Show();
-            }
-
-            _sideViewer.EditorText = dataGridView_examples.Rows[e.RowIndex].Cells[1].Value.ToString();
-        }
-
-
-        private void TreeView_json_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode != Keys.Enter) return;
-
-            if (treeView_json.SelectedNode == null || treeView_json.SelectedNode.Parent.Text == RootNodeName) return;
-
-            ActivateUiControls(false);
-            FillExamplesGrid(treeView_json.SelectedNode);
-            dataGridView_examples.Invalidate();
-            ActivateUiControls(true);
-            _lastFilterValue = "";
-        }
-
-        private void TreeView_json_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right) treeView_json.SelectedNode = e.Node;
-        }
-
-        private void TreeView_json_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Node == null || e.Node.Parent.Text == RootNodeName) return;
-
-            ActivateUiControls(false);
-            FillExamplesGrid(e.Node);
-            dataGridView_examples.Invalidate();
-            ActivateUiControls(true);
-            _lastFilterValue = "";
-        }
-
         #region Prevent_treenode_collapse
 
-        private void TreeView_json_MouseDown(object sender, MouseEventArgs e)
+        private void TreeView_MouseDown(object sender, MouseEventArgs e)
         {
             _isDoubleClick = e.Clicks > 1;
         }
 
-        private void TreeView_json_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        private void TreeView_No_Expand_Collapse(object sender, TreeViewCancelEventArgs e)
         {
             if (!_isDoubleClick || e.Action != TreeViewAction.Expand) return;
 
@@ -573,19 +479,26 @@ namespace JsonDictionary
             e.Cancel = true;
         }
 
-        private void TreeView_json_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
-        {
-            if (!_isDoubleClick || e.Action != TreeViewAction.Collapse) return;
-
-            _isDoubleClick = false;
-            e.Cancel = true;
-        }
-
         #endregion
 
-        private void TreeView_keywords_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        private void TreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button == MouseButtons.Right) treeView_keywords.SelectedNode = e.Node;
+            if (e.Button != MouseButtons.Right) return;
+
+            if (sender is TreeView tree) tree.SelectedNode = e.Node;
+        }
+
+        private void TreeView_examples_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter) return;
+
+            if (treeView_examples.SelectedNode == null || treeView_examples.SelectedNode.Parent.Text == RootNodeName) return;
+
+            ActivateUiControls(false);
+            FillExamplesGrid(treeView_examples.SelectedNode);
+            dataGridView_examples.Invalidate();
+            ActivateUiControls(true);
+            _lastExFilterValue = "";
         }
 
         private void TreeView_keywords_KeyDown(object sender, KeyEventArgs e)
@@ -601,9 +514,20 @@ namespace JsonDictionary
             _lastKwFilterValue = "";
         }
 
+        private void TreeView_examples_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node == null || (e.Node.Parent != null && e.Node.Parent.Text == RootNodeName)) return;
+
+            ActivateUiControls(false);
+            FillExamplesGrid(e.Node);
+            dataGridView_examples.Invalidate();
+            ActivateUiControls(true);
+            _lastExFilterValue = "";
+        }
+
         private void TreeView_keywords_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node == null || e.Node.Parent.Text == RootNodeName) return;
+            if (e.Node == null || (e.Node.Parent != null && e.Node.Parent.Text == RootNodeName)) return;
 
             ActivateUiControls(false);
             FillKeywordsGrid(e.Node);
@@ -612,49 +536,57 @@ namespace JsonDictionary
             _lastKwFilterValue = "";
         }
 
-
-        private void DataGridView_keywords_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        private void DataGridView_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right) return;
 
-            dataGridView_keywords.ClearSelection();
-            dataGridView_keywords.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected = true;
+            if (sender is DataGridView dataGrid)
+            {
+                dataGrid.ClearSelection();
+                dataGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Selected = true;
+            }
         }
 
-        private void DataGridView_keywords_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void DataGridView_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             var column = e.ColumnIndex;
-            if (!_collectAllFileNames && column == 2)
+            if (sender is DataGridView dataGrid)
             {
-                var editor = new JsonViewer(dataGridView_keywords.Rows[e.RowIndex].Cells[column].Value.ToString(), "")
+                if (!_collectAllFileNames && column == 2)
                 {
-                    ReformatJson = _reformatJson
-                };
-                editor.Show();
+                    var editor = new JsonViewer(dataGrid.Rows[e.RowIndex].Cells[column].Value.ToString(),
+                        "")
+                    {
+                        ReformatJson = _reformatJson
+                    };
+                    editor.Show();
 
-                editor.SelectText(dataGridView_keywords.Rows[e.RowIndex].Cells[1].Value.ToString());
-            }
-            else if (column == 1)
-            {
-                var cell = dataGridView_keywords.Rows[e.RowIndex].Cells[column];
-                dataGridView_keywords.CurrentCell = cell;
-
-                var editor = new JsonViewer(dataGridView_keywords.Rows[e.RowIndex].Cells[column].Value.ToString(),
-                    cell.Value.ToString())
+                    editor.SelectText(dataGrid.Rows[e.RowIndex].Cells[1].Value.ToString());
+                }
+                else if (column == 1)
                 {
-                    ReformatJson = _reformatJson
-                };
-                editor.Show();
-            }
+                    var cell = dataGrid.Rows[e.RowIndex].Cells[column];
+                    dataGrid.CurrentCell = cell;
 
+                    var editor = new JsonViewer(dataGrid.Rows[e.RowIndex].Cells[column].Value.ToString(),
+                        cell.Value.ToString())
+                    {
+                        ReformatJson = _reformatJson
+                    };
+                    editor.Show();
+                }
+            }
         }
 
-        private void DataGridView_keywords_RowHeaderMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+        private void DataGridView_RowHeaderMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            ReadjustRow(dataGridView_keywords, e.RowIndex);
+            if (sender is DataGridView dataGrid)
+            {
+                ReadjustRow(dataGrid, e.RowIndex);
+            }
         }
 
-        private void DataGridView_keywords_RowEnter(object sender, DataGridViewCellEventArgs e)
+        private void DataGridView_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
             if (!_showPreview) return;
 
@@ -664,24 +596,26 @@ namespace JsonDictionary
                 _sideViewer.Show();
             }
 
-            _sideViewer.EditorText = dataGridView_keywords.Rows[e.RowIndex].Cells[1].Value.ToString();
+            if (sender is DataGridView dataGrid)
+            {
+                _sideViewer.EditorText = dataGrid.Rows[e.RowIndex].Cells[1].Value.ToString();
+            }
         }
-
 
         private void FindValueToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (_lastSelectedNode == null
+            if (_lastExSelectedNode == null
                 || dataGridView_examples == null
                 || dataGridView_examples.SelectedCells.Count < 1
                 || dataGridView_examples.SelectedCells[0]?.ColumnIndex != 1
-                || _lastSelectedNode.Parent?.Parent?.Parent == null) return;
+                || _lastExSelectedNode.Parent?.Parent?.Parent == null) return;
 
-            var paramName = _lastSelectedNode.Text;
+            var paramName = _lastExSelectedNode.Text;
             var paramValue = JsonIo.CompactJson(dataGridView_examples.SelectedCells[0].Value.ToString());
 
             ActivateUiControls(false);
-            FillExamplesGrid(_lastSelectedNode.Parent, comboBox_versions.SelectedItem.ToString(), "\"" + paramName + "\":", SearchCondition.Contains, true);
-            FilterExamples(SearchCondition.Contains, paramValue, comboBox_versions.SelectedItem.ToString(), true, true);
+            FillExamplesGrid(_lastExSelectedNode.Parent, comboBox_versions.SelectedItem.ToString(), "\"" + paramName + "\":", SearchCondition.Contains, StringComparison.Ordinal);
+            FilterExamples(SearchCondition.Contains, paramValue, comboBox_versions.SelectedItem.ToString(), StringComparison.Ordinal, true);
 
             dataGridView_examples.Invalidate();
             ActivateUiControls(true);
@@ -689,34 +623,33 @@ namespace JsonDictionary
 
         private void FindFieldToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (treeView_json.SelectedNode?.Parent?.Parent?.Parent == null || treeView_json.SelectedNode.Parent.Parent.Text == RootNodeName) return;
+            if (treeView_examples.SelectedNode?.Parent?.Parent?.Parent == null || treeView_examples.SelectedNode.Parent.Parent.Text == RootNodeName) return;
 
-            var paramName = treeView_json.SelectedNode.Text;
+            var paramName = treeView_examples.SelectedNode.Text;
 
             ActivateUiControls(false);
-            FillExamplesGrid(treeView_json.SelectedNode.Parent);
-            FilterExamples(SearchCondition.Contains, "\"" + paramName + "\":", comboBox_versions.SelectedItem.ToString(), true, false);
+            FillExamplesGrid(treeView_examples.SelectedNode.Parent);
+            FilterExamples(SearchCondition.Contains, "\"" + paramName + "\":", comboBox_versions.SelectedItem.ToString(), StringComparison.Ordinal, false);
             dataGridView_examples.Invalidate();
             ActivateUiControls(true);
         }
 
         private void ContextMenuStrip_findValue_Opening(object sender, CancelEventArgs e)
         {
-            if (_lastSelectedNode == null
+            if (_lastExSelectedNode == null
                 || dataGridView_examples == null
                 || dataGridView_examples.SelectedCells.Count < 1
                 || dataGridView_examples.SelectedCells[0]?.ColumnIndex != 1
-                || _lastSelectedNode.Parent?.Parent?.Parent == null)
+                || _lastExSelectedNode.Parent?.Parent?.Parent == null)
                 FindAllStripMenuItem.Enabled = false;
             else FindAllStripMenuItem.Enabled = true;
         }
 
         private void ContextMenuStrip_findField_Opening(object sender, CancelEventArgs e)
         {
-            if (treeView_json.SelectedNode?.Parent?.Parent?.Parent == null || treeView_json.SelectedNode.Parent.Parent.Text == RootNodeName) FindFieldToolStripMenuItem.Enabled = false;
+            if (treeView_examples.SelectedNode?.Parent?.Parent?.Parent == null || treeView_examples.SelectedNode.Parent.Parent.Text == RootNodeName) FindFieldToolStripMenuItem.Enabled = false;
             else FindFieldToolStripMenuItem.Enabled = true;
         }
-
 
         private void CheckBox_collectAllFileNames_CheckedChanged(object sender, EventArgs e)
         {
@@ -744,7 +677,6 @@ namespace JsonDictionary
             TopMost = _alwaysOnTop;
         }
 
-
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             Settings.Default.LastRootFolder = folderBrowserDialog1.SelectedPath;
@@ -762,45 +694,39 @@ namespace JsonDictionary
 
         private async Task<bool> LoadDb(string fileName)
         {
-            List<JsoncDictionary> dataCollection;
-            TreeNode nodeCollection;
-            TreeNode nodeCollectionKeywords;
-
-            progressBar1.Maximum = 3;
-            progressBar1.Value = 0;
+            toolStripProgressBar1.Maximum = 3;
+            toolStripProgressBar1.Value = 0;
+            toolStripStatusLabel1.Text = "Loading database \"" + fileName + "\"";
             await Task.Run(() =>
             {
                 try
                 {
                     Invoke((MethodInvoker)delegate
                     {
-                        dataCollection = JsonIo.LoadBinary<List<JsoncDictionary>>(fileName);
-                        progressBar1.Value = 1;
+                        _metaDictionary = JsonIo.LoadBinary<List<JsoncDictionary>>(fileName);
+                        toolStripProgressBar1.Value = 1;
 
-                        nodeCollection = JsonIo.LoadBinary<TreeNode>(openFileDialog1.FileName + ".tree");
-                        progressBar1.Value = 2;
+                        _rootNodeExamples = JsonIo.LoadBinary<TreeNode>(openFileDialog1.FileName + ".tree");
+                        toolStripProgressBar1.Value = 2;
 
-                        if (dataCollection == null || nodeCollection == null) return;
+                        if (_metaDictionary == null || _rootNodeExamples == null) return;
 
-                        _metaDictionary = dataCollection;
+                        treeView_examples.Nodes.Clear();
+                        treeView_examples.Nodes.Add(_rootNodeExamples);
+                        treeView_examples.Sort();
+                        treeView_examples.Nodes[0].Expand();
 
-                        _rootNode = nodeCollection;
-                        treeView_json.Nodes.Clear();
-                        treeView_json.Nodes.Add(_rootNode);
-                        treeView_json.Sort();
-                        treeView_json.Nodes[0].Expand();
+                        _rootNodeKeywords = JsonIo.LoadBinary<TreeNode>(openFileDialog1.FileName + ".keywords");
+                        toolStripProgressBar1.Value = 3;
 
-                        tabControl1.TabPages[2].IsAccessible = false;
-                        nodeCollectionKeywords = JsonIo.LoadBinary<TreeNode>(openFileDialog1.FileName + ".keywords");
-                        progressBar1.Value = 3;
+                        if (_rootNodeKeywords != null)
+                        {
+                            treeView_keywords.Nodes.Clear();
+                            treeView_keywords.Nodes.Add(_rootNodeKeywords);
+                            treeView_keywords.Sort();
+                            treeView_keywords.Nodes[0].Expand();
+                        }
 
-                        if (nodeCollectionKeywords == null) return;
-                        _rootNodeKeywords = nodeCollectionKeywords;
-                        treeView_keywords.Nodes.Clear();
-                        treeView_keywords.Nodes.Add(_rootNodeKeywords);
-                        treeView_keywords.Sort();
-                        treeView_keywords.Nodes[0].Expand();
-                        tabControl1.TabPages[2].IsAccessible = true;
                     });
                 }
                 catch (Exception ex)
@@ -808,6 +734,7 @@ namespace JsonDictionary
                     MessageBox.Show("File read exception [" + openFileDialog1.FileName + "]: " + ex.Message);
                 }
             }).ConfigureAwait(true);
+            toolStripStatusLabel1.Text = "";
 
             return true;
         }
@@ -879,28 +806,28 @@ namespace JsonDictionary
             }
 
             if (schema == null) return;
-            {
-                ICollection<ValidationError> errors;
-                try
-                {
-                    errors = schema.Validate(jsonText);
-                }
-                catch (Exception ex)
-                {
-                    textLog.AppendLine(Environment.NewLine + fullFileName + " file validation exception :" +
-                                       Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
-                    return;
-                }
 
-                foreach (var error in errors)
-                {
-                    var errorText = PrintError(fullFileName, error);
-                    if (_suppressErrors.Contains(error.Kind))
-                        File.AppendAllText(LogFileName, errorText);
-                    else
-                        textLog.Append(errorText);
-                }
+            ICollection<ValidationError> errors;
+            try
+            {
+                errors = schema.Validate(jsonText);
             }
+            catch (Exception ex)
+            {
+                textLog.AppendLine(Environment.NewLine + fullFileName + " file validation exception :" +
+                                   Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
+                return;
+            }
+
+            foreach (var error in errors)
+            {
+                var errorText = PrintError(fullFileName, error);
+                if (_suppressErrors.Contains(error.Kind))
+                    File.AppendAllText(LogFileName, errorText);
+                else
+                    textLog.Append(errorText);
+            }
+
         }
 
         private static string PrintError(string fullFileName, ValidationError error)
@@ -938,7 +865,7 @@ namespace JsonDictionary
 
                 if (_metaDictionary.Any(n => n.Type == _fileType))
                 {
-                    fileNode = _rootNode.Nodes[_rootNode.Nodes.Count - 1];
+                    fileNode = _rootNodeExamples.Nodes[_rootNodeExamples.Nodes.Count - 1];
                 }
                 else
                 {
@@ -984,58 +911,81 @@ namespace JsonDictionary
                     {
                         string printValue;
                         string saveValue;
-                        if (jProperty.Value is JValue jPropertyValue)
+                        var jValue = jProperty.Value;
+                        if (jValue is JValue jPropertyValue)
                         {
                             printValue = saveValue = jPropertyValue.Value?.ToString();
                         }
                         else
                         {
-                            printValue = jProperty.Value?.GetType().Name;
-                            saveValue = jProperty.Value?.ToString();
+                            printValue = jValue?.GetType().Name;
+                            saveValue = jValue?.ToString();
                         }
 
-                        TreeNode childNode;
-
-                        var obj = parentNode.Nodes.Cast<TreeNode>().Where(r => r.Text == jProperty.Name).ToArray();
-
-                        if (obj.Count() > 1)
-                        {
-                            textLog.AppendLine(Environment.NewLine
-                                + "More than 1 similar object found in the tree:"
-                                + Environment.NewLine
-                                + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next)
-                                + Environment.NewLine);
-                        }
-                        var exNode = obj.FirstOrDefault();
-
-                        if (exNode != null)
-                        {
-                            childNode = exNode;
-                        }
-                        else
-                        {
-                            childNode = new TreeNode(jProperty.Name)
-                            {
-                                Name = jProperty.Name,
-                            };
-                            parentNode.Nodes.Add(childNode);
-                        }
-
-                        if (jProperty.Name == VersionTagName) _version = printValue;
-
-                        if (!JsoncDictionary.NodeTypes.TryGetValue(token.GetType().Name, out var nodeType))
-                        {
-                            nodeType = JsoncNodeType.Unknown;
-                            textLog.AppendLine(Environment.NewLine + _fileName + " node type unknown: " + Environment.NewLine + " Node [" + jProperty.Name + "] " + Environment.NewLine);
-                        }
                         if (!string.IsNullOrEmpty(saveValue))
                         {
-                            var node = new MetaNode(jProperty.Name, parent, nodeType, depth, saveValue, _fileName, _version);
-                            var errorString = newItem?.Add(node);
-                            if (!string.IsNullOrEmpty(errorString)) textLog.AppendLine(Environment.NewLine + _fileName + " node add error: " + Environment.NewLine + " Node [" + jProperty.Name + "] " + errorString + Environment.NewLine);
-                        }
+                            var propName = jProperty.Name;
+                            var obj = parentNode.Nodes.Cast<TreeNode>().Where(r => r.Text == propName).ToArray();
+                            if (obj.Count() > 1)
+                            {
+                                textLog.AppendLine(Environment.NewLine
+                                    + "More than 1 similar object found in the tree:"
+                                    + Environment.NewLine
+                                    + obj.Select(n => n.FullPath).Aggregate("", (current, next) => current + ", " + next)
+                                    + Environment.NewLine);
+                            }
+                            var exNode = obj.FirstOrDefault();
 
-                        foreach (var child in jProperty.Children()) ParseJsonObject(child, depth + 1, jProperty.Path, childNode);
+                            TreeNode childNode;
+                            if (exNode != null)
+                            {
+                                childNode = exNode;
+                            }
+                            else
+                            {
+                                childNode = new TreeNode(propName)
+                                {
+                                    Name = propName,
+                                };
+                                parentNode.Nodes.Add(childNode);
+                            }
+
+                            if (propName == VersionTagName) _version = printValue;
+                            var nodeType = JsoncNodeType.Property;
+                            var jPropType = jProperty.Children().FirstOrDefault().Type;
+                            if (jPropType == JTokenType.Object)
+                                nodeType = JsoncNodeType.Object;
+                            else if (jPropType == JTokenType.Array)
+                                nodeType = JsoncNodeType.Array;
+
+                            var node = new MetaNode(propName, parent, nodeType, depth, saveValue, _fileName, _version);
+                            var errorString = newItem?.Add(node);
+                            if (!string.IsNullOrEmpty(errorString))
+                            {
+                                textLog.AppendLine(Environment.NewLine + _fileName
+                                                                       + " node add error: "
+                                                                       + Environment.NewLine
+                                                                       + " Node ["
+                                                                       + propName
+                                                                       + "] "
+                                                                       + errorString
+                                                                       + Environment.NewLine);
+                            }
+
+                            foreach (var child in jProperty.Children())
+                            {
+                                if (child is JArray || child is JObject || child is JProperty) ParseJsonObject(child, depth + 1, jProperty.Path, childNode);
+                            }
+                        }
+                        /*else
+                        {
+                            textLog.AppendLine(Environment.NewLine + _fileName
+                                                                   + " Empty node: "
+                                                                   + " Node ["
+                                                                   + jProperty.Path
+                                                                   + "] "
+                                                                   + Environment.NewLine);
+                        }*/
                         break;
                     }
                 case JObject jObject:
@@ -1072,28 +1022,49 @@ namespace JsonDictionary
                         foreach (var child in jArray.Children()) ParseJsonObject(child, depth, newParent, parentNode);
                         break;
                     }
+                default:
+                    {
+                        if (token.Children().Any())
+                        {
+                            textLog.AppendLine(Environment.NewLine + _fileName
+                                                                   + " Node missed: ["
+                                                                   + token.Path
+                                                                   + "] of type \""
+                                                                   + token.Type
+                                                                   + "\""
+                                                                   + Environment.NewLine);
+                        }
+                    }
+                    break;
             }
         }
 
-        private async Task CollectKeywords(IReadOnlyCollection<JsoncDictionary> sourceCollection, TreeNode parentNode)
+        private async void CollectKeywords(IReadOnlyCollection<JsoncDictionary> sourceCollection, TreeNode parentNode)
         {
-            progressBar1.Maximum = sourceCollection.Count;
-            progressBar1.Value = 0;
+            /*var recordsNumber = sourceCollection.Count;
+            var currentRecordNumber = 0;
+            var oldProgress = 0;
+            toolStripProgressBar1.Maximum = 100;
+            toolStripProgressBar1.Value = 0;*/
+
+
+            toolStripStatusLabel1.Text = "Collecting keywords from " + sourceCollection.Count + " nodes";
+            var currentDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName);
 
             await Task.Run(() =>
             {
-                foreach (var fileType in sourceCollection)
+                // assuming 1st level nodes are file types/names
+                foreach (var currentCollection in sourceCollection)
                 {
-                    var fileName = "";
-                    foreach (var s in JsoncDictionary.FileNames)
+                    var fileName = JsoncDictionary.FileNames.FirstOrDefault(s => s.Value == currentCollection.Type).Key;
+                    if (string.IsNullOrEmpty(fileName))
                     {
-                        if (s.Value != fileType.Type) continue;
-                        fileName = s.Key;
-                        break;
+                        textLog.AppendLine(Environment.NewLine + currentCollection.Type + " file type not found in collection" + Environment.NewLine);
+                        continue;
                     }
 
+                    // select or create node for current file type
                     var currentFileNode = parentNode.Nodes.Find(fileName, true);
-
                     if (currentFileNode == null || !currentFileNode.Any())
                     {
                         var fileNode = new TreeNode(fileName)
@@ -1103,17 +1074,20 @@ namespace JsonDictionary
                         parentNode.Nodes.Add(fileNode);
                         currentFileNode = parentNode.Nodes.Find(fileName, false);
                     }
-
-                    //if (currentFileNode?.Count() > 1)
+                    if (currentFileNode == null)
                     {
-                        //not possible
+                        textLog.AppendLine(Environment.NewLine + currentCollection.Type + " error finding/creating node for file type \"" + fileName + "\"" + Environment.NewLine);
+                        continue;
+                    }
+                    if (currentFileNode.Count() > 1)
+                    {
+                        textLog.AppendLine(Environment.NewLine + currentCollection.Type + " parent node has duplicate file type records" + Environment.NewLine);
                     }
 
                     // collect all schema texts to search for keywords. simple but ineffective. temporary solution
                     // rewrite to use schema dictionary
-                    var filesList = new List<string>();
-                    var currentDirectory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName);
-                    filesList.AddRange(Directory.GetFiles(currentDirectory, fileName.Replace(".jsonc", ".json" + ".original"),
+                    /*var filesList = new List<string>();
+                    filesList.AddRange(Directory.GetFiles(currentDirectory, fileName.Replace(".jsonc", ".json" + BackupSchemaExtension),
                         SearchOption.AllDirectories));
                     var schemaData = "";
                     foreach (var schemaFile in filesList)
@@ -1126,16 +1100,16 @@ namespace JsonDictionary
                         {
                             textLog.AppendLine(Environment.NewLine + schemaFile + " file read exception:" + Environment.NewLine + ExceptionPrint(ex) + Environment.NewLine);
                         }
-                    }
+                    }*/
 
-                    foreach (var record in fileType.Nodes)
+                    // collect nodes from dictionary to the tree
+                    foreach (var record in currentCollection.Nodes)
                     {
-
-
                         TreeNode[] parNodeList;
                         var pName = record.ParentName;
                         if (pName == "action")
                             pName = "actions";
+
                         var cName = record.Name;
                         if (cName == "action")
                             cName = "actions";
@@ -1147,7 +1121,7 @@ namespace JsonDictionary
                         else
                         {
                             parNodeList = currentFileNode[0].Nodes.Find(pName, true);
-                            if (parNodeList == null || !parNodeList.Any())
+                            if (!parNodeList.Any())
                             {
                                 var newNode = new TreeNode(pName)
                                 {
@@ -1157,10 +1131,16 @@ namespace JsonDictionary
                                 parNodeList = currentFileNode[0].Nodes.Find(pName, false);
                             }
                         }
-                        //if (parNodeList?.Count() > 1)
+                        if (!parNodeList.Any())
                         {
-                            //very often
-                            //try to find proper parent to attach value
+                            textLog.AppendLine(Environment.NewLine + currentCollection.Type + " error finding/creating parent node for record \"" + record.ParentName + "." + record.Name + "\"" + Environment.NewLine);
+                            continue;
+                        }
+                        // very often
+                        if (parNodeList.Count() > 1)
+                        {
+                            // try to find proper parent to attach value
+                            // get the parent name of current parent
                         }
 
                         var childNodesList = parNodeList[0].Nodes.Find(cName, false);
@@ -1173,19 +1153,21 @@ namespace JsonDictionary
                             parNodeList[0].Nodes.Add(newNode);
                             childNodesList = parNodeList[0].Nodes.Find(cName, false);
                         }
-                        //if (chldNodesList?.Count() > 1)
+                        if (childNodesList?.Count() > 1)
                         {
-                            //not likely
+                            textLog.AppendLine(Environment.NewLine + currentCollection.Type + " error finding/creating child node for record \"" + record.ParentName + "." + record.Name + "\"" + Environment.NewLine);
+                            continue;
                         }
 
+                        // array/object value is always a complex object
                         if (record.Type != JsoncNodeType.Property) continue;
-
 
                         foreach (var prop in record.ExamplesList)
                         {
-                            var propValue = prop.Key.Trim();
-                            if (propValue.StartsWith("{") || propValue.StartsWith("[")) continue;
-                            if (!schemaData.Contains(propValue)) continue;
+                            var propValue = prop.Key;
+                            //var propValue = prop.Key.Trim();
+                            //if (propValue.StartsWith("{") || propValue.StartsWith("[")) continue;
+                            //if (!schemaData.Contains(propValue)) continue;
 
                             var propNodesList = childNodesList[0].Nodes.Find(propValue, false);
                             if (propNodesList == null || !propNodesList.Any())
@@ -1195,26 +1177,41 @@ namespace JsonDictionary
                                     Name = propValue,
                                 };
                                 childNodesList[0].Nodes.Add(newNode);
-                                //propNodesList = chldNodesList[0].Nodes.Find(pName, false);
+                                //propNodesList = childNodesList[0].Nodes.Find(pName, false);
                             }
-                            //if (propNodesList?.Count() > 1)
+                            /*if (propNodesList?.Count() > 1)
                             {
                                 //not likely
-                            }
+                            }*/
 
                         }
 
                     }
 
-                    Invoke((MethodInvoker)delegate
+                    /*Invoke((MethodInvoker)delegate
                     {
-                        progressBar1.Value++;
-                    });
+                        currentRecordNumber++;
+                        var newProgress = (int)((float)currentRecordNumber / recordsNumber * 100);
+                        if (newProgress >= oldProgress + MinProgressDisplay)
+                        {
+                            toolStripProgressBar1.Value = oldProgress = newProgress <= toolStripProgressBar1.Maximum
+                                ? newProgress
+                                : toolStripProgressBar1.Maximum;
+                        }
+                    });*/
                 }
             }).ConfigureAwait(true);
+            if (textLog.Length > 0)
+            {
+                textBox_logText.Text += textLog.ToString();
+                textLog.Clear();
+                textBox_logText.SelectionStart = textBox_logText.Text.Length;
+                textBox_logText.ScrollToCaret();
+            }
+            toolStripStatusLabel1.Text = "";
         }
 
-        private void FillExamplesGrid(TreeNode currentNode, string filterVersion = DefaultVersionCaption, string searchString = "", SearchCondition condition = SearchCondition.Contains, bool caseSensitive = false)
+        private void FillExamplesGrid(TreeNode currentNode, string filterVersion = DefaultVersionCaption, string searchString = "", SearchCondition condition = SearchCondition.Contains, StringComparison caseSensitive = StringComparison.OrdinalIgnoreCase)
         {
             if (currentNode == null) return;
 
@@ -1252,10 +1249,12 @@ namespace JsonDictionary
 
             if (selectedExamples == null) return;
 
-            if (_lastSelectedNode != null) _lastSelectedNode.NodeFont = new Font(treeView_json.Font.FontFamily, treeView_json.Font.Size, FontStyle.Regular);
+            toolStripStatusLabel1.Text = "Displaying " + selectedExamples.Count() + " records";
 
-            _lastSelectedNode = currentNode;
-            currentNode.NodeFont = new Font(treeView_json.Font.FontFamily, treeView_json.Font.Size, FontStyle.Bold);
+            if (_lastExSelectedNode != null) _lastExSelectedNode.NodeFont = new Font(treeView_examples.Font.FontFamily, treeView_examples.Font.Size, FontStyle.Regular);
+
+            _lastExSelectedNode = currentNode;
+            currentNode.NodeFont = new Font(treeView_examples.Font.FontFamily, treeView_examples.Font.Size, FontStyle.Bold);
 
             textBox_searchHistory.Clear();
 
@@ -1287,20 +1286,21 @@ namespace JsonDictionary
                     _examplesTable.Rows.Add(newRow);
                 }
             }
-            _lastFilterValue = searchString;
+            _lastExFilterValue = searchString;
 
             if (!string.IsNullOrEmpty(searchString))
             {
                 var transition = textBox_searchHistory.Text == "" ? "[" : " ->[";
-                var csString = caseSensitive ? "CS:" : "";
+                var csString = caseSensitive == StringComparison.Ordinal ? "CS:" : "";
                 textBox_searchHistory.Text += transition + csString + condition.ToString() + "]\"" + searchString + "\"";
             }
 
             comboBox_versions.Items.AddRange(versionCollection.ToArray() as string[]);
             comboBox_versions.SelectedIndexChanged += ComboBox_versions_SelectedIndexChanged;
+            toolStripStatusLabel1.Text = "";
         }
 
-        private void FillKeywordsGrid(TreeNode currentNode, string filterVersion = DefaultVersionCaption, string searchString = "", SearchCondition condition = SearchCondition.Contains, bool caseSensitive = false)
+        private void FillKeywordsGrid(TreeNode currentNode, string filterVersion = DefaultVersionCaption, string searchString = "", SearchCondition condition = SearchCondition.Contains, StringComparison caseSensitive = StringComparison.OrdinalIgnoreCase)
         {
             if (currentNode == null) return;
 
@@ -1339,16 +1339,18 @@ namespace JsonDictionary
 
             var selectedExamples = currentTypeNode?.Nodes?.Where(n =>
                 n.Name == cName
-                && n.ParentName == pName);
+                && n.ParentName == pName).ToList();
 
             if (selectedExamples == null) return;
+
+            toolStripStatusLabel1.Text = "Displaying " + selectedExamples.Count() + " records";
 
             if (_lastKwSelectedNode != null) _lastKwSelectedNode.NodeFont = new Font(treeView_keywords.Font.FontFamily, treeView_keywords.Font.Size, FontStyle.Regular);
 
             _lastKwSelectedNode = currentNode;
             currentNode.NodeFont = new Font(treeView_keywords.Font.FontFamily, treeView_keywords.Font.Size, FontStyle.Bold);
 
-            textBox_searchHistory.Clear();
+            textBox_p_searchHistory.Clear();
 
             _keywordsTable.Rows.Clear();
             dataGridView_keywords.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
@@ -1361,7 +1363,7 @@ namespace JsonDictionary
             var versionCollection = new List<string>();
             foreach (var record in selectedExamples)
             {
-                var examples = record.ExamplesList;
+                var examples = record?.ExamplesList;
                 if (examples == null) continue;
 
                 if (!versionCollection.Contains(record.Version)) versionCollection.Add(record.Version);
@@ -1371,6 +1373,21 @@ namespace JsonDictionary
                 {
                     var exampleText = JsonIo.BeautifyJson(example.Key, _reformatJson);
                     if (string.IsNullOrEmpty(searchString) && FilterCellOut(exampleText, condition, searchString, caseSensitive, true)) continue;
+                    // remove duplicate records
+                    var found = _keywordsTable.Rows.OfType<DataRow>().Any(row => row[0].ToString() == record.Version && row[1].ToString() == exampleText);
+                    foreach (var row in _keywordsTable.Rows)
+                    {
+                        if (((DataRow) row).ItemArray[0].ToString() == record.Version &&
+                            ((DataRow) row).ItemArray[1].ToString() == exampleText)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found)
+                        continue;
+
                     var newRow = _keywordsTable.NewRow();
                     newRow[_exampleGridColumnsNames[0]] = record.Version;
                     newRow[_exampleGridColumnsNames[1]] = exampleText;
@@ -1383,54 +1400,76 @@ namespace JsonDictionary
             if (!string.IsNullOrEmpty(searchString))
             {
                 var transition = textBox_p_searchHistory.Text == "" ? "[" : " ->[";
-                var csString = caseSensitive ? "CS:" : "";
+                var csString = caseSensitive == StringComparison.Ordinal ? "CS:" : "";
                 textBox_p_searchHistory.Text += transition + csString + condition.ToString() + "]\"" + searchString + "\"";
             }
 
             comboBox_p_versions.Items.AddRange(versionCollection.ToArray() as string[]);
             comboBox_p_versions.SelectedIndexChanged += ComboBox_p_versions_SelectedIndexChanged;
+            toolStripStatusLabel1.Text = "";
         }
 
-        private void FilterExamples(SearchCondition condition, string searchString, string filterVersion = DefaultVersionCaption, bool caseSensitive = false, bool compactJson = false)
+        private async void FilterExamples(SearchCondition condition, string searchString, string filterVersion = DefaultVersionCaption, StringComparison caseSensitive = StringComparison.OrdinalIgnoreCase, bool compactJson = false)
         {
-            if (_lastFilterValue == searchString && _lastSelectedCondition == condition && _lastCaseSensitive == caseSensitive) return;
+            if (_lastExFilterValue == searchString && _lastExSelectedCondition == condition && _lastExCaseSensitive == caseSensitive) return;
 
-            _lastFilterValue = searchString;
-            _lastSelectedCondition = condition;
-            _lastCaseSensitive = caseSensitive;
+            _lastExFilterValue = searchString;
+            _lastExSelectedCondition = condition;
+            _lastExCaseSensitive = caseSensitive;
 
             if (string.IsNullOrEmpty(searchString))
             {
-                FillExamplesGrid(_lastSelectedNode, filterVersion);
+                FillExamplesGrid(_lastExSelectedNode, filterVersion);
                 return;
             }
 
-            var rowsNumber = _examplesTable.Rows.Count;
-            var currentRowNumber = 0;
+            var rows = _examplesTable.Rows;
+            var rowsNumber = rows.Count;
+            /*var currentRowNumber = 0;
             var oldProgress = 0;
-            progressBar1.Maximum = 100;
-            progressBar1.Value = 0;
+            toolStripProgressBar1.Maximum = 100;
+            toolStripProgressBar1.Value = 0;*/
+            toolStripStatusLabel1.Text = "Filtering " + rowsNumber + " rows";
 
-            for (var i = 0; i < _examplesTable.Rows.Count; i++)
+            await Task.Run(() =>
             {
-                currentRowNumber++;
-                var newProgress = (ushort)((float)currentRowNumber / (float)rowsNumber * 100);
-                if (newProgress >= oldProgress + MinProgressDisplay) progressBar1.Value = oldProgress = newProgress;
-                var cellValue = _examplesTable.Rows[i].ItemArray[1];
-
-                if (cellValue == null || FilterCellOut(cellValue.ToString(), condition, searchString, caseSensitive, compactJson))
+                //Invoke((MethodInvoker)delegate
+                //{
+                for (var i = 0; i < rows.Count; i++)
                 {
-                    _examplesTable.Rows.RemoveAt(i);
-                    i--;
+                    /*currentRowNumber++;
+                    var newProgress = (int)((float)currentRowNumber / rowsNumber * 100);
+                    if (newProgress >= oldProgress + MinProgressDisplay)
+                    {
+                        toolStripProgressBar1.Value = oldProgress = newProgress <= toolStripProgressBar1.Maximum
+                            ? newProgress
+                            : toolStripProgressBar1.Maximum;
+                        if (textLog.Length > 0)
+                        {
+                            textBox_logText.Text += textLog.ToString();
+                            textLog.Clear();
+                            textBox_logText.SelectionStart = textBox_logText.Text.Length;
+                            textBox_logText.ScrollToCaret();
+                        }
+                    }*/
+                    var cellValue = rows[i].ItemArray[1];
+                    if (cellValue == null || FilterCellOut(cellValue.ToString(), condition, searchString, caseSensitive, compactJson))
+                    {
+                        rows.RemoveAt(i);
+                        i--;
+                    }
                 }
-            }
+                //});
+            }).ConfigureAwait(true);
+
+            toolStripStatusLabel1.Text = "";
 
             var transition = textBox_searchHistory.Text == "" ? "[" : " ->[";
-            var csString = caseSensitive ? "CS:" : "";
+            var csString = caseSensitive == StringComparison.Ordinal ? "CS:" : "";
             textBox_searchHistory.Text += transition + csString + condition.ToString() + "]\"" + searchString + "\"";
         }
 
-        private void FilterKeywords(SearchCondition condition, string searchString, string filterVersion = DefaultVersionCaption, bool caseSensitive = false, bool compactJson = false)
+        private async void FilterKeywords(SearchCondition condition, string searchString, string filterVersion = DefaultVersionCaption, StringComparison caseSensitive = StringComparison.OrdinalIgnoreCase, bool compactJson = false)
         {
             if (_lastKwFilterValue == searchString && _lastKwSelectedCondition == condition && _lastKwCaseSensitive == caseSensitive) return;
 
@@ -1444,55 +1483,73 @@ namespace JsonDictionary
                 return;
             }
 
-            var rowsNumber = _keywordsTable.Rows.Count;
-            var currentRowNumber = 0;
+            var rows = _keywordsTable.Rows;
+            var rowsNumber = rows.Count;
+            /*var currentRowNumber = 0;
             var oldProgress = 0;
-            progressBar1.Maximum = 100;
-            progressBar1.Value = 0;
+            toolStripProgressBar1.Maximum = 100;
+            toolStripProgressBar1.Value = 0;*/
+            toolStripStatusLabel1.Text = "Filtering " + rowsNumber + " rows";
 
-            for (var i = 0; i < _keywordsTable.Rows.Count; i++)
+            await Task.Run(() =>
             {
-                currentRowNumber++;
-                var newProgress = (ushort)((float)currentRowNumber / (float)rowsNumber * 100);
-                if (newProgress >= oldProgress + MinProgressDisplay) progressBar1.Value = oldProgress = newProgress;
-                var cellValue = _keywordsTable.Rows[i].ItemArray[1];
-
-                if (cellValue == null || FilterCellOut(cellValue.ToString(), condition, searchString, caseSensitive, compactJson))
+                //Invoke((MethodInvoker)delegate
+                //{
+                for (var i = 0; i < rows.Count; i++)
                 {
-                    _keywordsTable.Rows.RemoveAt(i);
-                    i--;
+                    /*currentRowNumber++;
+                    var newProgress = (int)((float)currentRowNumber / rowsNumber * 100);
+                    if (newProgress >= oldProgress + MinProgressDisplay)
+                    {
+                        toolStripProgressBar1.Value = oldProgress = newProgress <= toolStripProgressBar1.Maximum
+                            ? newProgress
+                            : toolStripProgressBar1.Maximum;
+                        if (textLog.Length > 0)
+                        {
+                            textBox_logText.Text += textLog.ToString();
+                            textLog.Clear();
+                            textBox_logText.SelectionStart = textBox_logText.Text.Length;
+                            textBox_logText.ScrollToCaret();
+                        }
+                    }*/
+                    var cellValue = rows[i].ItemArray[1];
+                    if (cellValue == null || FilterCellOut(cellValue.ToString(), condition, searchString, caseSensitive, compactJson))
+                    {
+                        rows.RemoveAt(i);
+                        i--;
+                    }
                 }
-            }
+                //});
+            }).ConfigureAwait(true);
+
+            toolStripStatusLabel1.Text = "";
 
             var transition = textBox_searchHistory.Text == "" ? "[" : " ->[";
-            var csString = caseSensitive ? "CS:" : "";
+            var csString = caseSensitive == StringComparison.Ordinal ? "CS:" : "";
             textBox_p_searchHistory.Text += transition + csString + condition.ToString() + "]\"" + searchString + "\"";
         }
 
-        private bool FilterCellOut(string cellValue, SearchCondition condition, string searchString, bool caseSensitive, bool compactJson)
+        private bool FilterCellOut(string cellValue, SearchCondition condition, string searchString, StringComparison caseSensitive, bool compactJson)
         {
             if (cellValue == null || string.IsNullOrEmpty(cellValue)) return true;
 
             if (string.IsNullOrEmpty(searchString)) return false;
 
-            var caseSens = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            var newcellValue = compactJson
+                ? JsonIo.CompactJson(cellValue)
+                : cellValue;
             switch (condition)
             {
                 case SearchCondition.Contains:
-                    if ((compactJson ? JsonIo.CompactJson(cellValue) : cellValue)
-                        .IndexOf(searchString, caseSens) < 0)
+                    if (newcellValue.IndexOf(searchString, caseSensitive) < 0)
                         return true;
                     break;
                 case SearchCondition.StartsWith:
-                    if (!(compactJson
-                        ? JsonIo.CompactJson(cellValue)
-                        : cellValue.Trim()).StartsWith(searchString, caseSens))
+                    if (!newcellValue.StartsWith(searchString, caseSensitive))
                         return true;
                     break;
                 case SearchCondition.EndsWith:
-                    if (!(compactJson
-                        ? JsonIo.CompactJson(cellValue)
-                        : cellValue.Trim()).EndsWith(searchString, caseSens))
+                    if (!newcellValue.EndsWith(searchString, caseSensitive))
                         return true;
                     break;
                 default:
@@ -1505,46 +1562,66 @@ namespace JsonDictionary
             return false;
         }
 
-        private void FilterExamplesVersion(string versionString)
+        private async void FilterExamplesVersion(string versionString)
         {
-            if (_lastSelectedVersion != DefaultVersionCaption) FillExamplesGrid(_lastSelectedNode, versionString);
+            if (_lastExSelectedVersion != DefaultVersionCaption) FillExamplesGrid(_lastExSelectedNode, versionString);
 
             comboBox_versions.SelectedIndexChanged -= ComboBox_versions_SelectedIndexChanged;
             if (comboBox_versions.Items.Contains(versionString))
-                comboBox_versions.SelectedItem = _lastSelectedVersion = versionString;
+                comboBox_versions.SelectedItem = _lastExSelectedVersion = versionString;
             else
-                comboBox_versions.SelectedItem = versionString = _lastSelectedVersion = DefaultVersionCaption;
+                comboBox_versions.SelectedItem = versionString = _lastExSelectedVersion = DefaultVersionCaption;
             comboBox_versions.SelectedIndexChanged += ComboBox_versions_SelectedIndexChanged;
 
             if (versionString == DefaultVersionCaption) return;
 
-            var rowsNumber = _examplesTable.Rows.Count;
-            var currentRowNumber = 0;
+            var rows = _examplesTable.Rows;
+            var rowsNumber = rows.Count;
+            /*var currentRowNumber = 0;
             var oldProgress = 0;
-            progressBar1.Maximum = 100;
-            progressBar1.Value = 0;
+            toolStripProgressBar1.Maximum = 100;
+            toolStripProgressBar1.Value = 0;*/
+            toolStripStatusLabel1.Text = "Filtering " + rowsNumber + " rows";
 
-            for (var i = 0; i < _examplesTable.Rows.Count; i++)
+            await Task.Run(() =>
             {
-                currentRowNumber++;
-                var newProgress = (ushort)((float)currentRowNumber / (float)rowsNumber * 100);
-                if (newProgress >= oldProgress + 5) progressBar1.Value = oldProgress = newProgress;
-
-                var cellValue = _examplesTable.Rows[i].ItemArray[0];
-                if (cellValue == null || string.IsNullOrEmpty(cellValue.ToString()))
+                //Invoke((MethodInvoker)delegate
+                //{
+                for (var i = 0; i < rows.Count; i++)
                 {
-                    _examplesTable.Rows.RemoveAt(i);
-                    i--;
+                    /*currentRowNumber++;
+                    var newProgress = (int)((float)currentRowNumber / rowsNumber * 100);
+                    if (newProgress >= oldProgress + MinProgressDisplay)
+                    {
+                        toolStripProgressBar1.Value = oldProgress = newProgress <= toolStripProgressBar1.Maximum
+                            ? newProgress
+                            : toolStripProgressBar1.Maximum;
+                        if (textLog.Length > 0)
+                        {
+                            textBox_logText.Text += textLog.ToString();
+                            textLog.Clear();
+                            textBox_logText.SelectionStart = textBox_logText.Text.Length;
+                            textBox_logText.ScrollToCaret();
+                        }
+                    }*/
+                    var cellValue = rows[i].ItemArray[0];
+                    if (cellValue == null || string.IsNullOrEmpty(cellValue.ToString()))
+                    {
+                        rows.RemoveAt(i);
+                        i--;
+                    }
+                    else if (cellValue.ToString() != versionString)
+                    {
+                        rows.RemoveAt(i);
+                        i--;
+                    }
                 }
-                else if (cellValue.ToString() != versionString)
-                {
-                    _examplesTable.Rows.RemoveAt(i);
-                    i--;
-                }
-            }
+                //});
+            }).ConfigureAwait(true);
+            toolStripStatusLabel1.Text = "";
         }
 
-        private void FilterKeywordsVersion(string versionString)
+        private async void FilterKeywordsVersion(string versionString)
         {
             if (_lastKwSelectedVersion != DefaultVersionCaption) FillExamplesGrid(_lastKwSelectedNode, versionString);
 
@@ -1557,46 +1634,117 @@ namespace JsonDictionary
 
             if (versionString == DefaultVersionCaption) return;
 
-            var rowsNumber = _keywordsTable.Rows.Count;
-            var currentRowNumber = 0;
+            var rows = _keywordsTable.Rows;
+            var rowsNumber = rows.Count;
+            /*var currentRowNumber = 0;
             var oldProgress = 0;
-            progressBar1.Maximum = 100;
-            progressBar1.Value = 0;
+            toolStripProgressBar1.Maximum = 100;
+            toolStripProgressBar1.Value = 0;*/
+            toolStripStatusLabel1.Text = "Filtering " + rowsNumber + " rows";
 
-            for (var i = 0; i < _keywordsTable.Rows.Count; i++)
+            await Task.Run(() =>
             {
-                currentRowNumber++;
-                var newProgress = (ushort)((float)currentRowNumber / (float)rowsNumber * 100);
-                if (newProgress >= oldProgress + 5) progressBar1.Value = oldProgress = newProgress;
-
-                var cellValue = _keywordsTable.Rows[i].ItemArray[0];
-                if (cellValue == null || string.IsNullOrEmpty(cellValue.ToString()))
+                //Invoke((MethodInvoker)delegate
+                //{
+                for (var i = 0; i < rows.Count; i++)
                 {
-                    _keywordsTable.Rows.RemoveAt(i);
-                    i--;
+                    /*currentRowNumber++;
+                    var newProgress = (int)((float)currentRowNumber / rowsNumber * 100);
+                    if (newProgress >= oldProgress + MinProgressDisplay)
+                    {
+                        toolStripProgressBar1.Value = oldProgress = newProgress <= toolStripProgressBar1.Maximum
+                            ? newProgress
+                            : toolStripProgressBar1.Maximum;
+                        if (textLog.Length > 0)
+                        {
+                            textBox_logText.Text += textLog.ToString();
+                            textLog.Clear();
+                            textBox_logText.SelectionStart = textBox_logText.Text.Length;
+                            textBox_logText.ScrollToCaret();
+                        }
+                    }*/
+                    var cellValue = rows[i].ItemArray[0];
+                    if (cellValue == null || string.IsNullOrEmpty(cellValue.ToString()))
+                    {
+                        rows.RemoveAt(i);
+                        i--;
+                    }
+                    else if (cellValue.ToString() != versionString)
+                    {
+                        rows.RemoveAt(i);
+                        i--;
+                    }
                 }
-                else if (cellValue.ToString() != versionString)
-                {
-                    _keywordsTable.Rows.RemoveAt(i);
-                    i--;
-                }
-            }
+                //});
+            }).ConfigureAwait(true);
+            toolStripStatusLabel1.Text = "";
         }
 
-        private void ReadjustRow(DataGridView DGView, int rowNumber)
+        private async void ReadjustRows(DataGridView DGView)
         {
-            if (DGView.AutoSizeRowsMode != DataGridViewAutoSizeRowsMode.None)
+            var rowsNumber = DGView.RowCount;
+            //var currentRowNumber = 0;
+            //var oldProgress = 0;
+            //toolStripProgressBar1.Maximum = 100;
+            //toolStripProgressBar1.Value = 0;
+            toolStripStatusLabel1.Text = "Adjusting height for " + rowsNumber + " rows";
+
+            await Task.Run(() =>
             {
-                LoopThroughRows(DGView);
-                dataGridView_examples.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+                Invoke((MethodInvoker)delegate
+                {
+                    if (DGView.AutoSizeRowsMode != DataGridViewAutoSizeRowsMode.None)
+                    {
+                        LoopThroughRows(DGView);
+                        DGView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+                    }
+                    for (var rowNumber = 0; rowNumber < DGView.RowCount; rowNumber++)
+                    {
+                        //currentRowNumber++;
+                        //var newProgress = (int)((float)currentRowNumber / rowsNumber * 100);
+                        /*if (newProgress >= oldProgress + MinProgressDisplay)
+                        {
+                            toolStripProgressBar1.Value = oldProgress = newProgress <= toolStripProgressBar1.Maximum
+                                ? newProgress
+                                : toolStripProgressBar1.Maximum;
+                            if (textLog.Length > 0)
+                            {
+                                textBox_logText.Text += textLog.ToString();
+                                textLog.Clear();
+                                textBox_logText.SelectionStart = textBox_logText.Text.Length;
+                                textBox_logText.ScrollToCaret();
+                            }
+                        }*/
+
+                        var row = DGView.Rows[rowNumber];
+                        var newHeight = row.GetPreferredHeight(rowNumber,
+                        DataGridViewAutoSizeRowMode.AllCellsExceptHeader, true);
+                        var currentHeight = DGView.Height;
+                        if (newHeight == row.Height && newHeight <= currentHeight * CellHeightAdjust) return;
+
+                        if (newHeight > currentHeight * CellHeightAdjust)
+                            newHeight = (ushort)(currentHeight * CellHeightAdjust);
+                        row.Height = newHeight;
+                    }
+                });
+            }).ConfigureAwait(true);
+            toolStripStatusLabel1.Text = "";
+        }
+
+        private static void ReadjustRow(DataGridView dgView, int rowNumber)
+        {
+            if (dgView.AutoSizeRowsMode != DataGridViewAutoSizeRowsMode.None)
+            {
+                LoopThroughRows(dgView);
+                dgView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
             }
 
-            var row = DGView.Rows[rowNumber];
+            var row = dgView.Rows[rowNumber];
             var newHeight = row.GetPreferredHeight(rowNumber, DataGridViewAutoSizeRowMode.AllCellsExceptHeader, true);
+            var currentHeight = dgView.Height;
+            if (newHeight == row.Height && newHeight <= currentHeight * CellHeightAdjust) return;
 
-            if (newHeight == row.Height && newHeight <= DGView.Height * CellHeightAdjust) return;
-
-            if (newHeight > DGView.Height * CellHeightAdjust) newHeight = (ushort)(DGView.Height * CellHeightAdjust);
+            if (newHeight > currentHeight * CellHeightAdjust) newHeight = (ushort)(currentHeight * CellHeightAdjust);
             row.Height = newHeight;
         }
 
@@ -1605,7 +1753,8 @@ namespace JsonDictionary
         private static void LoopThroughRows(DataGridView dgv)
         {
             var rows = dgv.Rows;
-            for (var i = rows.Count - 1; i >= 0; i--)
+            var rowsCount = rows.Count;
+            for (var i = rowsCount - 1; i >= 0; i--)
             {
                 var row = rows[i];
             }
@@ -1620,14 +1769,22 @@ namespace JsonDictionary
                 textLog.Clear();
                 textBox_logText.SelectionStart = textBox_logText.Text.Length;
                 textBox_logText.ScrollToCaret();
+            }
 
-                if (processTable)
+            if (processTable)
+            {
+                if (active)
                 {
                     dataGridView_examples.DataSource = _examplesTable;
                     dataGridView_examples.Invalidate();
 
                     dataGridView_keywords.DataSource = _keywordsTable;
                     dataGridView_keywords.Invalidate();
+                }
+                else
+                {
+                    dataGridView_examples.DataSource = null;
+                    dataGridView_keywords.DataSource = null;
                 }
             }
 
@@ -1645,7 +1802,7 @@ namespace JsonDictionary
             textBox_searchString.Enabled = active;
             checkBox_seachCaseSensitive.Enabled = active;
             dataGridView_examples.Enabled = active;
-            treeView_json.Enabled = active;
+            treeView_examples.Enabled = active;
             button_reAdjust.Enabled = active;
 
             comboBox_p_versions.Enabled = active;
@@ -1655,6 +1812,8 @@ namespace JsonDictionary
             dataGridView_keywords.Enabled = active;
             treeView_keywords.Enabled = active;
             button_p_reAdjust.Enabled = active;
+
+            tabControl1.Enabled = active;
 
             Refresh();
         }
@@ -1679,7 +1838,7 @@ namespace JsonDictionary
                     if (dirPath != null)
                     {
                         Directory.CreateDirectory(dirPath);
-                        File.WriteAllText(localPath + ".original", schemaData);
+                        File.WriteAllText(localPath + BackupSchemaExtension, schemaData);
                     }
                 }
             }
@@ -1703,9 +1862,7 @@ namespace JsonDictionary
         private static string ShortFileName(string longFileName)
         {
             var i = longFileName.LastIndexOf('\\');
-            if (i < 0) return longFileName;
-
-            return longFileName.Substring(i + 1);
+            return i < 0 ? longFileName : longFileName.Substring(i + 1);
         }
         #endregion
 
