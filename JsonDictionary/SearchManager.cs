@@ -10,7 +10,7 @@ namespace ScintillaNETviewer.Utils
 
         public static string LastSearch = "";
 
-        public static int LastSearchIndex;
+        private static int LastSearchIndex;
 
         public static void Find(bool next, bool incremental)
         {

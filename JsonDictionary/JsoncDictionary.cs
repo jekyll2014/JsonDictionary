@@ -46,7 +46,7 @@ namespace JsonDictionary
             Type = type;
             Depth = depth;
             Version = version;
-            ExamplesList = new Dictionary<string, string>() { { example, fileName } };
+            ExamplesList = new Dictionary<string, string> { { example, fileName } };
         }
     }
 
@@ -56,30 +56,22 @@ namespace JsonDictionary
         [DataMember]
         public static Dictionary<string, JsoncContentType> FileNames = new Dictionary<string, JsoncContentType>()
         {
-            { "dataviews.jsonc", JsoncContentType.DataViews},
-            { "events.jsonc", JsoncContentType.Events},
-            { "layout.jsonc", JsoncContentType.Layout},
-            { "rules.jsonc", JsoncContentType.Rules},
-            { "search.jsonc", JsoncContentType.Search},
-            { "combo.jsonc", JsoncContentType.Combo},
-            { "tools.jsonc", JsoncContentType.Tools},
-            { "pagetemplate.jsonc", JsoncContentType.PageTemplate},
-            { "template.jsonc", JsoncContentType.Template},
-            { "strings.jsonc", JsoncContentType.Strings},
-        };
-
-        [DataMember]
-        public static Dictionary<string, JsoncNodeType> NodeTypes = new Dictionary<string, JsoncNodeType>()
-        {
-            { "JProperty", JsoncNodeType.Property},
-            { "JObject", JsoncNodeType.Object},
-            { "JArray", JsoncNodeType.Array},
+            {"dataviews.jsonc", JsoncContentType.DataViews},
+            {"events.jsonc", JsoncContentType.Events},
+            {"layout.jsonc", JsoncContentType.Layout},
+            {"rules.jsonc", JsoncContentType.Rules},
+            {"search.jsonc", JsoncContentType.Search},
+            {"combo.jsonc", JsoncContentType.Combo},
+            {"tools.jsonc", JsoncContentType.Tools},
+            {"pagetemplate.jsonc", JsoncContentType.PageTemplate},
+            {"template.jsonc", JsoncContentType.Template},
+            {"strings.jsonc", JsoncContentType.Strings},
         };
 
         [DataMember] public JsoncContentType Type;
         [DataMember] public List<MetaNode> Nodes;
 
-        public readonly bool CollectAllFileNames = false;
+        public readonly bool CollectAllFileNames;
 
         public JsoncDictionary(JsoncContentType type, bool collectAllFileNames = false)
         {
@@ -109,7 +101,7 @@ namespace JsonDictionary
             }
             else
             {
-                if (node.Count() > 1)
+                if (node.Length > 1)
                 {
                     errorString = "More than 1 similar object found on add node " + node[0].Name + " to collection";
                 }
@@ -118,7 +110,6 @@ namespace JsonDictionary
                 if (examples == null)
                 {
                     errorString = "Object with no examples found on add node " + node[0].Name + " to collection";
-                    examples = newNode.ExamplesList;
                     return errorString;
                 }
 

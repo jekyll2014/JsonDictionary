@@ -521,7 +521,7 @@ namespace JsonDictionary
             if (!_searchIsOpen)
             {
                 _searchIsOpen = true;
-                InvokeIfNeeded(delegate ()
+                InvokeIfNeeded(delegate
                 {
                     PanelSearch.Visible = true;
                     TxtSearch.Text = SearchManager.LastSearch;
@@ -531,7 +531,7 @@ namespace JsonDictionary
             }
             else
             {
-                InvokeIfNeeded(delegate ()
+                InvokeIfNeeded(delegate
                 {
                     TxtSearch.Focus();
                     TxtSearch.SelectAll();
@@ -544,7 +544,7 @@ namespace JsonDictionary
             if (!_searchIsOpen) return;
 
             _searchIsOpen = false;
-            InvokeIfNeeded(delegate ()
+            InvokeIfNeeded(delegate
             {
                 PanelSearch.Visible = false;
                 //CurBrowser.GetBrowser().StopFinding(true);
@@ -633,7 +633,7 @@ namespace JsonDictionary
             return linesCount;
         }
 
-        public void SelectTextLines(int lineStart, int lineNum)
+        private void SelectTextLines(int lineStart, int lineNum)
         {
             var startLine = _textArea.Lines[lineStart];
             var endLine = _textArea.Lines[lineStart + lineNum];

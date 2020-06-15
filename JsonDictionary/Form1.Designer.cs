@@ -50,22 +50,24 @@
             this.tabPage_SamplesTree = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView_examples = new System.Windows.Forms.TreeView();
-            this.button_reAdjust = new System.Windows.Forms.Button();
-            this.comboBox_versions = new System.Windows.Forms.ComboBox();
-            this.checkBox_seachCaseSensitive = new System.Windows.Forms.CheckBox();
-            this.textBox_searchHistory = new System.Windows.Forms.TextBox();
-            this.textBox_searchString = new System.Windows.Forms.TextBox();
-            this.comboBox_condition = new System.Windows.Forms.ComboBox();
+            this.button_ExClearSearch = new System.Windows.Forms.Button();
+            this.button_ExAdjustRows = new System.Windows.Forms.Button();
+            this.comboBox_ExVersions = new System.Windows.Forms.ComboBox();
+            this.checkBox_ExCaseSensitive = new System.Windows.Forms.CheckBox();
+            this.textBox_ExSearchHistory = new System.Windows.Forms.TextBox();
+            this.textBox_ExSearchString = new System.Windows.Forms.TextBox();
+            this.comboBox_ExCondition = new System.Windows.Forms.ComboBox();
             this.dataGridView_examples = new System.Windows.Forms.DataGridView();
             this.tabPage_Keywords = new System.Windows.Forms.TabPage();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.treeView_keywords = new System.Windows.Forms.TreeView();
-            this.button_p_reAdjust = new System.Windows.Forms.Button();
-            this.comboBox_p_versions = new System.Windows.Forms.ComboBox();
-            this.checkBox_p_seachCaseSensitive = new System.Windows.Forms.CheckBox();
-            this.textBox_p_searchHistory = new System.Windows.Forms.TextBox();
-            this.textBox_p_searchString = new System.Windows.Forms.TextBox();
-            this.comboBox_p_condition = new System.Windows.Forms.ComboBox();
+            this.button_KwClearSearch = new System.Windows.Forms.Button();
+            this.button_KwAdjustRows = new System.Windows.Forms.Button();
+            this.comboBox_KwVersions = new System.Windows.Forms.ComboBox();
+            this.checkBox_KwCaseSensitive = new System.Windows.Forms.CheckBox();
+            this.textBox_KwSearchHistory = new System.Windows.Forms.TextBox();
+            this.textBox_KwSearchString = new System.Windows.Forms.TextBox();
+            this.comboBox_KwCondition = new System.Windows.Forms.ComboBox();
             this.dataGridView_keywords = new System.Windows.Forms.DataGridView();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
@@ -76,7 +78,6 @@
             this.FindFieldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.tabControl1.SuspendLayout();
             this.tabPage_DataCollection.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
@@ -310,12 +311,13 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.button_reAdjust);
-            this.splitContainer1.Panel2.Controls.Add(this.comboBox_versions);
-            this.splitContainer1.Panel2.Controls.Add(this.checkBox_seachCaseSensitive);
-            this.splitContainer1.Panel2.Controls.Add(this.textBox_searchHistory);
-            this.splitContainer1.Panel2.Controls.Add(this.textBox_searchString);
-            this.splitContainer1.Panel2.Controls.Add(this.comboBox_condition);
+            this.splitContainer1.Panel2.Controls.Add(this.button_ExClearSearch);
+            this.splitContainer1.Panel2.Controls.Add(this.button_ExAdjustRows);
+            this.splitContainer1.Panel2.Controls.Add(this.comboBox_ExVersions);
+            this.splitContainer1.Panel2.Controls.Add(this.checkBox_ExCaseSensitive);
+            this.splitContainer1.Panel2.Controls.Add(this.textBox_ExSearchHistory);
+            this.splitContainer1.Panel2.Controls.Add(this.textBox_ExSearchString);
+            this.splitContainer1.Panel2.Controls.Add(this.comboBox_ExCondition);
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView_examples);
             this.splitContainer1.Panel2MinSize = 350;
             this.splitContainer1.Size = new System.Drawing.Size(974, 694);
@@ -338,68 +340,79 @@
             this.treeView_examples.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TreeView_examples_KeyDown);
             this.treeView_examples.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TreeView_MouseDown);
             // 
-            // button_reAdjust
+            // button_ExClearSearch
             // 
-            this.button_reAdjust.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_reAdjust.Location = new System.Drawing.Point(571, 0);
-            this.button_reAdjust.Name = "button_reAdjust";
-            this.button_reAdjust.Size = new System.Drawing.Size(75, 23);
-            this.button_reAdjust.TabIndex = 4;
-            this.button_reAdjust.Text = "Readjust";
-            this.button_reAdjust.UseVisualStyleBackColor = true;
-            this.button_reAdjust.Click += new System.EventHandler(this.Button_readjust_Click);
+            this.button_ExClearSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_ExClearSearch.Location = new System.Drawing.Point(571, 672);
+            this.button_ExClearSearch.Name = "button_ExClearSearch";
+            this.button_ExClearSearch.Size = new System.Drawing.Size(75, 23);
+            this.button_ExClearSearch.TabIndex = 4;
+            this.button_ExClearSearch.Text = "Clear";
+            this.button_ExClearSearch.UseVisualStyleBackColor = true;
+            this.button_ExClearSearch.Click += new System.EventHandler(this.Button_ExClearSearch_Click);
             // 
-            // comboBox_versions
+            // button_ExAdjustRows
             // 
-            this.comboBox_versions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox_versions.FormattingEnabled = true;
-            this.comboBox_versions.Items.AddRange(new object[] {
+            this.button_ExAdjustRows.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_ExAdjustRows.Location = new System.Drawing.Point(571, 0);
+            this.button_ExAdjustRows.Name = "button_ExAdjustRows";
+            this.button_ExAdjustRows.Size = new System.Drawing.Size(75, 23);
+            this.button_ExAdjustRows.TabIndex = 4;
+            this.button_ExAdjustRows.Text = "Adjust rows";
+            this.button_ExAdjustRows.UseVisualStyleBackColor = true;
+            this.button_ExAdjustRows.Click += new System.EventHandler(this.Button_ExAdjustRows_Click);
+            // 
+            // comboBox_ExVersions
+            // 
+            this.comboBox_ExVersions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_ExVersions.FormattingEnabled = true;
+            this.comboBox_ExVersions.Items.AddRange(new object[] {
             "Any"});
-            this.comboBox_versions.Location = new System.Drawing.Point(0, 0);
-            this.comboBox_versions.Name = "comboBox_versions";
-            this.comboBox_versions.Size = new System.Drawing.Size(61, 21);
-            this.comboBox_versions.TabIndex = 0;
-            this.comboBox_versions.SelectedIndexChanged += new System.EventHandler(this.ComboBox_versions_SelectedIndexChanged);
+            this.comboBox_ExVersions.Location = new System.Drawing.Point(0, 0);
+            this.comboBox_ExVersions.Name = "comboBox_ExVersions";
+            this.comboBox_ExVersions.Size = new System.Drawing.Size(61, 21);
+            this.comboBox_ExVersions.TabIndex = 0;
+            this.comboBox_ExVersions.SelectedIndexChanged += new System.EventHandler(this.ComboBox_ExVersions_SelectedIndexChanged);
             // 
-            // checkBox_seachCaseSensitive
+            // checkBox_ExCaseSensitive
             // 
-            this.checkBox_seachCaseSensitive.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.checkBox_seachCaseSensitive.AutoSize = true;
-            this.checkBox_seachCaseSensitive.Location = new System.Drawing.Point(471, 3);
-            this.checkBox_seachCaseSensitive.Name = "checkBox_seachCaseSensitive";
-            this.checkBox_seachCaseSensitive.Size = new System.Drawing.Size(94, 17);
-            this.checkBox_seachCaseSensitive.TabIndex = 3;
-            this.checkBox_seachCaseSensitive.Text = "Case sensitive";
-            this.checkBox_seachCaseSensitive.UseVisualStyleBackColor = true;
+            this.checkBox_ExCaseSensitive.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBox_ExCaseSensitive.AutoSize = true;
+            this.checkBox_ExCaseSensitive.Location = new System.Drawing.Point(471, 3);
+            this.checkBox_ExCaseSensitive.Name = "checkBox_ExCaseSensitive";
+            this.checkBox_ExCaseSensitive.Size = new System.Drawing.Size(94, 17);
+            this.checkBox_ExCaseSensitive.TabIndex = 3;
+            this.checkBox_ExCaseSensitive.Text = "Case sensitive";
+            this.checkBox_ExCaseSensitive.UseVisualStyleBackColor = true;
             // 
-            // textBox_searchHistory
+            // textBox_ExSearchHistory
             // 
-            this.textBox_searchHistory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_ExSearchHistory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_searchHistory.Location = new System.Drawing.Point(0, 674);
-            this.textBox_searchHistory.Name = "textBox_searchHistory";
-            this.textBox_searchHistory.ReadOnly = true;
-            this.textBox_searchHistory.Size = new System.Drawing.Size(646, 20);
-            this.textBox_searchHistory.TabIndex = 6;
+            this.textBox_ExSearchHistory.Location = new System.Drawing.Point(0, 674);
+            this.textBox_ExSearchHistory.Name = "textBox_ExSearchHistory";
+            this.textBox_ExSearchHistory.ReadOnly = true;
+            this.textBox_ExSearchHistory.Size = new System.Drawing.Size(565, 20);
+            this.textBox_ExSearchHistory.TabIndex = 6;
             // 
-            // textBox_searchString
+            // textBox_ExSearchString
             // 
-            this.textBox_searchString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_ExSearchString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_searchString.Location = new System.Drawing.Point(143, 0);
-            this.textBox_searchString.Name = "textBox_searchString";
-            this.textBox_searchString.Size = new System.Drawing.Size(322, 20);
-            this.textBox_searchString.TabIndex = 2;
-            this.textBox_searchString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_searchString_KeyDown);
+            this.textBox_ExSearchString.Location = new System.Drawing.Point(143, 0);
+            this.textBox_ExSearchString.Name = "textBox_ExSearchString";
+            this.textBox_ExSearchString.Size = new System.Drawing.Size(322, 20);
+            this.textBox_ExSearchString.TabIndex = 2;
+            this.textBox_ExSearchString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_ExSearchString_KeyDown);
             // 
-            // comboBox_condition
+            // comboBox_ExCondition
             // 
-            this.comboBox_condition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox_condition.FormattingEnabled = true;
-            this.comboBox_condition.Location = new System.Drawing.Point(67, 0);
-            this.comboBox_condition.Name = "comboBox_condition";
-            this.comboBox_condition.Size = new System.Drawing.Size(70, 21);
-            this.comboBox_condition.TabIndex = 1;
+            this.comboBox_ExCondition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_ExCondition.FormattingEnabled = true;
+            this.comboBox_ExCondition.Location = new System.Drawing.Point(67, 0);
+            this.comboBox_ExCondition.Name = "comboBox_ExCondition";
+            this.comboBox_ExCondition.Size = new System.Drawing.Size(70, 21);
+            this.comboBox_ExCondition.TabIndex = 1;
             // 
             // dataGridView_examples
             // 
@@ -459,12 +472,13 @@
             // 
             // splitContainer3.Panel2
             // 
-            this.splitContainer3.Panel2.Controls.Add(this.button_p_reAdjust);
-            this.splitContainer3.Panel2.Controls.Add(this.comboBox_p_versions);
-            this.splitContainer3.Panel2.Controls.Add(this.checkBox_p_seachCaseSensitive);
-            this.splitContainer3.Panel2.Controls.Add(this.textBox_p_searchHistory);
-            this.splitContainer3.Panel2.Controls.Add(this.textBox_p_searchString);
-            this.splitContainer3.Panel2.Controls.Add(this.comboBox_p_condition);
+            this.splitContainer3.Panel2.Controls.Add(this.button_KwClearSearch);
+            this.splitContainer3.Panel2.Controls.Add(this.button_KwAdjustRows);
+            this.splitContainer3.Panel2.Controls.Add(this.comboBox_KwVersions);
+            this.splitContainer3.Panel2.Controls.Add(this.checkBox_KwCaseSensitive);
+            this.splitContainer3.Panel2.Controls.Add(this.textBox_KwSearchHistory);
+            this.splitContainer3.Panel2.Controls.Add(this.textBox_KwSearchString);
+            this.splitContainer3.Panel2.Controls.Add(this.comboBox_KwCondition);
             this.splitContainer3.Panel2.Controls.Add(this.dataGridView_keywords);
             this.splitContainer3.Panel2MinSize = 350;
             this.splitContainer3.Size = new System.Drawing.Size(980, 700);
@@ -487,68 +501,79 @@
             this.treeView_keywords.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TreeView_keywords_KeyDown);
             this.treeView_keywords.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TreeView_MouseDown);
             // 
-            // button_p_reAdjust
+            // button_KwClearSearch
             // 
-            this.button_p_reAdjust.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_p_reAdjust.Location = new System.Drawing.Point(576, 0);
-            this.button_p_reAdjust.Name = "button_p_reAdjust";
-            this.button_p_reAdjust.Size = new System.Drawing.Size(75, 23);
-            this.button_p_reAdjust.TabIndex = 4;
-            this.button_p_reAdjust.Text = "Readjust";
-            this.button_p_reAdjust.UseVisualStyleBackColor = true;
-            this.button_p_reAdjust.Click += new System.EventHandler(this.Button_p_reAdjust_Click);
+            this.button_KwClearSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_KwClearSearch.Location = new System.Drawing.Point(576, 678);
+            this.button_KwClearSearch.Name = "button_KwClearSearch";
+            this.button_KwClearSearch.Size = new System.Drawing.Size(75, 23);
+            this.button_KwClearSearch.TabIndex = 7;
+            this.button_KwClearSearch.Text = "Clear";
+            this.button_KwClearSearch.UseVisualStyleBackColor = true;
+            this.button_KwClearSearch.Click += new System.EventHandler(this.Button_KwClearSearch_Click);
             // 
-            // comboBox_p_versions
+            // button_KwAdjustRows
             // 
-            this.comboBox_p_versions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox_p_versions.FormattingEnabled = true;
-            this.comboBox_p_versions.Items.AddRange(new object[] {
+            this.button_KwAdjustRows.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button_KwAdjustRows.Location = new System.Drawing.Point(576, 0);
+            this.button_KwAdjustRows.Name = "button_KwAdjustRows";
+            this.button_KwAdjustRows.Size = new System.Drawing.Size(75, 23);
+            this.button_KwAdjustRows.TabIndex = 4;
+            this.button_KwAdjustRows.Text = "Adjust rows";
+            this.button_KwAdjustRows.UseVisualStyleBackColor = true;
+            this.button_KwAdjustRows.Click += new System.EventHandler(this.Button_KwAdjustRows_Click);
+            // 
+            // comboBox_KwVersions
+            // 
+            this.comboBox_KwVersions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_KwVersions.FormattingEnabled = true;
+            this.comboBox_KwVersions.Items.AddRange(new object[] {
             "Any"});
-            this.comboBox_p_versions.Location = new System.Drawing.Point(0, 0);
-            this.comboBox_p_versions.Name = "comboBox_p_versions";
-            this.comboBox_p_versions.Size = new System.Drawing.Size(61, 21);
-            this.comboBox_p_versions.TabIndex = 0;
-            this.comboBox_p_versions.SelectedIndexChanged += new System.EventHandler(this.ComboBox_p_versions_SelectedIndexChanged);
+            this.comboBox_KwVersions.Location = new System.Drawing.Point(0, 0);
+            this.comboBox_KwVersions.Name = "comboBox_KwVersions";
+            this.comboBox_KwVersions.Size = new System.Drawing.Size(61, 21);
+            this.comboBox_KwVersions.TabIndex = 0;
+            this.comboBox_KwVersions.SelectedIndexChanged += new System.EventHandler(this.ComboBox_KwVersions_SelectedIndexChanged);
             // 
-            // checkBox_p_seachCaseSensitive
+            // checkBox_KwCaseSensitive
             // 
-            this.checkBox_p_seachCaseSensitive.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.checkBox_p_seachCaseSensitive.AutoSize = true;
-            this.checkBox_p_seachCaseSensitive.Location = new System.Drawing.Point(476, 3);
-            this.checkBox_p_seachCaseSensitive.Name = "checkBox_p_seachCaseSensitive";
-            this.checkBox_p_seachCaseSensitive.Size = new System.Drawing.Size(94, 17);
-            this.checkBox_p_seachCaseSensitive.TabIndex = 3;
-            this.checkBox_p_seachCaseSensitive.Text = "Case sensitive";
-            this.checkBox_p_seachCaseSensitive.UseVisualStyleBackColor = true;
+            this.checkBox_KwCaseSensitive.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBox_KwCaseSensitive.AutoSize = true;
+            this.checkBox_KwCaseSensitive.Location = new System.Drawing.Point(476, 3);
+            this.checkBox_KwCaseSensitive.Name = "checkBox_KwCaseSensitive";
+            this.checkBox_KwCaseSensitive.Size = new System.Drawing.Size(94, 17);
+            this.checkBox_KwCaseSensitive.TabIndex = 3;
+            this.checkBox_KwCaseSensitive.Text = "Case sensitive";
+            this.checkBox_KwCaseSensitive.UseVisualStyleBackColor = true;
             // 
-            // textBox_p_searchHistory
+            // textBox_KwSearchHistory
             // 
-            this.textBox_p_searchHistory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_KwSearchHistory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_p_searchHistory.Location = new System.Drawing.Point(0, 680);
-            this.textBox_p_searchHistory.Name = "textBox_p_searchHistory";
-            this.textBox_p_searchHistory.ReadOnly = true;
-            this.textBox_p_searchHistory.Size = new System.Drawing.Size(651, 20);
-            this.textBox_p_searchHistory.TabIndex = 6;
+            this.textBox_KwSearchHistory.Location = new System.Drawing.Point(0, 680);
+            this.textBox_KwSearchHistory.Name = "textBox_KwSearchHistory";
+            this.textBox_KwSearchHistory.ReadOnly = true;
+            this.textBox_KwSearchHistory.Size = new System.Drawing.Size(570, 20);
+            this.textBox_KwSearchHistory.TabIndex = 6;
             // 
-            // textBox_p_searchString
+            // textBox_KwSearchString
             // 
-            this.textBox_p_searchString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.textBox_KwSearchString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_p_searchString.Location = new System.Drawing.Point(143, 0);
-            this.textBox_p_searchString.Name = "textBox_p_searchString";
-            this.textBox_p_searchString.Size = new System.Drawing.Size(327, 20);
-            this.textBox_p_searchString.TabIndex = 2;
-            this.textBox_p_searchString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_p_searchString_KeyDown);
+            this.textBox_KwSearchString.Location = new System.Drawing.Point(143, 0);
+            this.textBox_KwSearchString.Name = "textBox_KwSearchString";
+            this.textBox_KwSearchString.Size = new System.Drawing.Size(327, 20);
+            this.textBox_KwSearchString.TabIndex = 2;
+            this.textBox_KwSearchString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_KwSearchString_KeyDown);
             // 
-            // comboBox_p_condition
+            // comboBox_KwCondition
             // 
-            this.comboBox_p_condition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox_p_condition.FormattingEnabled = true;
-            this.comboBox_p_condition.Location = new System.Drawing.Point(67, 0);
-            this.comboBox_p_condition.Name = "comboBox_p_condition";
-            this.comboBox_p_condition.Size = new System.Drawing.Size(70, 21);
-            this.comboBox_p_condition.TabIndex = 1;
+            this.comboBox_KwCondition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox_KwCondition.FormattingEnabled = true;
+            this.comboBox_KwCondition.Location = new System.Drawing.Point(67, 0);
+            this.comboBox_KwCondition.Name = "comboBox_KwCondition";
+            this.comboBox_KwCondition.Size = new System.Drawing.Size(70, 21);
+            this.comboBox_KwCondition.TabIndex = 1;
             // 
             // dataGridView_keywords
             // 
@@ -634,8 +659,7 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1,
-            this.toolStripProgressBar1});
+            this.toolStripStatusLabel1});
             this.statusStrip1.Location = new System.Drawing.Point(0, 727);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(988, 22);
@@ -647,11 +671,6 @@
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
-            // 
-            // toolStripProgressBar1
-            // 
-            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 16);
             // 
             // Form1
             // 
@@ -713,12 +732,12 @@
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.DataGridView dataGridView_examples;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
-        private System.Windows.Forms.TextBox textBox_searchString;
-        private System.Windows.Forms.ComboBox comboBox_condition;
-        private System.Windows.Forms.CheckBox checkBox_seachCaseSensitive;
-        private System.Windows.Forms.TextBox textBox_searchHistory;
-        private System.Windows.Forms.ComboBox comboBox_versions;
-        private System.Windows.Forms.Button button_reAdjust;
+        private System.Windows.Forms.TextBox textBox_ExSearchString;
+        private System.Windows.Forms.ComboBox comboBox_ExCondition;
+        private System.Windows.Forms.CheckBox checkBox_ExCaseSensitive;
+        private System.Windows.Forms.TextBox textBox_ExSearchHistory;
+        private System.Windows.Forms.ComboBox comboBox_ExVersions;
+        private System.Windows.Forms.Button button_ExAdjustRows;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_findValue;
         private System.Windows.Forms.ToolStripMenuItem FindAllStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip_findField;
@@ -727,12 +746,12 @@
         private System.Windows.Forms.TabPage tabPage_Keywords;
         private System.Windows.Forms.SplitContainer splitContainer3;
         private System.Windows.Forms.TreeView treeView_keywords;
-        private System.Windows.Forms.Button button_p_reAdjust;
-        private System.Windows.Forms.ComboBox comboBox_p_versions;
-        private System.Windows.Forms.CheckBox checkBox_p_seachCaseSensitive;
-        private System.Windows.Forms.TextBox textBox_p_searchHistory;
-        private System.Windows.Forms.TextBox textBox_p_searchString;
-        private System.Windows.Forms.ComboBox comboBox_p_condition;
+        private System.Windows.Forms.Button button_KwAdjustRows;
+        private System.Windows.Forms.ComboBox comboBox_KwVersions;
+        private System.Windows.Forms.CheckBox checkBox_KwCaseSensitive;
+        private System.Windows.Forms.TextBox textBox_KwSearchHistory;
+        private System.Windows.Forms.TextBox textBox_KwSearchString;
+        private System.Windows.Forms.ComboBox comboBox_KwCondition;
         private System.Windows.Forms.DataGridView dataGridView_keywords;
         private System.Windows.Forms.CheckBox checkBox_alwaysOnTop;
         private System.Windows.Forms.CheckBox checkBox_showPreview;
@@ -741,7 +760,8 @@
         private System.Windows.Forms.CheckBox checkBox_collectAllFileNames;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
+        private System.Windows.Forms.Button button_ExClearSearch;
+        private System.Windows.Forms.Button button_KwClearSearch;
     }
 }
 

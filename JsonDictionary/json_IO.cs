@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Windows.Forms;
 
 using Newtonsoft.Json;
 
@@ -46,13 +47,20 @@ namespace JsonDictionary
 
         public static T LoadBinary<T>(string filename)
         {
-            T nodeList;
+            T nodeList = default;
             using (Stream file = File.Open(filename, FileMode.Open))
             {
-                var bf = new BinaryFormatter();
-                var obj = bf.Deserialize(file);
+                try
+                {
+                    var bf = new BinaryFormatter();
+                    var obj = bf.Deserialize(file);
+                    nodeList = (T)obj;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("File parse exception: " + ex.Message + Environment.NewLine + ex.InnerException.Message);
+                }
 
-                nodeList = (T)obj;
             }
 
             return nodeList;
@@ -65,9 +73,9 @@ namespace JsonDictionary
             foreach (var token in searchTokens)
             {
                 var i = original.IndexOf(token, StringComparison.Ordinal);
-                int currentPos;
                 while (i >= 0)
                 {
+                    int currentPos;
                     if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n') // not a single bracket
                     {
                         currentPos = i + 3;
@@ -108,7 +116,7 @@ namespace JsonDictionary
                 var i = original.IndexOf(token, StringComparison.Ordinal);
                 while (i >= 0)
                 {
-                    var currentPos = 0;
+                    int currentPos;
                     if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n') // not a single bracket
                     {
                         currentPos = i + 3;
@@ -147,7 +155,7 @@ namespace JsonDictionary
             var prefixLength = 0;
             var prefix = "";
             var result = new StringBuilder();
-            for (var i = 0; i < stringList.Count(); i++)
+            for (var i = 0; i < stringList.Length; i++)
             {
                 stringList[i] = stringList[i].Trim();
                 if (closeBrackets.Contains(stringList[i][0]))
