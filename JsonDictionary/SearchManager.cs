@@ -25,7 +25,7 @@ namespace ScintillaNETviewer.Utils
 
                     // Search the document at the last search index
                     TextArea.TargetStart = LastSearchIndex - 1;
-                    TextArea.TargetEnd = LastSearchIndex + (LastSearch.Length + 1);
+                    TextArea.TargetEnd = LastSearchIndex + LastSearch.Length + 1;
                     TextArea.SearchFlags = SearchFlags.None;
 
                     // Search, and if not found..

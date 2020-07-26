@@ -65,8 +65,8 @@
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.collapseAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.alwaysOnTopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.TextPanel.SuspendLayout();
             this.PanelSearch.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -287,6 +287,7 @@
             // formatToolStripMenuItem
             // 
             this.formatToolStripMenuItem.Name = "formatToolStripMenuItem";
+            this.formatToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Alt+F";
             this.formatToolStripMenuItem.Size = new System.Drawing.Size(198, 24);
             this.formatToolStripMenuItem.Text = "Format";
             this.formatToolStripMenuItem.Click += new System.EventHandler(this.FormatToolStripMenuItem_Click);
@@ -402,18 +403,18 @@
             this.expandAllToolStripMenuItem.Text = "Expand All";
             this.expandAllToolStripMenuItem.Click += new System.EventHandler(this.ExpandAllToolStripMenuItem_Click);
             // 
-            // openFileDialog
-            // 
-            this.openFileDialog.DefaultExt = "txt";
-            this.openFileDialog.FileName = "New File";
-            this.openFileDialog.Filter = "All files|*.*";
-            // 
             // alwaysOnTopToolStripMenuItem
             // 
             this.alwaysOnTopToolStripMenuItem.Name = "alwaysOnTopToolStripMenuItem";
             this.alwaysOnTopToolStripMenuItem.Size = new System.Drawing.Size(221, 24);
             this.alwaysOnTopToolStripMenuItem.Text = "AlwaysOnTop";
             this.alwaysOnTopToolStripMenuItem.Click += new System.EventHandler(this.AlwaysOnTopToolStripMenuItem_Click);
+            // 
+            // openFileDialog
+            // 
+            this.openFileDialog.DefaultExt = "txt";
+            this.openFileDialog.FileName = "New File";
+            this.openFileDialog.Filter = "All files|*.*";
             // 
             // JsonViewer
             // 

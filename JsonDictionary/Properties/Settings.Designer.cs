@@ -106,5 +106,17 @@ namespace JsonDictionary.Properties {
                 this["AlwaysOnTop"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool LoadDbOnStartUp {
+            get {
+                return ((bool)(this["LoadDbOnStartUp"]));
+            }
+            set {
+                this["LoadDbOnStartUp"] = value;
+            }
+        }
     }
 }

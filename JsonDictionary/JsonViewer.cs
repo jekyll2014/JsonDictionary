@@ -12,33 +12,34 @@ namespace JsonDictionary
     public partial class JsonViewer : Form
     {
         /// <summary>
-        /// the background color of the text area
+        ///     the background color of the text area
         /// </summary>
         private readonly Color BACK_COLOR = Color.DarkCyan;
 
         /// <summary>
-        /// default text color of the text area
+        ///     default text color of the text area
         /// </summary>
         private readonly Color FORE_COLOR = Color.White;
 
         /// <summary>
-        /// change this to whatever margin you want the line numbers to show in
+        ///     change this to whatever margin you want the line numbers to show in
         /// </summary>
         private const int NUMBER_MARGIN = 1;
 
         /// <summary>
-        /// change this to whatever margin you want the bookmarks/breakpoints to show in
+        ///     change this to whatever margin you want the bookmarks/breakpoints to show in
         /// </summary>
         private const int BOOKMARK_MARGIN = 2;
+
         private const int BOOKMARK_MARKER = 2;
 
         /// <summary>
-        /// change this to whatever margin you want the code folding tree (+/-) to show in
+        ///     change this to whatever margin you want the code folding tree (+/-) to show in
         /// </summary>
         private const int FOLDING_MARGIN = 3;
 
         /// <summary>
-        /// set this true to show circular buttons for code folding (the [+] and [-] buttons on the margin)
+        ///     set this true to show circular buttons for code folding (the [+] and [-] buttons on the margin)
         /// </summary>
         private const bool CODEFOLDING_CIRCULAR = true;
 
@@ -88,7 +89,9 @@ namespace JsonDictionary
             set
             {
                 hiddenCharactersItem.Checked = value;
-                _textArea.ViewWhitespace = hiddenCharactersItem.Checked ? WhitespaceMode.VisibleAlways : WhitespaceMode.Invisible;
+                _textArea.ViewWhitespace = hiddenCharactersItem.Checked
+                    ? WhitespaceMode.VisibleAlways
+                    : WhitespaceMode.Invisible;
             }
         }
 
@@ -102,7 +105,7 @@ namespace JsonDictionary
             }
         }
 
-        private Scintilla _textArea;
+        private Scintilla _textArea = new Scintilla();
         private readonly string _text = "";
         private readonly string _fileName = "";
 
@@ -133,14 +136,14 @@ namespace JsonDictionary
             InitCodeFolding();
 
             // DEFAULT FILE
-            if (string.IsNullOrEmpty(this._text))
+            if (string.IsNullOrEmpty(_text))
             {
-                LoadDataFromFile(this._fileName);
+                LoadDataFromFile(_fileName);
             }
             else
             {
-                this.Text += this._fileName;
-                _textArea.Text = this._text;
+                Text += _fileName;
+                _textArea.Text = _text;
             }
 
             // INIT HOTKEYS
@@ -164,6 +167,7 @@ namespace JsonDictionary
             HotKeyManager.AddHotKey(this, CloseSearch, Keys.Escape);
             HotKeyManager.AddHotKey(this, CollapseAll, Keys.Left, true);
             HotKeyManager.AddHotKey(this, ExpandAll, Keys.Right, true);
+            HotKeyManager.AddHotKey(this, FormatText, Keys.F, true, false, true);
 
             // remove conflicting hotkeys from scintilla
             _textArea.ClearCmdKey(Keys.Control | Keys.F);
@@ -205,10 +209,10 @@ namespace JsonDictionary
 
         private void InitNumberMargin()
         {
-            _textArea.Styles[Style.LineNumber].BackColor = (BACK_COLOR);
-            _textArea.Styles[Style.LineNumber].ForeColor = (FORE_COLOR);
-            _textArea.Styles[Style.IndentGuide].ForeColor = (FORE_COLOR);
-            _textArea.Styles[Style.IndentGuide].BackColor = (BACK_COLOR);
+            _textArea.Styles[Style.LineNumber].BackColor = BACK_COLOR;
+            _textArea.Styles[Style.LineNumber].ForeColor = FORE_COLOR;
+            _textArea.Styles[Style.IndentGuide].ForeColor = FORE_COLOR;
+            _textArea.Styles[Style.IndentGuide].BackColor = BACK_COLOR;
 
             var nums = _textArea.Margins[NUMBER_MARGIN];
             nums.Width = 30;
@@ -227,7 +231,7 @@ namespace JsonDictionary
             margin.Width = 20;
             margin.Sensitive = true;
             margin.Type = MarginType.Symbol;
-            margin.Mask = (1 << BOOKMARK_MARKER);
+            margin.Mask = 1 << BOOKMARK_MARKER;
             //margin.Cursor = MarginCursor.Arrow;
 
             var marker = _textArea.Markers[BOOKMARK_MARKER];
@@ -260,16 +264,22 @@ namespace JsonDictionary
             }
 
             // Configure folding markers with respective symbols
-            _textArea.Markers[Marker.Folder].Symbol = CODEFOLDING_CIRCULAR ? MarkerSymbol.CirclePlus : MarkerSymbol.BoxPlus;
-            _textArea.Markers[Marker.FolderOpen].Symbol = CODEFOLDING_CIRCULAR ? MarkerSymbol.CircleMinus : MarkerSymbol.BoxMinus;
-            _textArea.Markers[Marker.FolderEnd].Symbol = CODEFOLDING_CIRCULAR ? MarkerSymbol.CirclePlusConnected : MarkerSymbol.BoxPlusConnected;
+            _textArea.Markers[Marker.Folder].Symbol =
+                CODEFOLDING_CIRCULAR ? MarkerSymbol.CirclePlus : MarkerSymbol.BoxPlus;
+            _textArea.Markers[Marker.FolderOpen].Symbol =
+                CODEFOLDING_CIRCULAR ? MarkerSymbol.CircleMinus : MarkerSymbol.BoxMinus;
+            _textArea.Markers[Marker.FolderEnd].Symbol = CODEFOLDING_CIRCULAR
+                ? MarkerSymbol.CirclePlusConnected
+                : MarkerSymbol.BoxPlusConnected;
             _textArea.Markers[Marker.FolderMidTail].Symbol = MarkerSymbol.TCorner;
-            _textArea.Markers[Marker.FolderOpenMid].Symbol = CODEFOLDING_CIRCULAR ? MarkerSymbol.CircleMinusConnected : MarkerSymbol.BoxMinusConnected;
+            _textArea.Markers[Marker.FolderOpenMid].Symbol = CODEFOLDING_CIRCULAR
+                ? MarkerSymbol.CircleMinusConnected
+                : MarkerSymbol.BoxMinusConnected;
             _textArea.Markers[Marker.FolderSub].Symbol = MarkerSymbol.VLine;
             _textArea.Markers[Marker.FolderTail].Symbol = MarkerSymbol.LCorner;
 
             // Enable automatic folding
-            _textArea.AutomaticFold = (AutomaticFold.Show | AutomaticFold.Click | AutomaticFold.Change);
+            _textArea.AutomaticFold = AutomaticFold.Show | AutomaticFold.Click | AutomaticFold.Change;
         }
 
         private void TextArea_MarginClick(object sender, MarginClickEventArgs e)
@@ -277,18 +287,14 @@ namespace JsonDictionary
             if (e.Margin != BOOKMARK_MARGIN) return;
 
             // Do we have a marker for this line?
-            const uint mask = (1 << BOOKMARK_MARKER);
+            const uint mask = 1 << BOOKMARK_MARKER;
             var line = _textArea.Lines[_textArea.LineFromPosition(e.Position)];
             if ((line.MarkerGet() & mask) > 0)
-            {
                 // Remove existing bookmark
                 line.MarkerDelete(BOOKMARK_MARKER);
-            }
             else
-            {
                 // Add bookmark
                 line.MarkerAdd(BOOKMARK_MARKER);
-            }
         }
 
         #endregion
@@ -297,7 +303,11 @@ namespace JsonDictionary
 
         private void LoadDataFromFile(string path)
         {
-            if (!File.Exists(path)) return;
+            if (!File.Exists(path))
+            {
+                MessageBox.Show("File not found: " + path);
+                return;
+            }
 
             Text += path;
             _textArea.Text = JsonIo.BeautifyJson(File.ReadAllText(path), ReformatJson);
@@ -379,6 +389,11 @@ namespace JsonDictionary
 
         private void FormatToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            FormatText();
+        }
+
+        private void FormatText()
+        {
             _textArea.Text = JsonIo.BeautifyJson(_textArea.Text, ReformatJson);
             _textArea.SelectionStart = _textArea.SelectionEnd = 0;
             _textArea.ScrollCaret();
@@ -388,7 +403,8 @@ namespace JsonDictionary
         {
             // toggle view whitespace
             hiddenCharactersItem.Checked = !hiddenCharactersItem.Checked;
-            _textArea.ViewWhitespace = hiddenCharactersItem.Checked ? WhitespaceMode.VisibleAlways : WhitespaceMode.Invisible;
+            _textArea.ViewWhitespace =
+                hiddenCharactersItem.Checked ? WhitespaceMode.VisibleAlways : WhitespaceMode.Invisible;
         }
 
         private void ZoomInToolStripMenuItem_Click(object sender, EventArgs e)
@@ -573,14 +589,9 @@ namespace JsonDictionary
 
         private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
         {
-            if (HotKeyManager.IsHotkey(e, Keys.Enter))
-            {
-                SearchManager.Find(true, false);
-            }
+            if (HotKeyManager.IsHotkey(e, Keys.Enter)) SearchManager.Find(true, false);
             if (HotKeyManager.IsHotkey(e, Keys.Enter, true) || HotKeyManager.IsHotkey(e, Keys.Enter, false, true))
-            {
                 SearchManager.Find(false, false);
-            }
         }
 
         #endregion
@@ -590,18 +601,15 @@ namespace JsonDictionary
         private void InvokeIfNeeded(Action action)
         {
             if (InvokeRequired)
-            {
                 BeginInvoke(action);
-            }
             else
-            {
                 action.Invoke();
-            }
         }
 
         public void SelectText(string text)
         {
-            if (FindTextLines(Text, text, out var startLine, out var lineNum)) SelectTextLines(startLine, lineNum);
+            if (FindTextLines(_textArea.Text, text, out var startLine, out var lineNum))
+                SelectTextLines(startLine, lineNum);
         }
 
         private static bool FindTextLines(string text, string sample, out int startLine, out int lineNum)
@@ -627,7 +635,8 @@ namespace JsonDictionary
                 if (text[startIndex] != '\r' && text[startIndex] != '\n') continue;
 
                 linesCount++;
-                if (text[startIndex] != text[startIndex + 1] && (text[startIndex + 1] == '\r' || text[startIndex + 1] == '\n')) startIndex++;
+                if (text[startIndex] != text[startIndex + 1] &&
+                    (text[startIndex + 1] == '\r' || text[startIndex + 1] == '\n')) startIndex++;
             }
 
             return linesCount;
@@ -643,6 +652,5 @@ namespace JsonDictionary
         }
 
         #endregion
-
     }
 }

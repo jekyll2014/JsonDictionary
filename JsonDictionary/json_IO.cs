@@ -29,7 +29,7 @@ namespace JsonDictionary
             var jsonSerializer = new DataContractJsonSerializer(typeof(List<T>));
             var fileStream = File.Open(fileName, FileMode.Open);
 
-            var newValues = (List<T>)jsonSerializer.ReadObject(fileStream);
+            var newValues = (List<T>) jsonSerializer.ReadObject(fileStream);
             fileStream.Close();
             fileStream.Dispose();
 
@@ -54,13 +54,13 @@ namespace JsonDictionary
                 {
                     var bf = new BinaryFormatter();
                     var obj = bf.Deserialize(file);
-                    nodeList = (T)obj;
+                    nodeList = (T) obj;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("File parse exception: " + ex.Message + Environment.NewLine + ex.InnerException.Message);
+                    throw new Exception("File parse exception: " + ex.Message + Environment.NewLine +
+                                        ex.InnerException.Message);
                 }
-
             }
 
             return nodeList;
@@ -69,14 +69,15 @@ namespace JsonDictionary
         // possibly need rework
         public static string JsonShiftBrackets(string original)
         {
-            var searchTokens = new[] { ": {", ": [" };
+            var searchTokens = new[] {": {", ": ["};
             foreach (var token in searchTokens)
             {
                 var i = original.IndexOf(token, StringComparison.Ordinal);
                 while (i >= 0)
                 {
                     int currentPos;
-                    if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n') // not a single bracket
+                    if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n'
+                    ) // not a single bracket
                     {
                         currentPos = i + 3;
                     }
@@ -110,14 +111,15 @@ namespace JsonDictionary
         // possibly need rework
         private static string JsonShiftBrackets_v2(string original)
         {
-            var searchTokens = new[] { ": {", ": [" };
+            var searchTokens = new[] {": {", ": ["};
             foreach (var token in searchTokens)
             {
                 var i = original.IndexOf(token, StringComparison.Ordinal);
                 while (i >= 0)
                 {
                     int currentPos;
-                    if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n') // not a single bracket
+                    if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n'
+                    ) // not a single bracket
                     {
                         currentPos = i + 3;
                     }
@@ -149,8 +151,8 @@ namespace JsonDictionary
 
             const char prefixItem = ' ';
             const int prefixStep = 2;
-            var openBrackets = new[] { '{', '[' };
-            var closeBrackets = new[] { '}', ']' };
+            var openBrackets = new[] {'{', '['};
+            var closeBrackets = new[] {'}', ']'};
 
             var prefixLength = 0;
             var prefix = "";
@@ -183,7 +185,7 @@ namespace JsonDictionary
 
         private static string[] ConvertTextToStringList(string data)
         {
-            var lineDivider = new List<char>() { '\x0d', '\x0a' };
+            var lineDivider = new List<char> {'\x0d', '\x0a'};
             var stringCollection = new List<string>();
             var unparsedData = "";
             foreach (var t in data)
@@ -255,11 +257,13 @@ namespace JsonDictionary
             catch
             {
             }
+
             return reformatJson ? JsonShiftBrackets_v2(json) : json;
         }
 
         private static string ReformatJson(string json, Formatting formatting)
         {
+            if (json[0] != '{' && json[0] != '[') return json;
             using (var stringReader = new StringReader(json))
             {
                 using (var stringWriter = new StringWriter())
@@ -281,6 +285,5 @@ namespace JsonDictionary
                 }
             }
         }
-
     }
 }

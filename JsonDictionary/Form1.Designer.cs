@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_DataCollection = new System.Windows.Forms.TabPage();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -72,12 +72,17 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.contextMenuStrip_findValue = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.FindAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenuStrip_findField = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.FindFieldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip_ExFindValue = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ExFindAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip_ExFindField = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ExFindFieldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.contextMenuStrip_KwFindValue = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.KwFindAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip_KwFindField = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.KwFindFieldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkBox_loadDbOnStart = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage_DataCollection.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
@@ -96,9 +101,11 @@
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_keywords)).BeginInit();
-            this.contextMenuStrip_findValue.SuspendLayout();
-            this.contextMenuStrip_findField.SuspendLayout();
+            this.contextMenuStrip_ExFindValue.SuspendLayout();
+            this.contextMenuStrip_ExFindField.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.contextMenuStrip_KwFindValue.SuspendLayout();
+            this.contextMenuStrip_KwFindField.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -114,6 +121,7 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(988, 726);
             this.tabControl1.TabIndex = 0;
+            this.tabControl1.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabControl1_Selecting);
             // 
             // tabPage_DataCollection
             // 
@@ -134,6 +142,7 @@
             // 
             // splitContainer2.Panel1
             // 
+            this.splitContainer2.Panel1.Controls.Add(this.checkBox_loadDbOnStart);
             this.splitContainer2.Panel1.Controls.Add(this.checkBox_alwaysOnTop);
             this.splitContainer2.Panel1.Controls.Add(this.checkBox_showPreview);
             this.splitContainer2.Panel1.Controls.Add(this.checkBox_ignoreHttpsError);
@@ -224,14 +233,14 @@
             this.checkedListBox_params.HorizontalScrollbar = true;
             this.checkedListBox_params.Location = new System.Drawing.Point(0, 0);
             this.checkedListBox_params.Name = "checkedListBox_params";
-            this.checkedListBox_params.Size = new System.Drawing.Size(208, 454);
+            this.checkedListBox_params.Size = new System.Drawing.Size(208, 436);
             this.checkedListBox_params.TabIndex = 0;
             // 
             // button_saveDb
             // 
             this.button_saveDb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_saveDb.Location = new System.Drawing.Point(0, 553);
+            this.button_saveDb.Location = new System.Drawing.Point(0, 530);
             this.button_saveDb.Name = "button_saveDb";
             this.button_saveDb.Size = new System.Drawing.Size(208, 23);
             this.button_saveDb.TabIndex = 4;
@@ -243,7 +252,7 @@
             // 
             this.button_loadDb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_loadDb.Location = new System.Drawing.Point(0, 524);
+            this.button_loadDb.Location = new System.Drawing.Point(0, 501);
             this.button_loadDb.Name = "button_loadDb";
             this.button_loadDb.Size = new System.Drawing.Size(208, 23);
             this.button_loadDb.TabIndex = 3;
@@ -255,7 +264,7 @@
             // 
             this.button_validateFiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_validateFiles.Location = new System.Drawing.Point(0, 466);
+            this.button_validateFiles.Location = new System.Drawing.Point(0, 443);
             this.button_validateFiles.Name = "button_validateFiles";
             this.button_validateFiles.Size = new System.Drawing.Size(208, 23);
             this.button_validateFiles.TabIndex = 1;
@@ -267,7 +276,7 @@
             // 
             this.button_collectDatabase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_collectDatabase.Location = new System.Drawing.Point(0, 495);
+            this.button_collectDatabase.Location = new System.Drawing.Point(0, 472);
             this.button_collectDatabase.Name = "button_collectDatabase";
             this.button_collectDatabase.Size = new System.Drawing.Size(208, 23);
             this.button_collectDatabase.TabIndex = 2;
@@ -424,21 +433,21 @@
             this.dataGridView_examples.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_examples.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_examples.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle9.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle9;
             this.dataGridView_examples.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_examples.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_examples.Name = "dataGridView_examples";
             this.dataGridView_examples.RowHeadersWidth = 20;
-            dataGridViewCellStyle2.NullValue = "Adjust";
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle10.NullValue = "Adjust";
+            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle10;
             this.dataGridView_examples.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_examples.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_examples.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
@@ -585,21 +594,21 @@
             this.dataGridView_keywords.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_keywords.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_keywords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_keywords.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle11.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_keywords.DefaultCellStyle = dataGridViewCellStyle11;
             this.dataGridView_keywords.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_keywords.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_keywords.Name = "dataGridView_keywords";
             this.dataGridView_keywords.RowHeadersWidth = 20;
-            dataGridViewCellStyle4.NullValue = "Adjust";
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_keywords.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle12.NullValue = "Adjust";
+            dataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_keywords.RowsDefaultCellStyle = dataGridViewCellStyle12;
             this.dataGridView_keywords.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_keywords.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_keywords.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
@@ -625,36 +634,36 @@
             // 
             this.saveFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.SaveFileDialog1_FileOk);
             // 
-            // contextMenuStrip_findValue
+            // contextMenuStrip_ExFindValue
             // 
-            this.contextMenuStrip_findValue.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.FindAllStripMenuItem});
-            this.contextMenuStrip_findValue.Name = "contextMenuStrip_findInParent";
-            this.contextMenuStrip_findValue.Size = new System.Drawing.Size(179, 26);
-            this.contextMenuStrip_findValue.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_findValue_Opening);
+            this.contextMenuStrip_ExFindValue.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ExFindAllStripMenuItem});
+            this.contextMenuStrip_ExFindValue.Name = "contextMenuStrip_findInParent";
+            this.contextMenuStrip_ExFindValue.Size = new System.Drawing.Size(179, 26);
+            this.contextMenuStrip_ExFindValue.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_ExFindValue_Opening);
             // 
-            // FindAllStripMenuItem
+            // ExFindAllStripMenuItem
             // 
-            this.FindAllStripMenuItem.Name = "FindAllStripMenuItem";
-            this.FindAllStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.FindAllStripMenuItem.Text = "Find value in parent";
-            this.FindAllStripMenuItem.Click += new System.EventHandler(this.FindValueToolStripMenuItem_Click);
+            this.ExFindAllStripMenuItem.Name = "ExFindAllStripMenuItem";
+            this.ExFindAllStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.ExFindAllStripMenuItem.Text = "Find value in parent";
+            this.ExFindAllStripMenuItem.Click += new System.EventHandler(this.ExFindValueToolStripMenuItem_Click);
             // 
-            // contextMenuStrip_findField
+            // contextMenuStrip_ExFindField
             // 
-            this.contextMenuStrip_findField.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.FindFieldToolStripMenuItem});
-            this.contextMenuStrip_findField.Name = "contextMenuStrip_findField";
-            this.contextMenuStrip_findField.Size = new System.Drawing.Size(174, 26);
-            this.contextMenuStrip_findField.Text = "Find field in parent";
-            this.contextMenuStrip_findField.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_findField_Opening);
+            this.contextMenuStrip_ExFindField.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ExFindFieldToolStripMenuItem});
+            this.contextMenuStrip_ExFindField.Name = "contextMenuStrip_ExFindField";
+            this.contextMenuStrip_ExFindField.Size = new System.Drawing.Size(174, 26);
+            this.contextMenuStrip_ExFindField.Text = "Find field in parent";
+            this.contextMenuStrip_ExFindField.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_ExFindField_Opening);
             // 
-            // FindFieldToolStripMenuItem
+            // ExFindFieldToolStripMenuItem
             // 
-            this.FindFieldToolStripMenuItem.Name = "FindFieldToolStripMenuItem";
-            this.FindFieldToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
-            this.FindFieldToolStripMenuItem.Text = "Find field in parent";
-            this.FindFieldToolStripMenuItem.Click += new System.EventHandler(this.FindFieldToolStripMenuItem_Click);
+            this.ExFindFieldToolStripMenuItem.Name = "ExFindFieldToolStripMenuItem";
+            this.ExFindFieldToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.ExFindFieldToolStripMenuItem.Text = "Find field in parent";
+            this.ExFindFieldToolStripMenuItem.Click += new System.EventHandler(this.ExFindFieldToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -669,8 +678,50 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
-            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
+            // 
+            // contextMenuStrip_KwFindValue
+            // 
+            this.contextMenuStrip_KwFindValue.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.KwFindAllStripMenuItem});
+            this.contextMenuStrip_KwFindValue.Name = "contextMenuStrip_findInParent";
+            this.contextMenuStrip_KwFindValue.Size = new System.Drawing.Size(179, 26);
+            this.contextMenuStrip_KwFindValue.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_KwFindValue_Opening);
+            // 
+            // KwFindAllStripMenuItem
+            // 
+            this.KwFindAllStripMenuItem.Name = "KwFindAllStripMenuItem";
+            this.KwFindAllStripMenuItem.Size = new System.Drawing.Size(178, 22);
+            this.KwFindAllStripMenuItem.Text = "Find value in parent";
+            this.KwFindAllStripMenuItem.Click += new System.EventHandler(this.KwFindValueToolStripMenuItem_Click);
+            // 
+            // contextMenuStrip_KwFindField
+            // 
+            this.contextMenuStrip_KwFindField.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.KwFindFieldToolStripMenuItem});
+            this.contextMenuStrip_KwFindField.Name = "contextMenuStrip_ExFindField";
+            this.contextMenuStrip_KwFindField.Size = new System.Drawing.Size(174, 26);
+            this.contextMenuStrip_KwFindField.Text = "Find field in parent";
+            this.contextMenuStrip_KwFindField.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_KwFindField_Opening);
+            // 
+            // KwFindFieldToolStripMenuItem
+            // 
+            this.KwFindFieldToolStripMenuItem.Name = "KwFindFieldToolStripMenuItem";
+            this.KwFindFieldToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.KwFindFieldToolStripMenuItem.Text = "Find field in parent";
+            this.KwFindFieldToolStripMenuItem.Click += new System.EventHandler(this.KwFindFieldToolStripMenuItem_Click);
+            // 
+            // checkBox_loadDbOnStart
+            // 
+            this.checkBox_loadDbOnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBox_loadDbOnStart.AutoSize = true;
+            this.checkBox_loadDbOnStart.Location = new System.Drawing.Point(5, 559);
+            this.checkBox_loadDbOnStart.Name = "checkBox_loadDbOnStart";
+            this.checkBox_loadDbOnStart.Size = new System.Drawing.Size(121, 17);
+            this.checkBox_loadDbOnStart.TabIndex = 6;
+            this.checkBox_loadDbOnStart.Text = "Load DB on start-up";
+            this.checkBox_loadDbOnStart.UseVisualStyleBackColor = true;
+            this.checkBox_loadDbOnStart.CheckedChanged += new System.EventHandler(this.checkBox_loadDbOnStart_CheckedChanged);
             // 
             // Form1
             // 
@@ -706,10 +757,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_keywords)).EndInit();
-            this.contextMenuStrip_findValue.ResumeLayout(false);
-            this.contextMenuStrip_findField.ResumeLayout(false);
+            this.contextMenuStrip_ExFindValue.ResumeLayout(false);
+            this.contextMenuStrip_ExFindField.ResumeLayout(false);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.contextMenuStrip_KwFindValue.ResumeLayout(false);
+            this.contextMenuStrip_KwFindField.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -738,10 +791,10 @@
         private System.Windows.Forms.TextBox textBox_ExSearchHistory;
         private System.Windows.Forms.ComboBox comboBox_ExVersions;
         private System.Windows.Forms.Button button_ExAdjustRows;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_findValue;
-        private System.Windows.Forms.ToolStripMenuItem FindAllStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_findField;
-        private System.Windows.Forms.ToolStripMenuItem FindFieldToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_ExFindValue;
+        private System.Windows.Forms.ToolStripMenuItem ExFindAllStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_ExFindField;
+        private System.Windows.Forms.ToolStripMenuItem ExFindFieldToolStripMenuItem;
         private System.Windows.Forms.Button button_validateFiles;
         private System.Windows.Forms.TabPage tabPage_Keywords;
         private System.Windows.Forms.SplitContainer splitContainer3;
@@ -762,6 +815,11 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.Button button_ExClearSearch;
         private System.Windows.Forms.Button button_KwClearSearch;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_KwFindValue;
+        private System.Windows.Forms.ToolStripMenuItem KwFindAllStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_KwFindField;
+        private System.Windows.Forms.ToolStripMenuItem KwFindFieldToolStripMenuItem;
+        private System.Windows.Forms.CheckBox checkBox_loadDbOnStart;
     }
 }
 
