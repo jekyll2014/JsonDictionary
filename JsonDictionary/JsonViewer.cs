@@ -557,7 +557,11 @@ namespace JsonDictionary
 
         private void CloseSearch()
         {
-            if (!_searchIsOpen) return;
+            if (!_searchIsOpen)
+            {
+                Close();
+                return;
+            }
 
             _searchIsOpen = false;
             InvokeIfNeeded(delegate

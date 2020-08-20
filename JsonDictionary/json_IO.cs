@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Windows.Forms;
-
-using Newtonsoft.Json;
 
 namespace JsonDictionary
 {
@@ -15,46 +14,68 @@ namespace JsonDictionary
     {
         public static bool SaveJson<T>(T data, string fileName)
         {
-            var jsonSerializer = new DataContractJsonSerializer(typeof(T));
-            var fileStream = File.Open(fileName, FileMode.Create);
-            jsonSerializer.WriteObject(fileStream, data);
-            fileStream.Close();
-            fileStream.Dispose();
+            if (string.IsNullOrEmpty(fileName)) return false;
+
+            try
+            {
+                var jsonSerializer = new DataContractJsonSerializer(typeof(T));
+                var fileStream = File.Open(fileName, FileMode.Create);
+                jsonSerializer.WriteObject(fileStream, data);
+                fileStream.Close();
+                fileStream.Dispose();
+            }
+            catch
+            {
+                return false;
+            }
 
             return true;
         }
 
         public static List<T> LoadJson<T>(string fileName)
         {
-            var jsonSerializer = new DataContractJsonSerializer(typeof(List<T>));
-            var fileStream = File.Open(fileName, FileMode.Open);
+            if (string.IsNullOrEmpty(fileName)) return new List<T>();
 
-            var newValues = (List<T>) jsonSerializer.ReadObject(fileStream);
-            fileStream.Close();
-            fileStream.Dispose();
+            var newValues = new List<T>();
+            try
+            {
+                var jsonSerializer = new DataContractJsonSerializer(typeof(List<T>));
+                var fileStream = File.Open(fileName, FileMode.Open);
 
+                newValues = (List<T>)jsonSerializer.ReadObject(fileStream);
+                fileStream.Close();
+                fileStream.Dispose();
+            }
+            catch
+            {
+                return new List<T>();
+            }
             return newValues;
         }
 
-        public static void SaveBinary<T>(T tree, string filename)
+        public static void SaveBinary<T>(T tree, string fileName)
         {
-            using (Stream file = File.Open(filename, FileMode.Create))
+            if (string.IsNullOrEmpty(fileName)) return;
+
+            using (Stream file = File.Open(fileName, FileMode.Create))
             {
                 var bf = new BinaryFormatter();
                 bf.Serialize(file, tree);
             }
         }
 
-        public static T LoadBinary<T>(string filename)
+        public static T LoadBinary<T>(string fileName)
         {
             T nodeList = default;
-            using (Stream file = File.Open(filename, FileMode.Open))
+            if (string.IsNullOrEmpty(fileName)) return nodeList;
+
+            using (Stream file = File.Open(fileName, FileMode.Open))
             {
                 try
                 {
                     var bf = new BinaryFormatter();
                     var obj = bf.Deserialize(file);
-                    nodeList = (T) obj;
+                    nodeList = (T)obj;
                 }
                 catch (Exception ex)
                 {
@@ -69,7 +90,9 @@ namespace JsonDictionary
         // possibly need rework
         public static string JsonShiftBrackets(string original)
         {
-            var searchTokens = new[] {": {", ": ["};
+            if (string.IsNullOrEmpty(original)) return original;
+
+            var searchTokens = new[] { ": {", ": [" };
             foreach (var token in searchTokens)
             {
                 var i = original.IndexOf(token, StringComparison.Ordinal);
@@ -111,7 +134,9 @@ namespace JsonDictionary
         // possibly need rework
         private static string JsonShiftBrackets_v2(string original)
         {
-            var searchTokens = new[] {": {", ": ["};
+            if (string.IsNullOrEmpty(original)) return original;
+
+            var searchTokens = new[] { ": {", ": [" };
             foreach (var token in searchTokens)
             {
                 var i = original.IndexOf(token, StringComparison.Ordinal);
@@ -151,8 +176,8 @@ namespace JsonDictionary
 
             const char prefixItem = ' ';
             const int prefixStep = 2;
-            var openBrackets = new[] {'{', '['};
-            var closeBrackets = new[] {'}', ']'};
+            var openBrackets = new[] { '{', '[' };
+            var closeBrackets = new[] { '}', ']' };
 
             var prefixLength = 0;
             var prefix = "";
@@ -185,8 +210,10 @@ namespace JsonDictionary
 
         private static string[] ConvertTextToStringList(string data)
         {
-            var lineDivider = new List<char> {'\x0d', '\x0a'};
             var stringCollection = new List<string>();
+            if (string.IsNullOrEmpty(data)) return stringCollection.ToArray();
+
+            var lineDivider = new List<char> { '\x0d', '\x0a' };
             var unparsedData = "";
             foreach (var t in data)
                 if (lineDivider.Contains(t))
@@ -208,7 +235,11 @@ namespace JsonDictionary
 
         public static string TrimJson(string original, bool trimEol)
         {
+            if (string.IsNullOrEmpty(original)) return original;
+
             original = original.Trim();
+            if (string.IsNullOrEmpty(original)) return original;
+
             if (trimEol)
             {
                 original = original.Replace("\r\n", "\n");
@@ -236,7 +267,11 @@ namespace JsonDictionary
 
         public static string CompactJson(string json)
         {
+            if (string.IsNullOrEmpty(json)) return json;
+
             json = json.Trim();
+            if (string.IsNullOrEmpty(json)) return json;
+
             try
             {
                 return ReformatJson(json, Formatting.None);
@@ -249,7 +284,11 @@ namespace JsonDictionary
 
         public static string BeautifyJson(string json, bool reformatJson)
         {
+            if (string.IsNullOrEmpty(json)) return json;
+
             json = json.Trim();
+            if (string.IsNullOrEmpty(json)) return json;
+
             try
             {
                 json = ReformatJson(json, Formatting.Indented);

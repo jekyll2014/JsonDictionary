@@ -82,7 +82,7 @@ namespace JsonDictionary
             EndsWith
         }
 
-        private class SearchItem : ICloneable, IEqualityComparer
+        private class SearchItem : ICloneable, IEqualityComparer, IEquatable<SearchItem>
         {
             public string Version = DefaultVersionCaption;
             public SearchCondition Condition = SearchCondition.Contains;
@@ -117,6 +117,15 @@ namespace JsonDictionary
                     return (item.Version + item.Condition + item.CaseSensitive + item.Value).GetHashCode();
 
                 return obj.GetHashCode();
+            }
+
+
+            public bool Equals(SearchItem other)
+            {
+                    return Version == other.Version
+                           && Condition == other.Condition
+                           && CaseSensitive == other.CaseSensitive
+                           && Value == other.Value;
             }
         }
 
