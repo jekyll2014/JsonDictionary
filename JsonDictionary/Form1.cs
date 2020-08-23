@@ -1457,6 +1457,14 @@ namespace JsonDictionary
             toolStripStatusLabel1.Text = "";
         }
 
+        private void EnumerateRows(DataGridView grid)
+        {
+            foreach (var row in grid.Rows)
+            {
+                
+            }
+        }
+
         private void FillKeywordsGrid(List<JsoncDictionary> rootCollection, TreeNode currentNode,
             SearchItem searchParam = null)
         {
@@ -1783,6 +1791,7 @@ namespace JsonDictionary
                    for (var rowNumber = 0; rowNumber < dgView.RowCount; rowNumber++)
                    {
                        var row = dgView.Rows[rowNumber];
+                       row.HeaderCell.Value = (rowNumber + 1).ToString();
                        var newHeight = row.GetPreferredHeight(rowNumber,
                            DataGridViewAutoSizeRowMode.AllCellsExceptHeader, true);
                        var currentHeight = dgView.Height;
@@ -1806,6 +1815,7 @@ namespace JsonDictionary
             }
 
             var row = dgView.Rows[rowNumber];
+            row.HeaderCell.Value = (rowNumber + 1).ToString();
             var newHeight = row.GetPreferredHeight(rowNumber, DataGridViewAutoSizeRowMode.AllCellsExceptHeader, true);
             var currentHeight = dgView.Height;
             if (newHeight == row.Height && newHeight <= currentHeight * CellHeightAdjust) return;

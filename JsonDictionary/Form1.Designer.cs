@@ -29,13 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_DataCollection = new System.Windows.Forms.TabPage();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.checkBox_loadDbOnStart = new System.Windows.Forms.CheckBox();
             this.checkBox_alwaysOnTop = new System.Windows.Forms.CheckBox();
             this.checkBox_showPreview = new System.Windows.Forms.CheckBox();
             this.checkBox_ignoreHttpsError = new System.Windows.Forms.CheckBox();
@@ -82,7 +83,6 @@
             this.KwFindAllStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip_KwFindField = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.KwFindFieldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.checkBox_loadDbOnStart = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage_DataCollection.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
@@ -128,7 +128,6 @@
             this.tabPage_DataCollection.Controls.Add(this.splitContainer2);
             this.tabPage_DataCollection.Location = new System.Drawing.Point(4, 22);
             this.tabPage_DataCollection.Name = "tabPage_DataCollection";
-            this.tabPage_DataCollection.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage_DataCollection.Size = new System.Drawing.Size(980, 700);
             this.tabPage_DataCollection.TabIndex = 0;
             this.tabPage_DataCollection.Text = "Data collection";
@@ -137,7 +136,8 @@
             // splitContainer2
             // 
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer2.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer2.Margin = new System.Windows.Forms.Padding(0);
             this.splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel1
@@ -158,15 +158,27 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.textBox_logText);
-            this.splitContainer2.Size = new System.Drawing.Size(974, 694);
-            this.splitContainer2.SplitterDistance = 209;
+            this.splitContainer2.Size = new System.Drawing.Size(980, 700);
+            this.splitContainer2.SplitterDistance = 210;
             this.splitContainer2.TabIndex = 18;
+            // 
+            // checkBox_loadDbOnStart
+            // 
+            this.checkBox_loadDbOnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBox_loadDbOnStart.AutoSize = true;
+            this.checkBox_loadDbOnStart.Location = new System.Drawing.Point(5, 565);
+            this.checkBox_loadDbOnStart.Name = "checkBox_loadDbOnStart";
+            this.checkBox_loadDbOnStart.Size = new System.Drawing.Size(121, 17);
+            this.checkBox_loadDbOnStart.TabIndex = 6;
+            this.checkBox_loadDbOnStart.Text = "Load DB on start-up";
+            this.checkBox_loadDbOnStart.UseVisualStyleBackColor = true;
+            this.checkBox_loadDbOnStart.CheckedChanged += new System.EventHandler(this.checkBox_loadDbOnStart_CheckedChanged);
             // 
             // checkBox_alwaysOnTop
             // 
             this.checkBox_alwaysOnTop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_alwaysOnTop.AutoSize = true;
-            this.checkBox_alwaysOnTop.Location = new System.Drawing.Point(5, 674);
+            this.checkBox_alwaysOnTop.Location = new System.Drawing.Point(5, 680);
             this.checkBox_alwaysOnTop.Name = "checkBox_alwaysOnTop";
             this.checkBox_alwaysOnTop.Size = new System.Drawing.Size(92, 17);
             this.checkBox_alwaysOnTop.TabIndex = 5;
@@ -178,7 +190,7 @@
             // 
             this.checkBox_showPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_showPreview.AutoSize = true;
-            this.checkBox_showPreview.Location = new System.Drawing.Point(5, 651);
+            this.checkBox_showPreview.Location = new System.Drawing.Point(5, 657);
             this.checkBox_showPreview.Name = "checkBox_showPreview";
             this.checkBox_showPreview.Size = new System.Drawing.Size(122, 17);
             this.checkBox_showPreview.TabIndex = 5;
@@ -190,7 +202,7 @@
             // 
             this.checkBox_ignoreHttpsError.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_ignoreHttpsError.AutoSize = true;
-            this.checkBox_ignoreHttpsError.Location = new System.Drawing.Point(5, 628);
+            this.checkBox_ignoreHttpsError.Location = new System.Drawing.Point(5, 634);
             this.checkBox_ignoreHttpsError.Name = "checkBox_ignoreHttpsError";
             this.checkBox_ignoreHttpsError.Size = new System.Drawing.Size(119, 17);
             this.checkBox_ignoreHttpsError.TabIndex = 5;
@@ -202,7 +214,7 @@
             // 
             this.checkBox_reformatJson.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_reformatJson.AutoSize = true;
-            this.checkBox_reformatJson.Location = new System.Drawing.Point(5, 605);
+            this.checkBox_reformatJson.Location = new System.Drawing.Point(5, 611);
             this.checkBox_reformatJson.Name = "checkBox_reformatJson";
             this.checkBox_reformatJson.Size = new System.Drawing.Size(100, 17);
             this.checkBox_reformatJson.TabIndex = 5;
@@ -214,7 +226,7 @@
             // 
             this.checkBox_collectAllFileNames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_collectAllFileNames.AutoSize = true;
-            this.checkBox_collectAllFileNames.Location = new System.Drawing.Point(5, 582);
+            this.checkBox_collectAllFileNames.Location = new System.Drawing.Point(5, 588);
             this.checkBox_collectAllFileNames.Name = "checkBox_collectAllFileNames";
             this.checkBox_collectAllFileNames.Size = new System.Drawing.Size(118, 17);
             this.checkBox_collectAllFileNames.TabIndex = 5;
@@ -233,16 +245,16 @@
             this.checkedListBox_params.HorizontalScrollbar = true;
             this.checkedListBox_params.Location = new System.Drawing.Point(0, 0);
             this.checkedListBox_params.Name = "checkedListBox_params";
-            this.checkedListBox_params.Size = new System.Drawing.Size(208, 436);
+            this.checkedListBox_params.Size = new System.Drawing.Size(209, 436);
             this.checkedListBox_params.TabIndex = 0;
             // 
             // button_saveDb
             // 
             this.button_saveDb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_saveDb.Location = new System.Drawing.Point(0, 530);
+            this.button_saveDb.Location = new System.Drawing.Point(0, 536);
             this.button_saveDb.Name = "button_saveDb";
-            this.button_saveDb.Size = new System.Drawing.Size(208, 23);
+            this.button_saveDb.Size = new System.Drawing.Size(209, 23);
             this.button_saveDb.TabIndex = 4;
             this.button_saveDb.Text = "Save database";
             this.button_saveDb.UseVisualStyleBackColor = true;
@@ -252,9 +264,9 @@
             // 
             this.button_loadDb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_loadDb.Location = new System.Drawing.Point(0, 501);
+            this.button_loadDb.Location = new System.Drawing.Point(0, 507);
             this.button_loadDb.Name = "button_loadDb";
-            this.button_loadDb.Size = new System.Drawing.Size(208, 23);
+            this.button_loadDb.Size = new System.Drawing.Size(209, 23);
             this.button_loadDb.TabIndex = 3;
             this.button_loadDb.Text = "Load database";
             this.button_loadDb.UseVisualStyleBackColor = true;
@@ -264,9 +276,9 @@
             // 
             this.button_validateFiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_validateFiles.Location = new System.Drawing.Point(0, 443);
+            this.button_validateFiles.Location = new System.Drawing.Point(0, 449);
             this.button_validateFiles.Name = "button_validateFiles";
-            this.button_validateFiles.Size = new System.Drawing.Size(208, 23);
+            this.button_validateFiles.Size = new System.Drawing.Size(209, 23);
             this.button_validateFiles.TabIndex = 1;
             this.button_validateFiles.Text = "Validate files";
             this.button_validateFiles.UseVisualStyleBackColor = true;
@@ -276,9 +288,9 @@
             // 
             this.button_collectDatabase.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_collectDatabase.Location = new System.Drawing.Point(0, 472);
+            this.button_collectDatabase.Location = new System.Drawing.Point(0, 478);
             this.button_collectDatabase.Name = "button_collectDatabase";
-            this.button_collectDatabase.Size = new System.Drawing.Size(208, 23);
+            this.button_collectDatabase.Size = new System.Drawing.Size(209, 23);
             this.button_collectDatabase.TabIndex = 2;
             this.button_collectDatabase.Text = "Collect database";
             this.button_collectDatabase.UseVisualStyleBackColor = true;
@@ -293,7 +305,7 @@
             this.textBox_logText.Name = "textBox_logText";
             this.textBox_logText.ReadOnly = true;
             this.textBox_logText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_logText.Size = new System.Drawing.Size(761, 694);
+            this.textBox_logText.Size = new System.Drawing.Size(766, 700);
             this.textBox_logText.TabIndex = 0;
             // 
             // tabPage_SamplesTree
@@ -301,7 +313,6 @@
             this.tabPage_SamplesTree.Controls.Add(this.splitContainer1);
             this.tabPage_SamplesTree.Location = new System.Drawing.Point(4, 22);
             this.tabPage_SamplesTree.Name = "tabPage_SamplesTree";
-            this.tabPage_SamplesTree.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage_SamplesTree.Size = new System.Drawing.Size(980, 700);
             this.tabPage_SamplesTree.TabIndex = 1;
             this.tabPage_SamplesTree.Text = "Samples tree";
@@ -310,7 +321,8 @@
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(0);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -329,8 +341,8 @@
             this.splitContainer1.Panel2.Controls.Add(this.comboBox_ExCondition);
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView_examples);
             this.splitContainer1.Panel2MinSize = 350;
-            this.splitContainer1.Size = new System.Drawing.Size(974, 694);
-            this.splitContainer1.SplitterDistance = 324;
+            this.splitContainer1.Size = new System.Drawing.Size(980, 700);
+            this.splitContainer1.SplitterDistance = 215;
             this.splitContainer1.TabIndex = 1;
             // 
             // treeView_examples
@@ -340,7 +352,7 @@
             this.treeView_examples.HideSelection = false;
             this.treeView_examples.Location = new System.Drawing.Point(0, 0);
             this.treeView_examples.Name = "treeView_examples";
-            this.treeView_examples.Size = new System.Drawing.Size(324, 694);
+            this.treeView_examples.Size = new System.Drawing.Size(215, 700);
             this.treeView_examples.TabIndex = 0;
             this.treeView_examples.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_No_Expand_Collapse);
             this.treeView_examples.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_No_Expand_Collapse);
@@ -352,7 +364,7 @@
             // button_ExClearSearch
             // 
             this.button_ExClearSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_ExClearSearch.Location = new System.Drawing.Point(571, 672);
+            this.button_ExClearSearch.Location = new System.Drawing.Point(686, 674);
             this.button_ExClearSearch.Name = "button_ExClearSearch";
             this.button_ExClearSearch.Size = new System.Drawing.Size(75, 23);
             this.button_ExClearSearch.TabIndex = 4;
@@ -363,7 +375,7 @@
             // button_ExAdjustRows
             // 
             this.button_ExAdjustRows.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_ExAdjustRows.Location = new System.Drawing.Point(571, 0);
+            this.button_ExAdjustRows.Location = new System.Drawing.Point(686, 1);
             this.button_ExAdjustRows.Name = "button_ExAdjustRows";
             this.button_ExAdjustRows.Size = new System.Drawing.Size(75, 23);
             this.button_ExAdjustRows.TabIndex = 4;
@@ -377,7 +389,7 @@
             this.comboBox_ExVersions.FormattingEnabled = true;
             this.comboBox_ExVersions.Items.AddRange(new object[] {
             "Any"});
-            this.comboBox_ExVersions.Location = new System.Drawing.Point(0, 0);
+            this.comboBox_ExVersions.Location = new System.Drawing.Point(0, 3);
             this.comboBox_ExVersions.Name = "comboBox_ExVersions";
             this.comboBox_ExVersions.Size = new System.Drawing.Size(61, 21);
             this.comboBox_ExVersions.TabIndex = 0;
@@ -387,7 +399,7 @@
             // 
             this.checkBox_ExCaseSensitive.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.checkBox_ExCaseSensitive.AutoSize = true;
-            this.checkBox_ExCaseSensitive.Location = new System.Drawing.Point(471, 3);
+            this.checkBox_ExCaseSensitive.Location = new System.Drawing.Point(586, 5);
             this.checkBox_ExCaseSensitive.Name = "checkBox_ExCaseSensitive";
             this.checkBox_ExCaseSensitive.Size = new System.Drawing.Size(94, 17);
             this.checkBox_ExCaseSensitive.TabIndex = 3;
@@ -398,19 +410,19 @@
             // 
             this.textBox_ExSearchHistory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_ExSearchHistory.Location = new System.Drawing.Point(0, 674);
+            this.textBox_ExSearchHistory.Location = new System.Drawing.Point(0, 677);
             this.textBox_ExSearchHistory.Name = "textBox_ExSearchHistory";
             this.textBox_ExSearchHistory.ReadOnly = true;
-            this.textBox_ExSearchHistory.Size = new System.Drawing.Size(565, 20);
+            this.textBox_ExSearchHistory.Size = new System.Drawing.Size(680, 20);
             this.textBox_ExSearchHistory.TabIndex = 6;
             // 
             // textBox_ExSearchString
             // 
             this.textBox_ExSearchString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_ExSearchString.Location = new System.Drawing.Point(143, 0);
+            this.textBox_ExSearchString.Location = new System.Drawing.Point(143, 3);
             this.textBox_ExSearchString.Name = "textBox_ExSearchString";
-            this.textBox_ExSearchString.Size = new System.Drawing.Size(322, 20);
+            this.textBox_ExSearchString.Size = new System.Drawing.Size(437, 20);
             this.textBox_ExSearchString.TabIndex = 2;
             this.textBox_ExSearchString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_ExSearchString_KeyDown);
             // 
@@ -418,7 +430,7 @@
             // 
             this.comboBox_ExCondition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_ExCondition.FormattingEnabled = true;
-            this.comboBox_ExCondition.Location = new System.Drawing.Point(67, 0);
+            this.comboBox_ExCondition.Location = new System.Drawing.Point(67, 3);
             this.comboBox_ExCondition.Name = "comboBox_ExCondition";
             this.comboBox_ExCondition.Size = new System.Drawing.Size(70, 21);
             this.comboBox_ExCondition.TabIndex = 1;
@@ -433,25 +445,25 @@
             this.dataGridView_examples.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_examples.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_examples.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle9.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridView_examples.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_examples.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_examples.Name = "dataGridView_examples";
             this.dataGridView_examples.RowHeadersWidth = 20;
-            dataGridViewCellStyle10.NullValue = "Adjust";
-            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle2.NullValue = "Adjust";
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView_examples.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_examples.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_examples.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGridView_examples.Size = new System.Drawing.Size(646, 646);
+            this.dataGridView_examples.Size = new System.Drawing.Size(761, 646);
             this.dataGridView_examples.TabIndex = 5;
             this.dataGridView_examples.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentDoubleClick);
             this.dataGridView_examples.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_CellMouseDown);
@@ -472,6 +484,7 @@
             // 
             this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer3.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer3.Margin = new System.Windows.Forms.Padding(0);
             this.splitContainer3.Name = "splitContainer3";
             // 
             // splitContainer3.Panel1
@@ -491,7 +504,7 @@
             this.splitContainer3.Panel2.Controls.Add(this.dataGridView_keywords);
             this.splitContainer3.Panel2MinSize = 350;
             this.splitContainer3.Size = new System.Drawing.Size(980, 700);
-            this.splitContainer3.SplitterDistance = 325;
+            this.splitContainer3.SplitterDistance = 215;
             this.splitContainer3.TabIndex = 2;
             // 
             // treeView_keywords
@@ -501,7 +514,7 @@
             this.treeView_keywords.HideSelection = false;
             this.treeView_keywords.Location = new System.Drawing.Point(0, 0);
             this.treeView_keywords.Name = "treeView_keywords";
-            this.treeView_keywords.Size = new System.Drawing.Size(325, 700);
+            this.treeView_keywords.Size = new System.Drawing.Size(215, 700);
             this.treeView_keywords.TabIndex = 0;
             this.treeView_keywords.BeforeCollapse += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_No_Expand_Collapse);
             this.treeView_keywords.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeView_No_Expand_Collapse);
@@ -513,7 +526,7 @@
             // button_KwClearSearch
             // 
             this.button_KwClearSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_KwClearSearch.Location = new System.Drawing.Point(576, 678);
+            this.button_KwClearSearch.Location = new System.Drawing.Point(686, 674);
             this.button_KwClearSearch.Name = "button_KwClearSearch";
             this.button_KwClearSearch.Size = new System.Drawing.Size(75, 23);
             this.button_KwClearSearch.TabIndex = 7;
@@ -524,7 +537,7 @@
             // button_KwAdjustRows
             // 
             this.button_KwAdjustRows.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_KwAdjustRows.Location = new System.Drawing.Point(576, 0);
+            this.button_KwAdjustRows.Location = new System.Drawing.Point(686, 1);
             this.button_KwAdjustRows.Name = "button_KwAdjustRows";
             this.button_KwAdjustRows.Size = new System.Drawing.Size(75, 23);
             this.button_KwAdjustRows.TabIndex = 4;
@@ -538,7 +551,7 @@
             this.comboBox_KwVersions.FormattingEnabled = true;
             this.comboBox_KwVersions.Items.AddRange(new object[] {
             "Any"});
-            this.comboBox_KwVersions.Location = new System.Drawing.Point(0, 0);
+            this.comboBox_KwVersions.Location = new System.Drawing.Point(0, 3);
             this.comboBox_KwVersions.Name = "comboBox_KwVersions";
             this.comboBox_KwVersions.Size = new System.Drawing.Size(61, 21);
             this.comboBox_KwVersions.TabIndex = 0;
@@ -548,7 +561,7 @@
             // 
             this.checkBox_KwCaseSensitive.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.checkBox_KwCaseSensitive.AutoSize = true;
-            this.checkBox_KwCaseSensitive.Location = new System.Drawing.Point(476, 3);
+            this.checkBox_KwCaseSensitive.Location = new System.Drawing.Point(586, 5);
             this.checkBox_KwCaseSensitive.Name = "checkBox_KwCaseSensitive";
             this.checkBox_KwCaseSensitive.Size = new System.Drawing.Size(94, 17);
             this.checkBox_KwCaseSensitive.TabIndex = 3;
@@ -559,19 +572,19 @@
             // 
             this.textBox_KwSearchHistory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_KwSearchHistory.Location = new System.Drawing.Point(0, 680);
+            this.textBox_KwSearchHistory.Location = new System.Drawing.Point(0, 677);
             this.textBox_KwSearchHistory.Name = "textBox_KwSearchHistory";
             this.textBox_KwSearchHistory.ReadOnly = true;
-            this.textBox_KwSearchHistory.Size = new System.Drawing.Size(570, 20);
+            this.textBox_KwSearchHistory.Size = new System.Drawing.Size(680, 20);
             this.textBox_KwSearchHistory.TabIndex = 6;
             // 
             // textBox_KwSearchString
             // 
             this.textBox_KwSearchString.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_KwSearchString.Location = new System.Drawing.Point(143, 0);
+            this.textBox_KwSearchString.Location = new System.Drawing.Point(143, 3);
             this.textBox_KwSearchString.Name = "textBox_KwSearchString";
-            this.textBox_KwSearchString.Size = new System.Drawing.Size(327, 20);
+            this.textBox_KwSearchString.Size = new System.Drawing.Size(437, 20);
             this.textBox_KwSearchString.TabIndex = 2;
             this.textBox_KwSearchString.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextBox_KwSearchString_KeyDown);
             // 
@@ -579,7 +592,7 @@
             // 
             this.comboBox_KwCondition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_KwCondition.FormattingEnabled = true;
-            this.comboBox_KwCondition.Location = new System.Drawing.Point(67, 0);
+            this.comboBox_KwCondition.Location = new System.Drawing.Point(67, 3);
             this.comboBox_KwCondition.Name = "comboBox_KwCondition";
             this.comboBox_KwCondition.Size = new System.Drawing.Size(70, 21);
             this.comboBox_KwCondition.TabIndex = 1;
@@ -594,25 +607,25 @@
             this.dataGridView_keywords.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_keywords.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_keywords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle11.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_keywords.DefaultCellStyle = dataGridViewCellStyle11;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_keywords.DefaultCellStyle = dataGridViewCellStyle3;
             this.dataGridView_keywords.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_keywords.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_keywords.Name = "dataGridView_keywords";
             this.dataGridView_keywords.RowHeadersWidth = 20;
-            dataGridViewCellStyle12.NullValue = "Adjust";
-            dataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_keywords.RowsDefaultCellStyle = dataGridViewCellStyle12;
+            dataGridViewCellStyle4.NullValue = "Adjust";
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_keywords.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dataGridView_keywords.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_keywords.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_keywords.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGridView_keywords.Size = new System.Drawing.Size(651, 652);
+            this.dataGridView_keywords.Size = new System.Drawing.Size(761, 646);
             this.dataGridView_keywords.TabIndex = 5;
             this.dataGridView_keywords.CellContentDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_CellContentDoubleClick);
             this.dataGridView_keywords.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_CellMouseDown);
@@ -711,18 +724,6 @@
             this.KwFindFieldToolStripMenuItem.Text = "Find field in parent";
             this.KwFindFieldToolStripMenuItem.Click += new System.EventHandler(this.KwFindFieldToolStripMenuItem_Click);
             // 
-            // checkBox_loadDbOnStart
-            // 
-            this.checkBox_loadDbOnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.checkBox_loadDbOnStart.AutoSize = true;
-            this.checkBox_loadDbOnStart.Location = new System.Drawing.Point(5, 559);
-            this.checkBox_loadDbOnStart.Name = "checkBox_loadDbOnStart";
-            this.checkBox_loadDbOnStart.Size = new System.Drawing.Size(121, 17);
-            this.checkBox_loadDbOnStart.TabIndex = 6;
-            this.checkBox_loadDbOnStart.Text = "Load DB on start-up";
-            this.checkBox_loadDbOnStart.UseVisualStyleBackColor = true;
-            this.checkBox_loadDbOnStart.CheckedChanged += new System.EventHandler(this.checkBox_loadDbOnStart_CheckedChanged);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -732,7 +733,7 @@
             this.Controls.Add(this.tabControl1);
             this.MinimumSize = new System.Drawing.Size(600, 400);
             this.Name = "Form1";
-            this.Text = "KineticJsonDictionary";
+            this.Text = "JsonDictionary";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl1.ResumeLayout(false);
