@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage_DataCollection = new System.Windows.Forms.TabPage();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -169,7 +169,7 @@
             this.checkBox_loadDbOnStart.Location = new System.Drawing.Point(5, 565);
             this.checkBox_loadDbOnStart.Name = "checkBox_loadDbOnStart";
             this.checkBox_loadDbOnStart.Size = new System.Drawing.Size(121, 17);
-            this.checkBox_loadDbOnStart.TabIndex = 6;
+            this.checkBox_loadDbOnStart.TabIndex = 5;
             this.checkBox_loadDbOnStart.Text = "Load DB on start-up";
             this.checkBox_loadDbOnStart.UseVisualStyleBackColor = true;
             this.checkBox_loadDbOnStart.CheckedChanged += new System.EventHandler(this.checkBox_loadDbOnStart_CheckedChanged);
@@ -181,7 +181,7 @@
             this.checkBox_alwaysOnTop.Location = new System.Drawing.Point(5, 680);
             this.checkBox_alwaysOnTop.Name = "checkBox_alwaysOnTop";
             this.checkBox_alwaysOnTop.Size = new System.Drawing.Size(92, 17);
-            this.checkBox_alwaysOnTop.TabIndex = 5;
+            this.checkBox_alwaysOnTop.TabIndex = 10;
             this.checkBox_alwaysOnTop.Text = "Always on top";
             this.checkBox_alwaysOnTop.UseVisualStyleBackColor = true;
             this.checkBox_alwaysOnTop.CheckedChanged += new System.EventHandler(this.CheckBox_alwaysOnTop_CheckedChanged);
@@ -193,7 +193,7 @@
             this.checkBox_showPreview.Location = new System.Drawing.Point(5, 657);
             this.checkBox_showPreview.Name = "checkBox_showPreview";
             this.checkBox_showPreview.Size = new System.Drawing.Size(122, 17);
-            this.checkBox_showPreview.TabIndex = 5;
+            this.checkBox_showPreview.TabIndex = 9;
             this.checkBox_showPreview.Text = "Show preview editor";
             this.checkBox_showPreview.UseVisualStyleBackColor = true;
             this.checkBox_showPreview.CheckedChanged += new System.EventHandler(this.CheckBox_showPreview_CheckedChanged);
@@ -205,7 +205,7 @@
             this.checkBox_ignoreHttpsError.Location = new System.Drawing.Point(5, 634);
             this.checkBox_ignoreHttpsError.Name = "checkBox_ignoreHttpsError";
             this.checkBox_ignoreHttpsError.Size = new System.Drawing.Size(119, 17);
-            this.checkBox_ignoreHttpsError.TabIndex = 5;
+            this.checkBox_ignoreHttpsError.TabIndex = 8;
             this.checkBox_ignoreHttpsError.Text = "Ignore HTTPS error";
             this.checkBox_ignoreHttpsError.UseVisualStyleBackColor = true;
             this.checkBox_ignoreHttpsError.CheckedChanged += new System.EventHandler(this.CheckBox_ignoreHttpsError_CheckedChanged);
@@ -217,7 +217,7 @@
             this.checkBox_reformatJson.Location = new System.Drawing.Point(5, 611);
             this.checkBox_reformatJson.Name = "checkBox_reformatJson";
             this.checkBox_reformatJson.Size = new System.Drawing.Size(100, 17);
-            this.checkBox_reformatJson.TabIndex = 5;
+            this.checkBox_reformatJson.TabIndex = 7;
             this.checkBox_reformatJson.Text = "Reformat JSON";
             this.checkBox_reformatJson.UseVisualStyleBackColor = true;
             this.checkBox_reformatJson.CheckedChanged += new System.EventHandler(this.CheckBox_reformatJson_CheckedChanged);
@@ -229,7 +229,7 @@
             this.checkBox_collectAllFileNames.Location = new System.Drawing.Point(5, 588);
             this.checkBox_collectAllFileNames.Name = "checkBox_collectAllFileNames";
             this.checkBox_collectAllFileNames.Size = new System.Drawing.Size(118, 17);
-            this.checkBox_collectAllFileNames.TabIndex = 5;
+            this.checkBox_collectAllFileNames.TabIndex = 6;
             this.checkBox_collectAllFileNames.Text = "Collect all filenames";
             this.checkBox_collectAllFileNames.UseVisualStyleBackColor = true;
             this.checkBox_collectAllFileNames.CheckedChanged += new System.EventHandler(this.CheckBox_collectAllFileNames_CheckedChanged);
@@ -367,7 +367,7 @@
             this.button_ExClearSearch.Location = new System.Drawing.Point(686, 674);
             this.button_ExClearSearch.Name = "button_ExClearSearch";
             this.button_ExClearSearch.Size = new System.Drawing.Size(75, 23);
-            this.button_ExClearSearch.TabIndex = 4;
+            this.button_ExClearSearch.TabIndex = 7;
             this.button_ExClearSearch.Text = "Clear";
             this.button_ExClearSearch.UseVisualStyleBackColor = true;
             this.button_ExClearSearch.Click += new System.EventHandler(this.Button_ExClearSearch_Click);
@@ -410,7 +410,7 @@
             // 
             this.textBox_ExSearchHistory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_ExSearchHistory.Location = new System.Drawing.Point(0, 677);
+            this.textBox_ExSearchHistory.Location = new System.Drawing.Point(0, 676);
             this.textBox_ExSearchHistory.Name = "textBox_ExSearchHistory";
             this.textBox_ExSearchHistory.ReadOnly = true;
             this.textBox_ExSearchHistory.Size = new System.Drawing.Size(680, 20);
@@ -445,21 +445,21 @@
             this.dataGridView_examples.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_examples.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_examples.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.DefaultCellStyle = dataGridViewCellStyle5;
             this.dataGridView_examples.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_examples.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_examples.Name = "dataGridView_examples";
             this.dataGridView_examples.RowHeadersWidth = 20;
-            dataGridViewCellStyle2.NullValue = "Adjust";
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle6.NullValue = "Adjust";
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_examples.RowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dataGridView_examples.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_examples.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_examples.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
@@ -572,7 +572,7 @@
             // 
             this.textBox_KwSearchHistory.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox_KwSearchHistory.Location = new System.Drawing.Point(0, 677);
+            this.textBox_KwSearchHistory.Location = new System.Drawing.Point(0, 676);
             this.textBox_KwSearchHistory.Name = "textBox_KwSearchHistory";
             this.textBox_KwSearchHistory.ReadOnly = true;
             this.textBox_KwSearchHistory.Size = new System.Drawing.Size(680, 20);
@@ -607,21 +607,21 @@
             this.dataGridView_keywords.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView_keywords.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
             this.dataGridView_keywords.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_keywords.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_keywords.DefaultCellStyle = dataGridViewCellStyle7;
             this.dataGridView_keywords.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dataGridView_keywords.Location = new System.Drawing.Point(0, 26);
             this.dataGridView_keywords.Name = "dataGridView_keywords";
             this.dataGridView_keywords.RowHeadersWidth = 20;
-            dataGridViewCellStyle4.NullValue = "Adjust";
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_keywords.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle8.NullValue = "Adjust";
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_keywords.RowsDefaultCellStyle = dataGridViewCellStyle8;
             this.dataGridView_keywords.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.TopLeft;
             this.dataGridView_keywords.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_keywords.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
