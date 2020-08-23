@@ -21,7 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using static JsonDictionary.JsonIo;
+using static JsonDictionary.JsonIO;
 
 namespace JsonDictionary
 {

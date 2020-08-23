@@ -10,7 +10,7 @@ using System.Text;
 
 namespace JsonDictionary
 {
-    internal static class JsonIo
+    internal static class JsonIO
     {
         public static bool SaveJson<T>(T data, string fileName)
         {

@@ -310,7 +310,7 @@ namespace JsonDictionary
             }
 
             Text += path;
-            _textArea.Text = JsonIo.BeautifyJson(File.ReadAllText(path), ReformatJson);
+            _textArea.Text = JsonIO.BeautifyJson(File.ReadAllText(path), ReformatJson);
         }
 
         #endregion
@@ -394,7 +394,7 @@ namespace JsonDictionary
 
         private void FormatText()
         {
-            _textArea.Text = JsonIo.BeautifyJson(_textArea.Text, ReformatJson);
+            _textArea.Text = JsonIO.BeautifyJson(_textArea.Text, ReformatJson);
             _textArea.SelectionStart = _textArea.SelectionEnd = 0;
             _textArea.ScrollCaret();
         }
@@ -620,8 +620,8 @@ namespace JsonDictionary
         {
             startLine = 0;
             lineNum = 0;
-            var compactText = JsonIo.TrimJson(text, true);
-            var compactSample = JsonIo.TrimJson(sample, true);
+            var compactText = JsonIO.TrimJson(text, true);
+            var compactSample = JsonIO.TrimJson(sample, true);
             var startIndex = compactText.IndexOf(compactSample, StringComparison.Ordinal);
             if (startIndex < 0) return false;
 
