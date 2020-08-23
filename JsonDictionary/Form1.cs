@@ -804,12 +804,12 @@ namespace JsonDictionary
             TopMost = _alwaysOnTop;
         }
 
-        private void checkBox_loadDbOnStart_CheckedChanged(object sender, EventArgs e)
+        private void CheckBox_loadDbOnStart_CheckedChanged(object sender, EventArgs e)
         {
             _loadDbOnStart = checkBox_loadDbOnStart.Checked;
         }
 
-        private void tabControl1_Selecting(object sender, TabControlCancelEventArgs e)
+        private void TabControl1_Selecting(object sender, TabControlCancelEventArgs e)
         {
             if (e.TabPageIndex != 2) return;
 
@@ -1455,14 +1455,6 @@ namespace JsonDictionary
 
             comboBox_ExVersions.Items.AddRange(versionCollection.ToArray());
             toolStripStatusLabel1.Text = "";
-        }
-
-        private void EnumerateRows(DataGridView grid)
-        {
-            foreach (var row in grid.Rows)
-            {
-                
-            }
         }
 
         private void FillKeywordsGrid(List<JsoncDictionary> rootCollection, TreeNode currentNode,
