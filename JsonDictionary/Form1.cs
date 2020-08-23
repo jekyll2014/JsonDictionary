@@ -43,7 +43,7 @@ namespace JsonDictionary
         private const float CellHeightAdjust = 0.7f;
         private const string LogFileName = "hiddenerrors.log";
         private const string PreViewCaption = "Preview";
-        private const string FormCaption = "KineticJsonDictionary";
+        private const string FormCaption = "JsonDictionary";
         private const string BackupSchemaExtension = ".original";
 
         // behavior options
@@ -1746,7 +1746,7 @@ namespace JsonDictionary
 
                 var cs = lastSearch.CaseSensitive == StringComparison.Ordinal ? "'CS'" : "";
                 searchString.Append(searchString.Length <= 0 ? "[" : " -> [");
-                searchString.Append("v:\"" + lastSearch.Version + "\";");
+                searchString.Append("ver.:\"" + lastSearch.Version + "\";");
                 searchString.Append(lastSearch.Condition + cs + ":\"" + lastSearch.Value + "\"]");
             }
 
