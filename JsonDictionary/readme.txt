@@ -18,11 +18,10 @@ Short manual:
 17) Due to a schema file could be outdated I consider some errors as usual/non critical and only save them in a log file "hiddenErrors.log" in a program folder. Namely: "ArrayItemNotValid", "PropertyRequired", "NoAdditionalPropertiesAllowed". Because the are lots of them when using current schema files...
 
 Tech. notes:
-Only the first file name for every unique field/example is saved to database (otherwise there'll be hundreds of files for some fields).
-UI critical controls are inactive on long operations.
-It's possible to re-format json-queries to place starting brackets ("[,{") on the next line (I personally prefer this way). Works on database creation time. Can be enabled by JsonDictionary.exe.config "ReformatJson" setting.
-It's possible to save all file names for the fielsd/examples. Works on database creation time. Can be enabled by JsonDictionary.exe.config "CollectAllFileNames" setting.
-Some minor(?) validation errors are suppressed. - the possible reason is outdated schema specification used by NJsonSchema library.
+- Only the first file name for every unique field/example is saved to database by default (otherwise there'll be hundreds of files for some fields). Can be switched by "Collect all fileNames" setting.
+- UI critical controls are inactive on long operations.
+- It's possible to re-format json-queries to place starting brackets ("[,{") on the next line (I personally prefer this way). Works on database creation time. Can be enabled by "Reformat JSON" setting.
+- Some minor (as there are number of them) validation errors are only saved to hiddenerrors.log file.
 
 ====
 Russian
@@ -47,10 +46,10 @@ Russian
 
 
 Особенности работы:
-В базу пишется имя только первого файла для каждого уникального ключевого поля (иначе к некоторым полям будет по сотне и более файлов)
-На время всех длительных операций все критичные контролы на UI дезактивируются.
-Предусмотрена возможность переформатировать json-выражения для выставления верхних/нижних скобок на один уровень в отдельную строку (по-умолчанию верхние скобки остаются на строке объекта). Срабатывает при создании базы. Включается настройкой "ReformatJson" в JsonDictionary.exe.config .
-Предусмотрена возможность сохранять все имена фалов для каждого поля. Срабатывает при создании базы. Включается настройкой "CollectAllFileNames" в JsonDictionary.exe.config .
+- По-умолчанию в базу пишется имя только первого файла для каждого уникального ключевого поля (иначе к некоторым полям будет по сотне и более файлов).  Включается настройкой "Collect all fileNames" в JsonDictionary.exe.config .
+- На время всех длительных операций все критичные контролы на UI дезактивируются.
+- Предусмотрена возможность переформатировать json-выражения для выставления верхних/нижних скобок на один уровень в отдельную строку (по-умолчанию верхние скобки остаются на строке объекта). Включается настройкой "Reformat JSON".
+- Некоторые некритичные (очень их много) ошибки валидации по схеме выводятся только в файл hiddenerrors.log .
 
 ----
 andrey.kalugin@epicor.com
