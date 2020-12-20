@@ -38,7 +38,7 @@ namespace JsonDictionary
             ValidationErrorKind.NoAdditionalPropertiesAllowed
         };
 
-        private const string SchemaTag = "\"$schema\": \"";
+        private const string SchemaTag = "\"$schema\"";
         private const string RootNodeName = "root";
         private const float CellHeightAdjust = 0.7f;
         private const string LogFileName = "hiddenerrors.log";
@@ -65,6 +65,8 @@ namespace JsonDictionary
         private List<JsoncDictionary> _metaDictionary = new List<JsoncDictionary>();
         private volatile bool _isDoubleClick;
         private volatile string _version = "";
+        private Dictionary<string, string> _schemaList;
+
 
         // last used values for UI processing optimization
         private TreeNode _lastExSelectedNode;
@@ -122,10 +124,10 @@ namespace JsonDictionary
 
             public bool Equals(SearchItem other)
             {
-                    return Version == other.Version
-                           && Condition == other.Condition
-                           && CaseSensitive == other.CaseSensitive
-                           && Value == other.Value;
+                return Version == other.Version
+                       && Condition == other.Condition
+                       && CaseSensitive == other.CaseSensitive
+                       && Value == other.Value;
             }
         }
 
@@ -308,7 +310,6 @@ namespace JsonDictionary
                 }
             }).ConfigureAwait(true);
 
-
             toolStripStatusLabel1.Text = "";
             _textLog.AppendLine("Files parsed: " + filesCount);
             textBox_logText.Text += _textLog.ToString();
@@ -317,14 +318,15 @@ namespace JsonDictionary
             textBox_logText.ScrollToCaret();
 
             treeView_examples.Nodes.Add(rootNodeExamples);
-            treeView_examples.Sort();
+            //treeView_examples.Sort();
             treeView_examples.Nodes[0].Expand();
 
             var rootNodeKeywords = new TreeNode(RootNodeName);
             await CollectKeywords(_metaDictionary, rootNodeKeywords);
             treeView_keywords.Nodes.Add(rootNodeKeywords);
-            treeView_keywords.Sort();
+            //treeView_keywords.Sort();
             treeView_keywords.Nodes[0].Expand();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
 
             ActivateUiControls(true);
         }
@@ -337,6 +339,7 @@ namespace JsonDictionary
 
             var startPath = folderBrowserDialog1.SelectedPath;
             var filesCount = 0;
+            _schemaList = new Dictionary<string, string>();
 
             toolStripStatusLabel1.Text = "Searching files...";
             await Task.Run(() =>
@@ -364,9 +367,10 @@ namespace JsonDictionary
                     filesList.Clear();
                 }
             }).ConfigureAwait(true);
+            _schemaList = null;
 
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             toolStripStatusLabel1.Text = "";
-
             _textLog.AppendLine("Files validated: " + filesCount);
             ActivateUiControls(true);
         }
@@ -392,6 +396,7 @@ namespace JsonDictionary
                     SaveBinary(_metaDictionary, saveFileDialog1.FileName);
                     SaveBinary(treeView_examples.Nodes[0], saveFileDialog1.FileName + ".tree");
                     SaveBinary(treeView_keywords.Nodes[0], saveFileDialog1.FileName + ".keywords");
+                    GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                     Settings.Default.LastDbName = saveFileDialog1.FileName;
                     Settings.Default.Save();
                 }
@@ -828,7 +833,6 @@ namespace JsonDictionary
             Settings.Default.ShowPreview = _showPreview;
             Settings.Default.AlwaysOnTop = _alwaysOnTop;
             Settings.Default.LoadDbOnStartUp = _loadDbOnStart;
-
             Settings.Default.Save();
         }
 
@@ -843,8 +847,11 @@ namespace JsonDictionary
                 if (!File.Exists(fileName)
                     || !File.Exists(fileName + ".tree")) return false;
             }
-            catch
+            catch (Exception ex)
             {
+                MessageBox.Show("File read exception [" + fileName + "]: " + ex.Message);
+                toolStripStatusLabel1.Text = "Failed to load database";
+                return false;
             }
 
             Text = FormCaption;
@@ -868,6 +875,7 @@ namespace JsonDictionary
             {
                 MessageBox.Show("File read exception [" + fileName + "]: " + ex.Message);
                 toolStripStatusLabel1.Text = "Failed to load database";
+                return false;
             }
 
             ActivateUiControls(true, false);
@@ -878,7 +886,7 @@ namespace JsonDictionary
                 Text = FormCaption + " " + ShortFileName(fileName);
                 treeView_examples.Nodes.Clear();
                 treeView_examples.Nodes.Add(rootNodeExamples);
-                treeView_examples.Sort();
+                //treeView_examples.Sort();
                 treeView_examples.Nodes[0].Expand();
                 tabControl1.SelectedTab = tabControl1.TabPages[1];
 
@@ -903,10 +911,12 @@ namespace JsonDictionary
                 {
                     MessageBox.Show("File read exception [" + fileName + "]: " + ex.Message);
                     toolStripStatusLabel1.Text = "Failed to load keywords";
+                    return true;
                 }
 
                 treeView_keywords.Nodes.Add(rootNodeKeywords);
-                treeView_keywords.Sort();
+                //treeView_keywords.Sort();
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                 toolStripStatusLabel1.Text = "";
             }
             else
@@ -939,6 +949,9 @@ namespace JsonDictionary
             }
 
             versionIndex += SchemaTag.Length;
+            while (versionIndex < jsonText.Length && jsonText[versionIndex] != '"' && jsonText[versionIndex] != '\r' &&
+                   jsonText[versionIndex] != '\n') versionIndex++;
+            versionIndex++;
             var strEnd = versionIndex;
             while (strEnd < jsonText.Length && jsonText[strEnd] != '"' && jsonText[strEnd] != '\r' &&
                    jsonText[strEnd] != '\n') strEnd++;
@@ -952,9 +965,7 @@ namespace JsonDictionary
                 return;
             }
 
-            var schemaList = new Dictionary<string, string>();
-
-            if (!schemaList.ContainsKey(schemaUrl))
+            if (!_schemaList.ContainsKey(schemaUrl))
             {
                 var schemaData = "";
                 try
@@ -968,10 +979,10 @@ namespace JsonDictionary
                                         Environment.NewLine);
                 }
 
-                schemaList.Add(schemaUrl, schemaData);
+                _schemaList.Add(schemaUrl, schemaData);
             }
 
-            var schemaText = schemaList[schemaUrl];
+            var schemaText = _schemaList[schemaUrl];
 
             if (string.IsNullOrEmpty(schemaText))
             {
@@ -1942,15 +1953,13 @@ namespace JsonDictionary
             else
             {
                 if (_ignoreHttpsError) ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
-                using (var webClient = new WebClient())
+                using var webClient = new WebClient();
+                schemaData = webClient.DownloadString(schemaUrl);
+                var dirPath = Path.GetDirectoryName(localPath);
+                if (dirPath != null)
                 {
-                    schemaData = webClient.DownloadString(schemaUrl);
-                    var dirPath = Path.GetDirectoryName(localPath);
-                    if (dirPath != null)
-                    {
-                        Directory.CreateDirectory(dirPath);
-                        File.WriteAllText(localPath + BackupSchemaExtension, schemaData);
-                    }
+                    Directory.CreateDirectory(dirPath);
+                    File.WriteAllText(localPath + BackupSchemaExtension, schemaData);
                 }
             }
 
@@ -1977,6 +1986,5 @@ namespace JsonDictionary
         }
 
         #endregion
-
     }
 }

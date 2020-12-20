@@ -36,7 +36,7 @@ namespace JsonDictionary
         {
             if (string.IsNullOrEmpty(fileName)) return new List<T>();
 
-            var newValues = new List<T>();
+            List<T> newValues;
             try
             {
                 var jsonSerializer = new DataContractJsonSerializer(typeof(List<T>));
@@ -57,11 +57,9 @@ namespace JsonDictionary
         {
             if (string.IsNullOrEmpty(fileName)) return;
 
-            using (Stream file = File.Open(fileName, FileMode.Create))
-            {
-                var bf = new BinaryFormatter();
-                bf.Serialize(file, tree);
-            }
+            using Stream file = File.Open(fileName, FileMode.Create);
+            var bf = new BinaryFormatter();
+            bf.Serialize(file, tree);
         }
 
         public static T LoadBinary<T>(string fileName)
@@ -74,8 +72,7 @@ namespace JsonDictionary
                 try
                 {
                     var bf = new BinaryFormatter();
-                    var obj = bf.Deserialize(file);
-                    nodeList = (T)obj;
+                    nodeList = (T)bf.Deserialize(file);
                 }
                 catch (Exception ex)
                 {
@@ -272,14 +269,7 @@ namespace JsonDictionary
             json = json.Trim();
             if (string.IsNullOrEmpty(json)) return json;
 
-            try
-            {
-                return ReformatJson(json, Formatting.None);
-            }
-            catch
-            {
-                return json;
-            }
+            return ReformatJson(json, Formatting.None);
         }
 
         public static string BeautifyJson(string json, bool reformatJson)
@@ -289,39 +279,28 @@ namespace JsonDictionary
             json = json.Trim();
             if (string.IsNullOrEmpty(json)) return json;
 
-            try
-            {
-                json = ReformatJson(json, Formatting.Indented);
-            }
-            catch
-            {
-            }
+            json = ReformatJson(json, Formatting.Indented);
 
             return reformatJson ? JsonShiftBrackets_v2(json) : json;
         }
 
         private static string ReformatJson(string json, Formatting formatting)
         {
-            if (json[0] != '{' && json[0] != '[') return json;
-            using (var stringReader = new StringReader(json))
-            {
-                using (var stringWriter = new StringWriter())
-                {
-                    ReformatJson(stringReader, stringWriter, formatting);
-                    return stringWriter.ToString();
-                }
-            }
-        }
+            if (json[0] != '{' && json[0] != '[' && json[json.Length - 1] != '}' && json[json.Length - 1] != ']') return json;
 
-        private static void ReformatJson(TextReader textReader, TextWriter textWriter, Formatting formatting)
-        {
-            using (var jsonReader = new JsonTextReader(textReader))
+            try
             {
-                using (var jsonWriter = new JsonTextWriter(textWriter))
-                {
-                    jsonWriter.Formatting = formatting;
-                    jsonWriter.WriteToken(jsonReader);
-                }
+                using var stringReader = new StringReader(json);
+                using var stringWriter = new StringWriter();
+                using var jsonReader = new JsonTextReader(stringReader);
+                using var jsonWriter = new JsonTextWriter(stringWriter) {Formatting = formatting};
+                jsonWriter.WriteToken(jsonReader);
+
+                return stringWriter.ToString();
+            }
+            catch
+            {
+                return json;
             }
         }
     }
