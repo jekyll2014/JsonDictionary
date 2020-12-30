@@ -84,6 +84,104 @@ namespace JsonDictionary
             return nodeList;
         }
 
+        private static string[] ConvertTextToStringList(string data)
+        {
+            var stringCollection = new List<string>();
+            if (string.IsNullOrEmpty(data)) return stringCollection.ToArray();
+
+            var lineDivider = new List<char> { '\x0d', '\x0a' };
+            var unparsedData = "";
+            foreach (var t in data)
+                if (lineDivider.Contains(t))
+                {
+                    if (unparsedData.Length > 0)
+                    {
+                        stringCollection.Add(unparsedData);
+                        unparsedData = "";
+                    }
+                }
+                else
+                {
+                    unparsedData += t;
+                }
+
+            if (unparsedData.Length > 0) stringCollection.Add(unparsedData);
+            return stringCollection.ToArray();
+        }
+
+        public static string TrimJson(string original, bool trimEol)
+        {
+            if (string.IsNullOrEmpty(original)) return original;
+
+            original = original.Trim();
+            if (string.IsNullOrEmpty(original)) return original;
+
+            if (trimEol)
+            {
+                original = original.Replace("\r\n", "\n");
+                original = original.Replace('\r', '\n');
+            }
+
+            var i = original.IndexOf("\n ", StringComparison.Ordinal);
+            while (i >= 0)
+            {
+                original = original.Replace("\n ", "\n");
+                i = original.IndexOf("\n ", i, StringComparison.Ordinal);
+            }
+
+            if (trimEol) return original;
+
+            i = original.IndexOf("\r ", StringComparison.Ordinal);
+            while (i >= 0)
+            {
+                original = original.Replace("\r ", "\r");
+                i = original.IndexOf("\r ", i, StringComparison.Ordinal);
+            }
+
+            return original;
+        }
+
+        public static string CompactJson(string json)
+        {
+            if (string.IsNullOrEmpty(json)) return json;
+
+            json = json.Trim();
+            if (string.IsNullOrEmpty(json)) return json;
+
+            return ReformatJson(json, Formatting.None);
+        }
+
+        public static string BeautifyJson(string json, bool reformatJson)
+        {
+            if (string.IsNullOrEmpty(json)) return json;
+
+            json = json.Trim();
+            if (string.IsNullOrEmpty(json)) return json;
+
+            json = ReformatJson(json, Formatting.Indented);
+
+            return reformatJson ? JsonShiftBrackets_v2(json) : json;
+        }
+
+        private static string ReformatJson(string json, Formatting formatting)
+        {
+            if (json.Contains(':') && (json[0] == '{' && json[json.Length - 1] == '}' || json[0] == '[' && json[json.Length - 1] == ']'))
+                try
+                {
+                    using var stringReader = new StringReader(json);
+                    using var stringWriter = new StringWriter();
+                    using var jsonReader = new JsonTextReader(stringReader);
+                    using var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = formatting };
+                    jsonWriter.WriteToken(jsonReader);
+
+                    return stringWriter.ToString();
+                }
+                catch
+                {
+                }
+            return json;
+        }
+
         // possibly need rework
         public static string JsonShiftBrackets(string original)
         {
@@ -186,122 +284,22 @@ namespace JsonDictionary
                 {
                     prefixLength -= prefixStep;
                     prefix = new string(prefixItem, prefixLength);
+                    result.AppendLine(prefix + stringList[i]);
                 }
-
-                result.AppendLine(prefix + stringList[i]);
-
-                if (openBrackets.Contains(stringList[i][0]))
+                else if (openBrackets.Contains(stringList[i][0]))
                 {
                     prefixLength += prefixStep;
                     prefix = new string(prefixItem, prefixLength);
                     if (stringList[i].Length > 1 && closeBrackets.Contains(stringList[i][stringList[i].Length - 1]))
                     {
                         prefixLength -= prefixStep;
-                        prefix = new string(prefixItem, prefixLength);
+                        if (prefixLength > 0) prefix = new string(prefixItem, prefixLength);
+                        //else MessageBox.Show("Bracket align failed");
                     }
                 }
             }
 
             return result.ToString().Trim();
-        }
-
-        private static string[] ConvertTextToStringList(string data)
-        {
-            var stringCollection = new List<string>();
-            if (string.IsNullOrEmpty(data)) return stringCollection.ToArray();
-
-            var lineDivider = new List<char> { '\x0d', '\x0a' };
-            var unparsedData = "";
-            foreach (var t in data)
-                if (lineDivider.Contains(t))
-                {
-                    if (unparsedData.Length > 0)
-                    {
-                        stringCollection.Add(unparsedData);
-                        unparsedData = "";
-                    }
-                }
-                else
-                {
-                    unparsedData += t;
-                }
-
-            if (unparsedData.Length > 0) stringCollection.Add(unparsedData);
-            return stringCollection.ToArray();
-        }
-
-        public static string TrimJson(string original, bool trimEol)
-        {
-            if (string.IsNullOrEmpty(original)) return original;
-
-            original = original.Trim();
-            if (string.IsNullOrEmpty(original)) return original;
-
-            if (trimEol)
-            {
-                original = original.Replace("\r\n", "\n");
-                original = original.Replace('\r', '\n');
-            }
-
-            var i = original.IndexOf("\n ", StringComparison.Ordinal);
-            while (i >= 0)
-            {
-                original = original.Replace("\n ", "\n");
-                i = original.IndexOf("\n ", i, StringComparison.Ordinal);
-            }
-
-            if (trimEol) return original;
-
-            i = original.IndexOf("\r ", StringComparison.Ordinal);
-            while (i >= 0)
-            {
-                original = original.Replace("\r ", "\r");
-                i = original.IndexOf("\r ", i, StringComparison.Ordinal);
-            }
-
-            return original;
-        }
-
-        public static string CompactJson(string json)
-        {
-            if (string.IsNullOrEmpty(json)) return json;
-
-            json = json.Trim();
-            if (string.IsNullOrEmpty(json)) return json;
-
-            return ReformatJson(json, Formatting.None);
-        }
-
-        public static string BeautifyJson(string json, bool reformatJson)
-        {
-            if (string.IsNullOrEmpty(json)) return json;
-
-            json = json.Trim();
-            if (string.IsNullOrEmpty(json)) return json;
-
-            json = ReformatJson(json, Formatting.Indented);
-
-            return reformatJson ? JsonShiftBrackets_v2(json) : json;
-        }
-
-        private static string ReformatJson(string json, Formatting formatting)
-        {
-            if (json[0] != '{' && json[0] != '[' && json[json.Length - 1] != '}' && json[json.Length - 1] != ']') return json;
-
-            try
-            {
-                using var stringReader = new StringReader(json);
-                using var stringWriter = new StringWriter();
-                using var jsonReader = new JsonTextReader(stringReader);
-                using var jsonWriter = new JsonTextWriter(stringWriter) {Formatting = formatting};
-                jsonWriter.WriteToken(jsonReader);
-
-                return stringWriter.ToString();
-            }
-            catch
-            {
-                return json;
-            }
         }
     }
 }

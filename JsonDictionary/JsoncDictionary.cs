@@ -58,20 +58,6 @@ namespace JsonDictionary
     [Serializable]
     public class JsoncDictionary
     {
-        [DataMember] public static Dictionary<string, JsoncContentType> FileNames =
-            new Dictionary<string, JsoncContentType>
-            {
-                {"*dataviews.jsonc", JsoncContentType.DataViews},
-                {"*events.jsonc", JsoncContentType.Events},
-                {"*layout.jsonc", JsoncContentType.Layout},
-                {"*rules.jsonc", JsoncContentType.Rules},
-                {"*search.jsonc", JsoncContentType.Search},
-                {"*combo.jsonc", JsoncContentType.Combo},
-                {"*tools.jsonc", JsoncContentType.Tools},
-                {"*strings.jsonc", JsoncContentType.Strings},
-                {"*patch.jsonc", JsoncContentType.Patch}
-            };
-
         [DataMember] public JsoncContentType Type;
         [DataMember] public List<MetaNode> Nodes;
 
