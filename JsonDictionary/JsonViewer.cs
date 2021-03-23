@@ -14,12 +14,12 @@ namespace JsonDictionary
         /// <summary>
         ///     the background color of the text area
         /// </summary>
-        private readonly Color BACK_COLOR = Color.DarkCyan;
+        private readonly Color BACK_COLOR = Color.LightGray;
 
         /// <summary>
         ///     default text color of the text area
         /// </summary>
-        private readonly Color FORE_COLOR = Color.White;
+        private readonly Color FORE_COLOR = Color.Black;
 
         /// <summary>
         ///     change this to whatever margin you want the line numbers to show in
@@ -43,19 +43,15 @@ namespace JsonDictionary
         /// </summary>
         private const bool CODEFOLDING_CIRCULAR = true;
 
-        public JsonViewer()
-        {
-            InitializeComponent();
-        }
+        // Indicators 0-7 could be in use by a lexer
+        // so we'll use indicator 8 to highlight words.
+        const int INDICATOR_NUM = 8;
 
-        public JsonViewer(string fileName, string text)
-        {
-            InitializeComponent();
-            _fileName = fileName;
-            _text = text;
-        }
-
-        public bool ReformatJson = false;
+        private Scintilla _textArea = new Scintilla();
+        private readonly string _text = "";
+        private string _fileName = "";
+        public bool singleLineBrackets = false;
+        private bool _multipleSearchActive = false;
 
         public string EditorText
         {
@@ -105,9 +101,20 @@ namespace JsonDictionary
             }
         }
 
-        private Scintilla _textArea = new Scintilla();
-        private readonly string _text = "";
-        private readonly string _fileName = "";
+        public JsonViewer(bool allowSave = false)
+        {
+            InitializeComponent();
+            saveToolStripMenuItem.Visible = allowSave;
+        }
+
+        public JsonViewer(string fileName, string text, bool allowSave = false)
+        {
+            InitializeComponent();
+            saveToolStripMenuItem.Visible = allowSave;
+            _fileName = fileName;
+            _text = text;
+            _textArea.MultipleSelection = true;
+        }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -138,7 +145,7 @@ namespace JsonDictionary
             // DEFAULT FILE
             if (string.IsNullOrEmpty(_text))
             {
-                LoadDataFromFile(_fileName);
+                LoadTextFromFile(_fileName);
             }
             else
             {
@@ -148,6 +155,8 @@ namespace JsonDictionary
 
             // INIT HOTKEYS
             InitHotkeys();
+
+            _textArea.MouseDoubleClick += new MouseEventHandler(SelectAllPatterns);
         }
 
         private void InitColors()
@@ -157,6 +166,17 @@ namespace JsonDictionary
 
         private void InitHotkeys()
         {
+            // remove conflicting hotkeys from scintilla
+            _textArea.ClearCmdKey(Keys.Control | Keys.F);
+            _textArea.ClearCmdKey(Keys.Control | Keys.R);
+            _textArea.ClearCmdKey(Keys.Control | Keys.H);
+            _textArea.ClearCmdKey(Keys.Control | Keys.L);
+            _textArea.ClearCmdKey(Keys.Control | Keys.U);
+            _textArea.ClearCmdKey(Keys.Control | Keys.S);
+            _textArea.ClearCmdKey(Keys.Control | Keys.O);
+            _textArea.ClearCmdKey(Keys.Alt | Keys.S);
+            _textArea.ClearCmdKey(Keys.Alt | Keys.O);
+
             // register the hotkeys with the form
             HotKeyManager.AddHotKey(this, OpenSearch, Keys.F, true);
             HotKeyManager.AddHotKey(this, Uppercase, Keys.Up, true);
@@ -168,13 +188,8 @@ namespace JsonDictionary
             HotKeyManager.AddHotKey(this, CollapseAll, Keys.Left, true);
             HotKeyManager.AddHotKey(this, ExpandAll, Keys.Right, true);
             HotKeyManager.AddHotKey(this, FormatText, Keys.F, true, false, true);
-
-            // remove conflicting hotkeys from scintilla
-            _textArea.ClearCmdKey(Keys.Control | Keys.F);
-            _textArea.ClearCmdKey(Keys.Control | Keys.R);
-            _textArea.ClearCmdKey(Keys.Control | Keys.H);
-            _textArea.ClearCmdKey(Keys.Control | Keys.L);
-            _textArea.ClearCmdKey(Keys.Control | Keys.U);
+            HotKeyManager.AddHotKey(this, SaveFile, Keys.S, false, false, true);
+            HotKeyManager.AddHotKey(this, OpenFile, Keys.O, false, false, true);
         }
 
         private void InitSyntaxColoring()
@@ -195,12 +210,12 @@ namespace JsonDictionary
             _textArea.Styles[Style.Json.Keyword].ForeColor = Color.White;
             _textArea.Styles[Style.Json.LdKeyword].ForeColor = Color.DarkGreen;
             _textArea.Styles[Style.Json.LineComment].ForeColor = Color.DarkGray;
-            _textArea.Styles[Style.Json.Number].ForeColor = Color.Aqua;
+            _textArea.Styles[Style.Json.Number].ForeColor = Color.Blue;
             _textArea.Styles[Style.Json.Operator].ForeColor = Color.Magenta;
-            _textArea.Styles[Style.Json.PropertyName].ForeColor = Color.GreenYellow;
-            _textArea.Styles[Style.Json.String].ForeColor = Color.Yellow;
-            _textArea.Styles[Style.Json.StringEol].ForeColor = Color.White;
-            _textArea.Styles[Style.Json.Uri].ForeColor = Color.Blue;
+            _textArea.Styles[Style.Json.PropertyName].ForeColor = Color.Green;
+            _textArea.Styles[Style.Json.String].ForeColor = Color.Sienna;
+            _textArea.Styles[Style.Json.StringEol].ForeColor = Color.Black;
+            _textArea.Styles[Style.Json.Uri].ForeColor = Color.DarkBlue;
 
             _textArea.Lexer = Lexer.Json;
         }
@@ -215,7 +230,7 @@ namespace JsonDictionary
             _textArea.Styles[Style.IndentGuide].BackColor = BACK_COLOR;
 
             var nums = _textArea.Margins[NUMBER_MARGIN];
-            nums.Width = 30;
+            nums.Width = 40;
             nums.Type = MarginType.Number;
             nums.Sensitive = true;
             nums.Mask = 0;
@@ -228,7 +243,7 @@ namespace JsonDictionary
             //TextArea.SetFoldMarginColor(true, BACK_COLOR);
 
             var margin = _textArea.Margins[BOOKMARK_MARGIN];
-            margin.Width = 20;
+            margin.Width = 0;
             margin.Sensitive = true;
             margin.Type = MarginType.Symbol;
             margin.Mask = 1 << BOOKMARK_MARKER;
@@ -284,7 +299,8 @@ namespace JsonDictionary
 
         private void TextArea_MarginClick(object sender, MarginClickEventArgs e)
         {
-            if (e.Margin != BOOKMARK_MARGIN) return;
+            if (e.Margin != BOOKMARK_MARGIN)
+                return;
 
             // Do we have a marker for this line?
             const uint mask = 1 << BOOKMARK_MARKER;
@@ -299,18 +315,72 @@ namespace JsonDictionary
 
         #endregion
 
-        #region Load File
+        #region Load Save File
 
-        private void LoadDataFromFile(string path)
+        public void LoadTextFromFile(string fullFileName)
         {
-            if (!File.Exists(path))
+            if (string.IsNullOrEmpty(fullFileName))
+                return;
+
+            if (!File.Exists(fullFileName))
             {
-                MessageBox.Show("File not found: " + path);
+                MessageBox.Show("File not found: " + fullFileName);
                 return;
             }
 
-            Text += path;
-            _textArea.Text = JsonIO.BeautifyJson(File.ReadAllText(path), ReformatJson);
+            Text += fullFileName;
+            this._fileName = fullFileName;
+            _textArea.Text = File.ReadAllText(fullFileName);
+        }
+
+        public void LoadJsonFromFile(string fullFileName)
+        {
+            if (string.IsNullOrEmpty(fullFileName))
+                return;
+
+            if (!File.Exists(fullFileName))
+            {
+                MessageBox.Show("File not found: " + fullFileName);
+                return;
+            }
+
+            Text += fullFileName;
+            this._fileName = fullFileName;
+            _textArea.Text = singleLineBrackets
+                ? JsonIo.BeautifyJson(File.ReadAllText(fullFileName), singleLineBrackets)
+                : File.ReadAllText(fullFileName);
+        }
+
+        public void SaveTextToFile(string fullFileName, bool makeBackup = true)
+        {
+            if (string.IsNullOrEmpty(fullFileName))
+            {
+                return;
+            }
+
+            var choice = MessageBox.Show("Are you sure?", "Save file...", MessageBoxButtons.YesNo);
+
+            if (choice == DialogResult.No)
+            {
+                return;
+            }
+
+            if (makeBackup)
+            {
+                //var bakFileName = ChangeFileExt(fullFileName, "bak");
+                var bakFileName = fullFileName + ".bak";
+
+                if (File.Exists(fullFileName))
+                {
+                    if (File.Exists(bakFileName))
+                    {
+                        File.Delete(bakFileName);
+                    }
+                    File.Move(fullFileName, bakFileName);
+                }
+            }
+
+            File.WriteAllText(fullFileName, _textArea.Text);
         }
 
         #endregion
@@ -320,6 +390,33 @@ namespace JsonDictionary
         private void FindToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenSearch();
+        }
+
+        private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFile();
+        }
+
+        private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFile();
+        }
+
+        private void OpenFile()
+        {
+            openFileDialog.FileName = "";
+            openFileDialog.Title = "Open file";
+            openFileDialog.DefaultExt = "jsonc";
+            openFileDialog.Filter = "Text files|*.txt;*.jsonc;*.json|All files|*.*";
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                LoadTextFromFile(openFileDialog.FileName);
+            }
+        }
+
+        private void SaveFile()
+        {
+            SaveTextToFile(_fileName, true);
         }
 
         private void CutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -394,7 +491,7 @@ namespace JsonDictionary
 
         private void FormatText()
         {
-            _textArea.Text = JsonIO.BeautifyJson(_textArea.Text, ReformatJson);
+            _textArea.Text = JsonIo.BeautifyJson(_textArea.Text, singleLineBrackets);
             _textArea.SelectionStart = _textArea.SelectionEnd = 0;
             _textArea.ScrollCaret();
         }
@@ -559,6 +656,13 @@ namespace JsonDictionary
         {
             if (!_searchIsOpen)
             {
+                if (_multipleSearchActive)
+                {
+                    _textArea.IndicatorCurrent = INDICATOR_NUM;
+                    _textArea.IndicatorClearRange(0, _textArea.TextLength);
+                    return;
+                }
+
                 Close();
                 return;
             }
@@ -593,9 +697,48 @@ namespace JsonDictionary
 
         private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
         {
-            if (HotKeyManager.IsHotkey(e, Keys.Enter)) SearchManager.Find(true, false);
+            if (HotKeyManager.IsHotkey(e, Keys.Enter))
+                SearchManager.Find(true, false);
             if (HotKeyManager.IsHotkey(e, Keys.Enter, true) || HotKeyManager.IsHotkey(e, Keys.Enter, false, true))
                 SearchManager.Find(false, false);
+        }
+
+        private void SelectAllPatterns(object sender, MouseEventArgs e)
+        {
+            HighlightWord(_textArea.SelectedText);
+        }
+
+        private void HighlightWord(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            // Remove all uses of our indicator
+            _textArea.IndicatorCurrent = INDICATOR_NUM;
+            _textArea.IndicatorClearRange(0, _textArea.TextLength);
+
+            // Update indicator appearance
+            _textArea.Indicators[INDICATOR_NUM].Style = IndicatorStyle.StraightBox;
+            _textArea.Indicators[INDICATOR_NUM].Under = true;
+            _textArea.Indicators[INDICATOR_NUM].ForeColor = Color.DarkGreen;
+            _textArea.Indicators[INDICATOR_NUM].OutlineAlpha = 50;
+            _textArea.Indicators[INDICATOR_NUM].Alpha = 50;
+
+            // Search the document
+            _textArea.TargetStart = 0;
+            _textArea.TargetEnd = _textArea.TextLength;
+            _textArea.SearchFlags = SearchFlags.None;
+            while (_textArea.SearchInTarget(text) != -1)
+            {
+                // Mark the search results with the current indicator
+                _textArea.IndicatorFillRange(_textArea.TargetStart, _textArea.TargetEnd - _textArea.TargetStart);
+
+                // Search the remainder of the document
+                _textArea.TargetStart = _textArea.TargetEnd;
+                _textArea.TargetEnd = _textArea.TextLength;
+            }
+
+            _multipleSearchActive = true;
         }
 
         #endregion
@@ -620,10 +763,11 @@ namespace JsonDictionary
         {
             startLine = 0;
             lineNum = 0;
-            var compactText = JsonIO.TrimJson(text, true);
-            var compactSample = JsonIO.TrimJson(sample, true);
+            var compactText = JsonIo.TrimJson(text, true);
+            var compactSample = JsonIo.TrimJson(sample, true);
             var startIndex = compactText.IndexOf(compactSample, StringComparison.Ordinal);
-            if (startIndex < 0) return false;
+            if (startIndex < 0)
+                return false;
 
             startLine = CountLines(compactText, 0, startIndex);
             lineNum = CountLines(compactText, startIndex, startIndex + compactSample.Length);
@@ -636,22 +780,39 @@ namespace JsonDictionary
             var linesCount = 0;
             for (; startIndex < endIndex; startIndex++)
             {
-                if (text[startIndex] != '\r' && text[startIndex] != '\n') continue;
+                if (text[startIndex] != '\r' && text[startIndex] != '\n')
+                    continue;
 
                 linesCount++;
                 if (text[startIndex] != text[startIndex + 1] &&
-                    (text[startIndex + 1] == '\r' || text[startIndex + 1] == '\n')) startIndex++;
+                    (text[startIndex + 1] == '\r' || text[startIndex + 1] == '\n'))
+                    startIndex++;
             }
 
             return linesCount;
         }
 
-        private void SelectTextLines(int lineStart, int lineNum)
+        public void SelectTextLines(int lineStart, int lineNum)
         {
+            if (lineStart < 0 || lineStart >= _textArea.Lines.Count)
+                return;
+
             var startLine = _textArea.Lines[lineStart];
             var endLine = _textArea.Lines[lineStart + lineNum];
             _textArea.SetSelection(startLine.Position, endLine.Position + endLine.Length);
 
+            _textArea.ScrollCaret();
+        }
+
+        public void SelectPosition(int start, int end)
+        {
+            if (start < 0 || start >= _textArea.TextLength)
+                return;
+            if (end < 0 || end >= _textArea.TextLength)
+                return;
+
+            _textArea.SelectionStart = start;
+            _textArea.SelectionEnd = end;
             _textArea.ScrollCaret();
         }
 

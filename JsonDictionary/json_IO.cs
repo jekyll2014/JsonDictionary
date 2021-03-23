@@ -10,19 +10,46 @@ using System.Text;
 
 namespace JsonDictionary
 {
-    internal static class JsonIO
+    internal static class JsonIo
     {
-        public static bool SaveJson<T>(T data, string fileName)
+        public static bool SaveJson<T>(T data, string fileName, bool formatted = false)
         {
-            if (string.IsNullOrEmpty(fileName)) return false;
+            if (string.IsNullOrEmpty(fileName))
+                return false;
 
             try
             {
                 var jsonSerializer = new DataContractJsonSerializer(typeof(T));
-                var fileStream = File.Open(fileName, FileMode.Create);
-                jsonSerializer.WriteObject(fileStream, data);
-                fileStream.Close();
-                fileStream.Dispose();
+                if (formatted)
+                {
+                    using (var unformattedJson = new MemoryStream())
+                    {
+                        jsonSerializer.WriteObject(unformattedJson, data);
+                        var json = Encoding.UTF8.GetString(unformattedJson.GetBuffer());
+                        using (var stringReader = new StringReader(json))
+                        {
+                            using (var stringWriter = new StringWriter())
+                            {
+                                using (var jsonReader = new JsonTextReader(stringReader))
+                                {
+                                    using (var jsonWriter = new JsonTextWriter(stringWriter)
+                                    { Formatting = Formatting.Indented })
+                                    {
+                                        jsonWriter.WriteToken(jsonReader);
+                                        File.WriteAllText(fileName, stringWriter.ToString());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var fileStream = File.Open(fileName, FileMode.Create);
+                    jsonSerializer.WriteObject(fileStream, data);
+                    fileStream.Close();
+                    fileStream.Dispose();
+                }
             }
             catch
             {
@@ -34,7 +61,8 @@ namespace JsonDictionary
 
         public static List<T> LoadJson<T>(string fileName)
         {
-            if (string.IsNullOrEmpty(fileName)) return new List<T>();
+            if (string.IsNullOrEmpty(fileName))
+                return new List<T>();
 
             List<T> newValues;
             try
@@ -50,22 +78,27 @@ namespace JsonDictionary
             {
                 return new List<T>();
             }
+
             return newValues;
         }
 
         public static void SaveBinary<T>(T tree, string fileName)
         {
-            if (string.IsNullOrEmpty(fileName)) return;
+            if (string.IsNullOrEmpty(fileName))
+                return;
 
-            using Stream file = File.Open(fileName, FileMode.Create);
-            var bf = new BinaryFormatter();
-            bf.Serialize(file, tree);
+            using (Stream file = File.Open(fileName, FileMode.Create))
+            {
+                var bf = new BinaryFormatter();
+                bf.Serialize(file, tree);
+            }
         }
 
         public static T LoadBinary<T>(string fileName)
         {
             T nodeList = default;
-            if (string.IsNullOrEmpty(fileName)) return nodeList;
+            if (string.IsNullOrEmpty(fileName))
+                return nodeList;
 
             using (Stream file = File.Open(fileName, FileMode.Open))
             {
@@ -84,10 +117,11 @@ namespace JsonDictionary
             return nodeList;
         }
 
-        private static string[] ConvertTextToStringList(string data)
+        public static string[] ConvertTextToStringList(string data)
         {
             var stringCollection = new List<string>();
-            if (string.IsNullOrEmpty(data)) return stringCollection.ToArray();
+            if (string.IsNullOrEmpty(data))
+                return stringCollection.ToArray();
 
             var lineDivider = new List<char> { '\x0d', '\x0a' };
             var unparsedData = "";
@@ -105,16 +139,19 @@ namespace JsonDictionary
                     unparsedData += t;
                 }
 
-            if (unparsedData.Length > 0) stringCollection.Add(unparsedData);
+            if (unparsedData.Length > 0)
+                stringCollection.Add(unparsedData);
             return stringCollection.ToArray();
         }
 
         public static string TrimJson(string original, bool trimEol)
         {
-            if (string.IsNullOrEmpty(original)) return original;
+            if (string.IsNullOrEmpty(original))
+                return original;
 
             original = original.Trim();
-            if (string.IsNullOrEmpty(original)) return original;
+            if (string.IsNullOrEmpty(original))
+                return original;
 
             if (trimEol)
             {
@@ -129,7 +166,8 @@ namespace JsonDictionary
                 i = original.IndexOf("\n ", i, StringComparison.Ordinal);
             }
 
-            if (trimEol) return original;
+            if (trimEol)
+                return original;
 
             i = original.IndexOf("\r ", StringComparison.Ordinal);
             while (i >= 0)
@@ -143,49 +181,61 @@ namespace JsonDictionary
 
         public static string CompactJson(string json)
         {
-            if (string.IsNullOrEmpty(json)) return json;
+            if (string.IsNullOrEmpty(json))
+                return json;
 
             json = json.Trim();
-            if (string.IsNullOrEmpty(json)) return json;
+            if (string.IsNullOrEmpty(json))
+                return json;
 
             return ReformatJson(json, Formatting.None);
         }
 
-        public static string BeautifyJson(string json, bool reformatJson)
+        public static string BeautifyJson(string json, bool singleLineBrackets)
         {
-            if (string.IsNullOrEmpty(json)) return json;
+            if (string.IsNullOrEmpty(json))
+                return json;
 
             json = json.Trim();
-            if (string.IsNullOrEmpty(json)) return json;
 
             json = ReformatJson(json, Formatting.Indented);
 
-            return reformatJson ? JsonShiftBrackets_v2(json) : json;
+            return singleLineBrackets ? JsonShiftBrackets_v2(json) : json;
         }
 
-        private static string ReformatJson(string json, Formatting formatting)
+        public static string ReformatJson(string json, Formatting formatting)
         {
-            if (json.Contains(':') && (json[0] == '{' && json[json.Length - 1] == '}' || json[0] == '[' && json[json.Length - 1] == ']'))
+            if (json.Contains(':') && (json[0] == '{' && json[json.Length - 1] == '}' ||
+                                       json[0] == '[' && json[json.Length - 1] == ']'))
                 try
                 {
-                    using var stringReader = new StringReader(json);
-                    using var stringWriter = new StringWriter();
-                    using var jsonReader = new JsonTextReader(stringReader);
-                    using var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = formatting };
-                    jsonWriter.WriteToken(jsonReader);
-
-                    return stringWriter.ToString();
+                    using (var stringReader = new StringReader(json))
+                    {
+                        using (var stringWriter = new StringWriter())
+                        {
+                            using (var jsonReader = new JsonTextReader(stringReader))
+                            {
+                                using (var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = formatting })
+                                {
+                                    jsonWriter.WriteToken(jsonReader);
+                                    return stringWriter.ToString();
+                                }
+                            }
+                        }
+                    }
                 }
                 catch
                 {
                 }
+
             return json;
         }
 
         // possibly need rework
         public static string JsonShiftBrackets(string original)
         {
-            if (string.IsNullOrEmpty(original)) return original;
+            if (string.IsNullOrEmpty(original))
+                return original;
 
             var searchTokens = new[] { ": {", ": [" };
             foreach (var token in searchTokens)
@@ -207,12 +257,15 @@ namespace JsonDictionary
                         if (j >= 0)
                             while (original[j] != '\n' && original[j] != '\r' && j >= 0)
                             {
-                                if (original[j] == ' ') trail++;
-                                else trail = 0;
+                                if (original[j] == ' ')
+                                    trail++;
+                                else
+                                    trail = 0;
                                 j--;
                             }
 
-                        if (j < 0) j = 0;
+                        if (j < 0)
+                            j = 0;
 
                         if (!(original[j] == '/' && original[j + 1] == '/')) // if it's a comment
                             original = original.Insert(i + 2, Environment.NewLine + new string(' ', trail));
@@ -226,45 +279,56 @@ namespace JsonDictionary
             return original;
         }
 
-        // possibly need rework
-        private static string JsonShiftBrackets_v2(string original)
+        // definitely need rework
+        public static string JsonShiftBrackets_v2(string original)
         {
-            if (string.IsNullOrEmpty(original)) return original;
+            if (string.IsNullOrEmpty(original))
+                return original;
 
             var searchTokens = new[] { ": {", ": [" };
-            foreach (var token in searchTokens)
+            try
             {
-                var i = original.IndexOf(token, StringComparison.Ordinal);
-                while (i >= 0)
+                foreach (var token in searchTokens)
                 {
-                    int currentPos;
-                    if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n'
-                    ) // not a single bracket
+                    var i = original.IndexOf(token, StringComparison.Ordinal);
+                    while (i >= 0)
                     {
-                        currentPos = i + 3;
+                        int currentPos;
+                        if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n'
+                        ) // not a single bracket
+                        {
+                            currentPos = i + 3;
+                        }
+                        else // need to shift bracket down the line
+                        {
+                            var j = i - 1;
+                            var trail = 0;
+
+                            if (j >= 0)
+                                while (original[j] != '\n' && original[j] != '\r' && j >= 0)
+                                {
+                                    if (original[j] == ' ')
+                                        trail++;
+                                    else
+                                        trail = 0;
+                                    j--;
+                                }
+
+                            if (j < 0)
+                                j = 0;
+
+                            if (!(original[j] == '/' && original[j + 1] == '/')) // if it's a comment
+                                original = original.Insert(i + 2, Environment.NewLine + new string(' ', trail));
+                            currentPos = i + 3;
+                        }
+
+                        i = original.IndexOf(token, currentPos, StringComparison.Ordinal);
                     }
-                    else // need to shift bracket down the line
-                    {
-                        var j = i - 1;
-                        var trail = 0;
-
-                        if (j >= 0)
-                            while (original[j] != '\n' && original[j] != '\r' && j >= 0)
-                            {
-                                if (original[j] == ' ') trail++;
-                                else trail = 0;
-                                j--;
-                            }
-
-                        if (j < 0) j = 0;
-
-                        if (!(original[j] == '/' && original[j + 1] == '/')) // if it's a comment
-                            original = original.Insert(i + 2, Environment.NewLine + new string(' ', trail));
-                        currentPos = i + 3;
-                    }
-
-                    i = original.IndexOf(token, currentPos, StringComparison.Ordinal);
                 }
+            }
+            catch
+            {
+                return original;
             }
 
             var stringList = ConvertTextToStringList(original);
@@ -277,26 +341,34 @@ namespace JsonDictionary
             var prefixLength = 0;
             var prefix = "";
             var result = new StringBuilder();
-            for (var i = 0; i < stringList.Length; i++)
+
+            try
             {
-                stringList[i] = stringList[i].Trim();
-                if (closeBrackets.Contains(stringList[i][0]))
+                for (var i = 0; i < stringList.Length; i++)
                 {
-                    prefixLength -= prefixStep;
-                    prefix = new string(prefixItem, prefixLength);
-                    result.AppendLine(prefix + stringList[i]);
-                }
-                else if (openBrackets.Contains(stringList[i][0]))
-                {
-                    prefixLength += prefixStep;
-                    prefix = new string(prefixItem, prefixLength);
-                    if (stringList[i].Length > 1 && closeBrackets.Contains(stringList[i][stringList[i].Length - 1]))
+                    stringList[i] = stringList[i].Trim();
+                    if (closeBrackets.Contains(stringList[i][0]))
                     {
                         prefixLength -= prefixStep;
-                        if (prefixLength > 0) prefix = new string(prefixItem, prefixLength);
-                        //else MessageBox.Show("Bracket align failed");
+                        if (prefixLength >= 0)
+                            prefix = new string(prefixItem, prefixLength);
+                    }
+
+                    result.AppendLine(prefix + stringList[i]);
+
+                    if (openBrackets.Contains(stringList[i][0]))
+                    {
+                        prefixLength += prefixStep;
+                        if (stringList[i].Length > 1 && closeBrackets.Contains(stringList[i][stringList[i].Length - 1]))
+                            prefixLength -= prefixStep;
+                        if (prefixLength >= 0)
+                            prefix = new string(prefixItem, prefixLength);
                     }
                 }
+            }
+            catch
+            {
+                return original;
             }
 
             return result.ToString().Trim();

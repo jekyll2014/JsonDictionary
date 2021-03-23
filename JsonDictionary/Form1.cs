@@ -21,7 +21,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using static JsonDictionary.JsonIO;
+using static JsonDictionary.JsonIo;
 
 namespace JsonDictionary
 {
@@ -610,8 +610,8 @@ namespace JsonDictionary
                 {
                     var editor = new JsonViewer(dataGrid.Rows[e.RowIndex].Cells[2].Value.ToString(),
                         "")
-                    {
-                        ReformatJson = _reformatJson,
+                    {                        
+                        singleLineBrackets = _reformatJson,
                         AlwaysOnTop = _alwaysOnTop
                     };
                     editor.Show();
@@ -626,7 +626,7 @@ namespace JsonDictionary
                     var editor = new JsonViewer(dataGrid.Rows[e.RowIndex].Cells[2].Value.ToString(),
                         cell.Value.ToString())
                     {
-                        ReformatJson = _reformatJson,
+                        singleLineBrackets = _reformatJson,
                         AlwaysOnTop = _alwaysOnTop
                     };
                     editor.Show();
@@ -647,7 +647,7 @@ namespace JsonDictionary
             {
                 _sideViewer = new JsonViewer(PreViewCaption, " ")
                 {
-                    ReformatJson = _reformatJson,
+                    singleLineBrackets = _reformatJson,
                     AlwaysOnTop = _alwaysOnTop
                 };
                 _sideViewer.Show();
@@ -1522,8 +1522,6 @@ namespace JsonDictionary
 
             var childName = currentNode.Text;
             var parentName = currentNode.Parent.Text;
-            /*if (childName == "actions" && parentName == "events")
-                childName = "action";*/
 
             var selectedExamples = currentTypeNode?.Nodes?.Where(n =>
                 n.Name == childName
