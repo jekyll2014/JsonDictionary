@@ -84,7 +84,7 @@ namespace JsonDictionary
         }
 
         [DataMember] private string _unifiedFlattenedPath = null;
-        public string UnifiedFlattenedPath => _unifiedFlattenedPath ?? (_unifiedFlattenedPath = UnifyPath(FlattenedJsonPath)); // json flattened path with no array [] brackets
+        public string UnifiedFlattenedPath => _unifiedFlattenedPath ??= UnifyPath(FlattenedJsonPath); // json flattened path with no array [] brackets
 
         private int _jsonDepth = -1; // depth in the original JSON structure
         public int JsonDepth
@@ -118,7 +118,7 @@ namespace JsonDictionary
         }
 
         private string _unifiedPath = null;
-        public string UnifiedPath => _unifiedPath ?? (_unifiedPath = UnifyPath(JsonPath)); // json path with no array [] brackets
+        public string UnifiedPath => _unifiedPath ??= UnifyPath(JsonPath); // json path with no array [] brackets
 
         public JsonProperty()
         {

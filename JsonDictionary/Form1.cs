@@ -138,7 +138,7 @@ namespace JsonDictionary
 
         private Dictionary<string, string> _nodeDescription = new Dictionary<string, string>();
 
-        struct ProcessingOptions
+        private struct ProcessingOptions
         {
             public JsoncContentType ContentType;
             public string ItemName;
@@ -687,7 +687,7 @@ namespace JsonDictionary
 
         private void ListBox_fileList_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (dataGridView_examples.SelectedCells.Count <= 0 || listBox_fileList.SelectedIndex == null)
+            if (dataGridView_examples.SelectedCells.Count <= 0)
                 return;
 
             var jsonPaths = dataGridView_examples.Rows[dataGridView_examples.SelectedCells[0].RowIndex]?.Cells[3]?.Value?.ToString().Split(Delimiter);
@@ -719,7 +719,7 @@ namespace JsonDictionary
                 return;
             }
 
-            if (dataGridView_examples.SelectedCells.Count <= 0 || listBox_fileList.SelectedIndex == null)
+            if (dataGridView_examples.SelectedCells.Count <= 0)
                 return;
 
             var jsonPaths = dataGridView_examples.Rows[dataGridView_examples.SelectedCells[0].RowIndex]?.Cells[3]?.Value?.ToString().Split(Delimiter);
@@ -1717,7 +1717,7 @@ namespace JsonDictionary
 
         #region Utilities
 
-        internal static JsoncContentType GetFileTypeFromFileName(string fullFileName,
+        private static JsoncContentType GetFileTypeFromFileName(string fullFileName,
     IEnumerable<ContentTypeItem> _fileTypes)
         {
             var shortFileName = GetShortFileName(fullFileName);
@@ -1725,7 +1725,7 @@ namespace JsonDictionary
             return (from item in _fileTypes where shortFileName.EndsWith(item.FileTypeMask) select item.FileType).FirstOrDefault();
         }
 
-        internal static string GetShortFileName(string longFileName)
+        private static string GetShortFileName(string longFileName)
         {
             if (string.IsNullOrEmpty(longFileName))
                 return longFileName;
@@ -1825,21 +1825,20 @@ namespace JsonDictionary
 
         private void VsCodeOpenFile(string command)
         {
-            ProcessStartInfo ProcessInfo;
-            Process Process;
-
-            ProcessInfo = new ProcessStartInfo("code", command);
-            ProcessInfo.CreateNoWindow = true;
-            ProcessInfo.UseShellExecute = true;
-            ProcessInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            var ProcessInfo = new ProcessStartInfo("code", command)
+            {
+                CreateNoWindow = true,
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
 
             try
             {
-                Process = Process.Start(ProcessInfo);
+                var process = Process.Start(ProcessInfo);
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                textBox_logText.Text += Ex.Message;
+                textBox_logText.Text += ex.Message;
             }
         }
 

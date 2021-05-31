@@ -388,7 +388,7 @@ namespace JsonDictionary
             {
                 fileContent = File.ReadAllText(fullFileName);
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
 
             }
@@ -424,7 +424,7 @@ namespace JsonDictionary
             {
                 fileContent = File.ReadAllText(fullFileName);
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
 
             }

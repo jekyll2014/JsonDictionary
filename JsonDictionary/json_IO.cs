@@ -24,7 +24,7 @@ namespace JsonDictionary
             {
                 File.WriteAllText(fileName, JsonConvert.SerializeObject(data, formatted ? Formatting.Indented : Formatting.None));
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
                 return false;
             }
@@ -44,13 +44,11 @@ namespace JsonDictionary
                 if (!File.Exists(fileName))
                     return newValues;
 
-                using (StreamReader jsonFile = File.OpenText(fileName))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    newValues = (T)serializer.Deserialize(jsonFile, typeof(T));
-                }
+                using StreamReader jsonFile = File.OpenText(fileName);
+                JsonSerializer serializer = new JsonSerializer();
+                newValues = (T)serializer.Deserialize(jsonFile, typeof(T));
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
                 throw;
             }
@@ -74,7 +72,7 @@ namespace JsonDictionary
                     }
                 }
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
                 return false;
             }
@@ -123,7 +121,7 @@ namespace JsonDictionary
                     bf.Serialize(file, tree);
                 }
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
                 return false;
             }
