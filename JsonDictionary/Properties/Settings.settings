@@ -53,5 +53,14 @@
     <Setting Name="FileMask" Type="System.String" Scope="User">
       <Value Profile="(Default)">*.jsonc</Value>
     </Setting>
+    <Setting Name="TreeSplitterDistance" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">195</Value>
+    </Setting>
+    <Setting Name="DescriptionSplitterDistance" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">412</Value>
+    </Setting>
+    <Setting Name="FileListSplitterDistance" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">393</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

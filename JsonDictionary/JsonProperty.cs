@@ -5,6 +5,8 @@ using System;
 using System.Runtime.Serialization;
 using System.Text;
 
+using Newtonsoft.Json.Linq;
+
 namespace JsonDictionary
 {
     [DataContract]
@@ -33,6 +35,20 @@ namespace JsonDictionary
         [EnumMember] ObjectEnd,
         [EnumMember] ArrayStart,
         [EnumMember] ArrayEnd
+    }
+
+    [DataContract]
+    [Serializable]
+    public enum JsonVariableType
+    {
+        [EnumMember] Unknown,
+        [EnumMember] Object,
+        [EnumMember] Array,
+        [EnumMember] String,
+        [EnumMember] Number,
+        [EnumMember] Boolean,
+        [EnumMember] Null,
+        [EnumMember] Comment,
     }
 
     [DataContract]
@@ -70,6 +86,7 @@ namespace JsonDictionary
 
         [DataMember] public string Name; // property name
         [DataMember] public string Value; // property value
+        [DataMember] public JTokenType VariableType; // type of the variable
         [DataMember] public JsoncContentType FileType; // file type (event, string, rules, ...)
         [DataMember] public string Version; // schema version declared in the beginning of the file
         [DataMember] public JsonItemType ItemType; // type of the property as per JSON classification (property, array, object)
@@ -133,6 +150,7 @@ namespace JsonDictionary
             FlattenedJsonPath = "";
             Name = "";
             Value = "";
+            VariableType = JTokenType.Undefined;
             FileType = JsoncContentType.Unknown;
             Version = "";
             ItemType = JsonItemType.Unknown;

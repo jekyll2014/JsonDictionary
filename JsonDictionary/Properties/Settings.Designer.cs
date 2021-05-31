@@ -226,5 +226,41 @@ namespace JsonDictionary.Properties {
                 this["FileMask"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("195")]
+        public int TreeSplitterDistance {
+            get {
+                return ((int)(this["TreeSplitterDistance"]));
+            }
+            set {
+                this["TreeSplitterDistance"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("412")]
+        public int DescriptionSplitterDistance {
+            get {
+                return ((int)(this["DescriptionSplitterDistance"]));
+            }
+            set {
+                this["DescriptionSplitterDistance"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("393")]
+        public int FileListSplitterDistance {
+            get {
+                return ((int)(this["FileListSplitterDistance"]));
+            }
+            set {
+                this["FileListSplitterDistance"] = value;
+            }
+        }
     }
 }

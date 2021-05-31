@@ -86,13 +86,9 @@ namespace JsonDictionary
         };
 
         // pre-defined constants
-        private string FileMask = "*.jsonc";
+        private string _fileMask = "*.jsonc";
         private readonly string[] _exampleGridColumnsNames = { "Version", "Example", "File Name", "Json Path", "Line#" };
-        private readonly string[] _actionNames =
-        {
-            "actions", "onsuccess", "onfailure", "onerror", "onsinglematch", "onmultiplematch", "onnomatch", "onyes", "onno",
-            "onok", "oncancel","onabort","onempty"
-        };
+
         private const string DefaultVersionCaption = "Any";
         private const string VersionTagName = "contentVersion";
         private const string ImportTagName = "imports";
@@ -115,11 +111,9 @@ namespace JsonDictionary
 
         // global data storage
         private readonly DataTable _examplesTable;
-        private JsonProperty[] _jsonPropertiesCollection;
         private TreeNode _rootNodeExamples = new TreeNode();
         private Dictionary<string, List<JsonProperty>> _exampleLinkCollection = new Dictionary<string, List<JsonProperty>>();
         private volatile bool _isDoubleClick;
-        private volatile string _version = "";
 
         // last used values for UI processing optimization
         private TreeNode _lastExSelectedNode;
@@ -142,7 +136,7 @@ namespace JsonDictionary
 
         private WinPosition _editorPosition = new WinPosition();
 
-        private Dictionary<string, string> nodeDescription = new Dictionary<string, string>();
+        private Dictionary<string, string> _nodeDescription = new Dictionary<string, string>();
 
         struct ProcessingOptions
         {
@@ -150,6 +144,49 @@ namespace JsonDictionary
             public string ItemName;
             public string[] ParentNames;
         }
+
+        private readonly ProcessingOptions[] _flattenParameters = new ProcessingOptions[]
+        {
+            new ProcessingOptions
+            {
+                ContentType = JsoncContentType.Events,
+                ItemName = "type",
+                ParentNames = new string[]
+                {
+                    "actions",
+                    "onsuccess",
+                    "onfailure",
+                    "onerror",
+                    "onsinglematch",
+                    "onmultiplematch",
+                    "onnomatch",
+                    "onyes",
+                    "onno",
+                    "onok",
+                    "oncancel",
+                    "onabort",
+                    "onempty"
+                }
+            },
+            new ProcessingOptions
+            {
+                ContentType = JsoncContentType.Layout,
+                ItemName = "sourcetypeid",
+                ParentNames = new string[] { "components" }
+            },
+            new ProcessingOptions
+            {
+                ContentType = JsoncContentType.Rules,
+                ItemName = "action",
+                ParentNames = new string[] { "actions" }
+            },
+            new ProcessingOptions
+            {
+                ContentType = JsoncContentType.Search,
+                ItemName = "sourcetypeid",
+                ParentNames = new string[] { "component" }
+            }
+        };
 
         private string FormCaption
         {
@@ -171,11 +208,11 @@ namespace JsonDictionary
             checkBox_loadDbOnStart.Checked = _loadDbOnStart = Settings.Default.LoadDbOnStartUp;
             checkBox_vsCode.Checked = _useVsCode = Settings.Default.UseVsCode;
             folderBrowserDialog1.SelectedPath = Settings.Default.LastRootFolder;
-            FileMask = Settings.Default.FileMask;
+            _fileMask = Settings.Default.FileMask;
             DefaultDescriptionFileName = Settings.Default.DefaultDescriptionFileName;
-            nodeDescription = LoadJson<Dictionary<string, string>>(DefaultDescriptionFileName);
-            if (nodeDescription == null)
-                nodeDescription = new Dictionary<string, string>();
+            _nodeDescription = LoadJson<Dictionary<string, string>>(DefaultDescriptionFileName);
+            if (_nodeDescription == null)
+                _nodeDescription = new Dictionary<string, string>();
 
             _editorPosition = new WinPosition()
             {
@@ -200,6 +237,10 @@ namespace JsonDictionary
                 this.Width = _mainFormPosition.WinW;
                 this.Height = _mainFormPosition.WinH;
             }
+
+            splitContainer1.SplitterDistance = Settings.Default.TreeSplitterDistance;
+            splitContainer3.SplitterDistance = Settings.Default.DescriptionSplitterDistance;
+            splitContainer4.SplitterDistance = Settings.Default.FileListSplitterDistance;
 
             TopMost = _alwaysOnTop;
 
@@ -266,7 +307,7 @@ namespace JsonDictionary
 
             await Task.Run(() =>
             {
-                var jsonPropertiesCollection = RunFileCollection(startPath, FileMask);
+                var jsonPropertiesCollection = RunFileCollection(startPath, _fileMask);
                 Invoke((MethodInvoker)delegate
                {
                    endTime = DateTime.Now;
@@ -276,38 +317,7 @@ namespace JsonDictionary
                    toolStripStatusLabel1.Text = "Processing events collection";
                });
 
-                var parameters = new ProcessingOptions[]
-                {
-                new ProcessingOptions
-                {
-                    ContentType = JsoncContentType.Events,
-                    ItemName = "type",
-                    ParentNames = _actionNames
-
-                },
-                new ProcessingOptions
-                {
-                    ContentType = JsoncContentType.Layout,
-                    ItemName = "sourcetypeid",
-                    ParentNames = new string[] { "components" }
-
-                },
-                new ProcessingOptions
-                {
-                    ContentType = JsoncContentType.Rules,
-                    ItemName = "action",
-                    ParentNames = new string[] { "actions" }
-                },
-                new ProcessingOptions
-                {
-                    ContentType = JsoncContentType.Search,
-                    ItemName = "sourcetypeid",
-                    ParentNames = new string[] { "component" }
-                }
-                };
-
-                Parallel.ForEach(parameters, param =>
-                //foreach (var param in parameters)
+                Parallel.ForEach(_flattenParameters, param =>
                 {
                     Invoke((MethodInvoker)delegate
                     {
@@ -323,7 +333,6 @@ namespace JsonDictionary
                         endTime = DateTime.Now;
                         _textLog.AppendLine(param.ContentType.ToString() + " processing time: " + endTime.Subtract(startOperationTime).TotalSeconds);
                     });
-                    //}
                 });
 
                 _rootNodeExamples = GenerateTreeFromList(jsonPropertiesCollection);
@@ -644,7 +653,7 @@ namespace JsonDictionary
             textBox_description.ReadOnly = true;
             label_descSave.Visible = false;
             var descText = "";
-            nodeDescription?.TryGetValue(e?.Node?.Name?.TrimEnd('.'), out descText);
+            _nodeDescription?.TryGetValue(e?.Node?.Name?.TrimEnd('.'), out descText);
             textBox_description.Text = descText;
         }
 
@@ -654,7 +663,7 @@ namespace JsonDictionary
             {
                 if (e.KeyCode == Keys.Escape)
                 {
-                    nodeDescription.TryGetValue(treeView_examples?.SelectedNode?.Name?.TrimEnd('.') ?? "", out var descText);
+                    _nodeDescription.TryGetValue(treeView_examples?.SelectedNode?.Name?.TrimEnd('.') ?? "", out var descText);
                     textBox_description.Text = descText;
                     textBox_description.ReadOnly = true;
                     label_descSave.Visible = false;
@@ -663,11 +672,11 @@ namespace JsonDictionary
                 {
                     try
                     {
-                        nodeDescription[treeView_examples?.SelectedNode?.Name?.TrimEnd('.') ?? ""] = textBox_description.Text;
+                        _nodeDescription[treeView_examples?.SelectedNode?.Name?.TrimEnd('.') ?? ""] = textBox_description.Text;
                     }
                     catch
                     {
-                        nodeDescription.Add(treeView_examples?.SelectedNode?.Name?.TrimEnd('.') ?? "", textBox_description.Text);
+                        _nodeDescription.Add(treeView_examples?.SelectedNode?.Name?.TrimEnd('.') ?? "", textBox_description.Text);
                     }
 
                     textBox_description.ReadOnly = true;
@@ -737,7 +746,7 @@ namespace JsonDictionary
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            SaveJson(nodeDescription, DefaultDescriptionFileName, true);
+            SaveJson(_nodeDescription, DefaultDescriptionFileName, true);
 
             Settings.Default.LastRootFolder = folderBrowserDialog1.SelectedPath;
             Settings.Default.ReformatJson = _reformatJson;
@@ -762,6 +771,10 @@ namespace JsonDictionary
             Settings.Default.EditorPositionY = _editorPosition.WinY;
             Settings.Default.EditorWidth = _editorPosition.WinW;
             Settings.Default.EditorHeight = _editorPosition.WinH;
+
+            Settings.Default.TreeSplitterDistance = splitContainer1.SplitterDistance;
+            Settings.Default.DescriptionSplitterDistance = splitContainer3.SplitterDistance;
+            Settings.Default.FileListSplitterDistance = splitContainer4.SplitterDistance;
 
             Settings.Default.Save();
         }
@@ -926,12 +939,10 @@ namespace JsonDictionary
                     }
 
                     var jsonPath = jProperty.Path;
-                    var propValue = "";
                     var name = jProperty.Name;
-
-                    var lineNumber = ((IJsonLineInfo)jProperty).LineNumber;
-
-                    propValue = jProperty.Value?.ToString();
+                    var lineNumber = ((IJsonLineInfo)jProperty)?.LineNumber ?? -1;
+                    var propValue = jProperty.Value?.ToString();
+                    var varType = jProperty.Value?.Type ?? JTokenType.Undefined;
 
                     // get schema version
                     if (name == VersionTagName)
@@ -965,11 +976,13 @@ namespace JsonDictionary
                         Version = version,
                         ItemType = JsonItemType.Property,
                         Parent = parent,
-                        SourceLineNumber = lineNumber
+                        SourceLineNumber = lineNumber,
+                        VariableType = varType
                     };
                     rootCollection.Add(newProperty);
 
                     foreach (var child in jProperty.Children())
+                    {
                         if (child is JArray || child is JObject)
                         {
                             jsonDepth++;
@@ -985,6 +998,7 @@ namespace JsonDictionary
                                 propertiesOnly);
                             jsonDepth--;
                         }
+                    }
 
                     break;
                 }
@@ -1101,8 +1115,8 @@ namespace JsonDictionary
                         };
                         parseJsonObjectReportsCollection.Add(report);*/
                     }
+                    break;
                 }
-                break;
             }
         }
 
@@ -1119,8 +1133,7 @@ namespace JsonDictionary
                 return false;
 
             var typedCollection = propertiesCollection
-                .Where(n =>
-                    n.FileType == contentType)
+                .Where(n => n.FileType == contentType)
                 .ToArray();
 
             IEnumerable<IGrouping<string, JsonProperty>> FileGroupedCollection;
@@ -1133,8 +1146,8 @@ namespace JsonDictionary
 
                 FileGroupedCollection = typedCollection
                     .Where(n =>
-                    n.Name.Equals(elementName, StringComparison.OrdinalIgnoreCase)
-                    && parentName.Contains(n.Parent.ToLower()))
+                        n.Name.Equals(elementName, StringComparison.OrdinalIgnoreCase)
+                        && parentName.Contains(n.Parent.ToLower()))
                     .ToArray()
                     .GroupBy(n => n.FullFileName);
             }
@@ -1142,8 +1155,8 @@ namespace JsonDictionary
             {
                 FileGroupedCollection = typedCollection
                    .Where(n =>
-                   n.Name.Equals(elementName, StringComparison.OrdinalIgnoreCase)
-                   && parentName[0].Equals(n.Parent, StringComparison.OrdinalIgnoreCase))
+                        n.Name.Equals(elementName, StringComparison.OrdinalIgnoreCase)
+                        && parentName[0].Equals(n.Parent, StringComparison.OrdinalIgnoreCase))
                    .ToArray()
                    .GroupBy(n => n.FullFileName);
             }
@@ -1154,16 +1167,20 @@ namespace JsonDictionary
             //get every file name
             foreach (var actionCollection in FileGroupedCollection)
             {
-                var fileActionCollection = typedCollection.Where(n =>
-                            n.FullFileName == actionCollection.Key).ToArray();
+                var fileActionCollection = typedCollection
+                    .Where(n =>
+                            n.FullFileName == actionCollection.Key)
+                    .ToArray();
 
                 // iterate through single file one by one
                 foreach (var actionProperty in actionCollection)
                 {
                     //get a collection of events in the file
-                    var actionMembers = fileActionCollection.Where(n =>
-                       n.FullFileName == actionProperty.FullFileName &&
-                       n.JsonPath.Contains(actionProperty.ParentPath)).ToArray();
+                    var actionMembers = fileActionCollection
+                        .Where(n =>
+                            n.FullFileName == actionProperty.FullFileName &&
+                            n.JsonPath.Contains(actionProperty.ParentPath))
+                        .ToArray();
 
                     foreach (var actionMember in actionMembers)
                     {
@@ -1183,7 +1200,7 @@ namespace JsonDictionary
                     }
                 }
 
-                if (processedFilesNumber % 10 == 0)
+                if (processedFilesNumber % 20 == 0)
                 {
                     Invoke((MethodInvoker)delegate
                     {
