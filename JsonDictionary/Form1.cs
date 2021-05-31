@@ -1804,7 +1804,7 @@ namespace JsonDictionary
             }
         }
 
-        private bool TryGetPositionByPathStr(string json, string path, out int startPos, out int endPos)
+        private static bool TryGetPositionByPathStr(string json, string path, out int startPos, out int endPos)
         {
             startPos = -1;
             endPos = -1;
@@ -1812,7 +1812,7 @@ namespace JsonDictionary
             if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(path))
                 return false;
 
-            var pathList = JsonPathParser.ParseJsonPathsStr(json.Replace(' ', ' '), true);
+            var pathList = JsonPathParser.ParseJsonToPathList(json.Replace(' ', ' '), out var _,"",'.', true);
 
             var pathItems = pathList.Where(n => n.Path == path).ToArray();
             if (!pathItems.Any())
