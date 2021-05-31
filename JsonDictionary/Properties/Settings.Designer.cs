@@ -25,18 +25,6 @@ namespace JsonDictionary.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool CollectAllFileNames {
-            get {
-                return ((bool)(this["CollectAllFileNames"]));
-            }
-            set {
-                this["CollectAllFileNames"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string LastRootFolder {
             get {
@@ -49,25 +37,13 @@ namespace JsonDictionary.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool ReformatJson {
             get {
                 return ((bool)(this["ReformatJson"]));
             }
             set {
                 this["ReformatJson"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IgnoreHttpsError {
-            get {
-                return ((bool)(this["IgnoreHttpsError"]));
-            }
-            set {
-                this["IgnoreHttpsError"] = value;
             }
         }
         
@@ -85,7 +61,7 @@ namespace JsonDictionary.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool ShowPreview {
             get {
                 return ((bool)(this["ShowPreview"]));
@@ -109,13 +85,145 @@ namespace JsonDictionary.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool LoadDbOnStartUp {
             get {
                 return ((bool)(this["LoadDbOnStartUp"]));
             }
             set {
                 this["LoadDbOnStartUp"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseVsCode {
+            get {
+                return ((bool)(this["UseVsCode"]));
+            }
+            set {
+                this["UseVsCode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int EditorPositionX {
+            get {
+                return ((int)(this["EditorPositionX"]));
+            }
+            set {
+                this["EditorPositionX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int EditorPositionY {
+            get {
+                return ((int)(this["EditorPositionY"]));
+            }
+            set {
+                this["EditorPositionY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int EditorWidth {
+            get {
+                return ((int)(this["EditorWidth"]));
+            }
+            set {
+                this["EditorWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int EditorHeight {
+            get {
+                return ((int)(this["EditorHeight"]));
+            }
+            set {
+                this["EditorHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int MainWindowPositionX {
+            get {
+                return ((int)(this["MainWindowPositionX"]));
+            }
+            set {
+                this["MainWindowPositionX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int MainWindowPositionY {
+            get {
+                return ((int)(this["MainWindowPositionY"]));
+            }
+            set {
+                this["MainWindowPositionY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int MainWindowWidth {
+            get {
+                return ((int)(this["MainWindowWidth"]));
+            }
+            set {
+                this["MainWindowWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int MainWindowHeight {
+            get {
+                return ((int)(this["MainWindowHeight"]));
+            }
+            set {
+                this["MainWindowHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("descriptions.json")]
+        public string DefaultDescriptionFileName {
+            get {
+                return ((string)(this["DefaultDescriptionFileName"]));
+            }
+            set {
+                this["DefaultDescriptionFileName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("*.jsonc")]
+        public string FileMask {
+            get {
+                return ((string)(this["FileMask"]));
+            }
+            set {
+                this["FileMask"] = value;
             }
         }
     }

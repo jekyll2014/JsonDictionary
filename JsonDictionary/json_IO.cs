@@ -1,12 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization.Json;
 using System.Text;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 
 namespace JsonDictionary
 {
@@ -19,39 +22,9 @@ namespace JsonDictionary
 
             try
             {
-                var jsonSerializer = new DataContractJsonSerializer(typeof(T));
-                if (formatted)
-                {
-                    using (var unformattedJson = new MemoryStream())
-                    {
-                        jsonSerializer.WriteObject(unformattedJson, data);
-                        var json = Encoding.UTF8.GetString(unformattedJson.GetBuffer());
-                        using (var stringReader = new StringReader(json))
-                        {
-                            using (var stringWriter = new StringWriter())
-                            {
-                                using (var jsonReader = new JsonTextReader(stringReader))
-                                {
-                                    using (var jsonWriter = new JsonTextWriter(stringWriter)
-                                    { Formatting = Formatting.Indented })
-                                    {
-                                        jsonWriter.WriteToken(jsonReader);
-                                        File.WriteAllText(fileName, stringWriter.ToString());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    var fileStream = File.Open(fileName, FileMode.Create);
-                    jsonSerializer.WriteObject(fileStream, data);
-                    fileStream.Close();
-                    fileStream.Dispose();
-                }
+                File.WriteAllText(fileName, JsonConvert.SerializeObject(data, formatted ? Formatting.Indented : Formatting.None));
             }
-            catch
+            catch (Exception Ex)
             {
                 return false;
             }
@@ -59,39 +32,103 @@ namespace JsonDictionary
             return true;
         }
 
-        public static List<T> LoadJson<T>(string fileName)
+        public static T LoadJson<T>(string fileName)
         {
-            if (string.IsNullOrEmpty(fileName))
-                return new List<T>();
+            T newValues = default;
 
-            List<T> newValues;
+            if (string.IsNullOrEmpty(fileName))
+                return newValues;
+
             try
             {
-                var jsonSerializer = new DataContractJsonSerializer(typeof(List<T>));
-                var fileStream = File.Open(fileName, FileMode.Open);
+                if (!File.Exists(fileName))
+                    return newValues;
 
-                newValues = (List<T>)jsonSerializer.ReadObject(fileStream);
-                fileStream.Close();
-                fileStream.Dispose();
+                using (StreamReader jsonFile = File.OpenText(fileName))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    newValues = (T)serializer.Deserialize(jsonFile, typeof(T));
+                }
             }
-            catch
+            catch (Exception Ex)
             {
-                return new List<T>();
+                throw;
             }
 
             return newValues;
         }
 
-        public static void SaveBinary<T>(T tree, string fileName)
+        public static bool SaveBson<T>(T data, string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
-                return;
+                return false;
 
-            using (Stream file = File.Open(fileName, FileMode.Create))
+            try
             {
-                var bf = new BinaryFormatter();
-                bf.Serialize(file, tree);
+                using (Stream file = File.Open(fileName, FileMode.Create))
+                {
+                    using (var writer = new BsonWriter(file))
+                    {
+                        JsonSerializer serializer = new JsonSerializer();
+                        serializer.Serialize(writer, data);
+                    }
+                }
             }
+            catch (Exception Ex)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static T LoadBson<T>(string fileName)
+        {
+            T nodeList = default;
+            if (string.IsNullOrEmpty(fileName))
+                return nodeList;
+
+            using (Stream file = File.Open(fileName, FileMode.Open))
+            {
+                try
+                {
+                    using (BsonReader reader = new BsonReader(file))
+                    {
+                        reader.ReadRootValueAsArray = true;
+                        JsonSerializer serializer = new JsonSerializer();
+                        nodeList = serializer.Deserialize<T>(reader);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                    /*throw new Exception("File parse exception: " + ex.Message + Environment.NewLine +
+                                        ex.InnerException?.Message);*/
+                }
+            }
+
+            return nodeList;
+        }
+
+        public static bool SaveBinary<T>(T tree, string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return false;
+
+            try
+            {
+                using (Stream file = File.Open(fileName, FileMode.Create))
+                {
+                    var bf = new BinaryFormatter();
+                    bf.Serialize(file, tree);
+                }
+            }
+            catch (Exception Ex)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public static T LoadBinary<T>(string fileName)
@@ -109,8 +146,9 @@ namespace JsonDictionary
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("File parse exception: " + ex.Message + Environment.NewLine +
-                                        ex.InnerException.Message);
+                    throw;
+                    /*throw new Exception("File parse exception: " + ex.Message + Environment.NewLine +
+                                        ex.InnerException?.Message);*/
                 }
             }
 
@@ -126,6 +164,7 @@ namespace JsonDictionary
             var lineDivider = new List<char> { '\x0d', '\x0a' };
             var unparsedData = "";
             foreach (var t in data)
+            {
                 if (lineDivider.Contains(t))
                 {
                     if (unparsedData.Length > 0)
@@ -138,9 +177,11 @@ namespace JsonDictionary
                 {
                     unparsedData += t;
                 }
+            }
 
             if (unparsedData.Length > 0)
                 stringCollection.Add(unparsedData);
+
             return stringCollection.ToArray();
         }
 
@@ -185,10 +226,8 @@ namespace JsonDictionary
                 return json;
 
             json = json.Trim();
-            if (string.IsNullOrEmpty(json))
-                return json;
 
-            return ReformatJson(json, Formatting.None);
+            return string.IsNullOrEmpty(json) ? json : ReformatJson(json, Formatting.None);
         }
 
         public static string BeautifyJson(string json, bool singleLineBrackets)
@@ -197,7 +236,6 @@ namespace JsonDictionary
                 return json;
 
             json = json.Trim();
-
             json = ReformatJson(json, Formatting.Indented);
 
             return singleLineBrackets ? JsonShiftBrackets_v2(json) : json;
@@ -205,8 +243,9 @@ namespace JsonDictionary
 
         public static string ReformatJson(string json, Formatting formatting)
         {
-            if (json.Contains(':') && (json[0] == '{' && json[json.Length - 1] == '}' ||
-                                       json[0] == '[' && json[json.Length - 1] == ']'))
+            if (json.Contains(':') && (json.StartsWith("{") && json.EndsWith("}") ||
+                                       json.StartsWith("[") && json.EndsWith("]")))
+            {
                 try
                 {
                     using (var stringReader = new StringReader(json))
@@ -227,6 +266,7 @@ namespace JsonDictionary
                 catch
                 {
                 }
+            }
 
             return json;
         }
@@ -244,8 +284,8 @@ namespace JsonDictionary
                 while (i >= 0)
                 {
                     int currentPos;
-                    if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n'
-                    ) // not a single bracket
+                    if (original[i + token.Length] != '\r' &&
+                        original[i + token.Length] != '\n') // not a single bracket
                     {
                         currentPos = i + 3;
                     }
@@ -261,6 +301,7 @@ namespace JsonDictionary
                                     trail++;
                                 else
                                     trail = 0;
+
                                 j--;
                             }
 
@@ -269,6 +310,7 @@ namespace JsonDictionary
 
                         if (!(original[j] == '/' && original[j + 1] == '/')) // if it's a comment
                             original = original.Insert(i + 2, Environment.NewLine + new string(' ', trail));
+
                         currentPos = i + 3;
                     }
 
@@ -285,7 +327,7 @@ namespace JsonDictionary
             if (string.IsNullOrEmpty(original))
                 return original;
 
-            var searchTokens = new[] { ": {", ": [" };
+            var searchTokens = new[] { ": {", ": [", ":{", ":[" };
             try
             {
                 foreach (var token in searchTokens)
@@ -294,32 +336,39 @@ namespace JsonDictionary
                     while (i >= 0)
                     {
                         int currentPos;
-                        if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n'
-                        ) // not a single bracket
+                        // not a single bracket
+                        if (original[i + token.Length] != '\r' && original[i + token.Length] != '\n')
                         {
-                            currentPos = i + 3;
+                            currentPos = i + token.Length;
                         }
-                        else // need to shift bracket down the line
+                        // need to shift bracket down the line
+                        else
                         {
                             var j = i - 1;
                             var trail = 0;
 
                             if (j >= 0)
+                            {
                                 while (original[j] != '\n' && original[j] != '\r' && j >= 0)
                                 {
                                     if (original[j] == ' ')
                                         trail++;
                                     else
                                         trail = 0;
+
                                     j--;
                                 }
+                            }
 
                             if (j < 0)
                                 j = 0;
 
                             if (!(original[j] == '/' && original[j + 1] == '/')) // if it's a comment
+                            {
                                 original = original.Insert(i + 2, Environment.NewLine + new string(' ', trail));
-                            currentPos = i + 3;
+                            }
+
+                            currentPos = i + token.Length;
                         }
 
                         i = original.IndexOf(token, currentPos, StringComparison.Ordinal);
@@ -361,6 +410,7 @@ namespace JsonDictionary
                         prefixLength += prefixStep;
                         if (stringList[i].Length > 1 && closeBrackets.Contains(stringList[i][stringList[i].Length - 1]))
                             prefixLength -= prefixStep;
+
                         if (prefixLength >= 0)
                             prefix = new string(prefixItem, prefixLength);
                     }

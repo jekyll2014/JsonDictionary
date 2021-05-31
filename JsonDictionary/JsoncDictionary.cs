@@ -1,4 +1,7 @@
-﻿using System;
+﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -34,24 +37,8 @@ namespace JsonDictionary
             Type = type;
             Depth = depth;
             Version = version;
-            ExamplesList = new Dictionary<string, string> {{example, fileName}};
+            ExamplesList = new Dictionary<string, string> { { example, fileName } };
         }
-    }
-
-    [DataContract]
-    [Serializable]
-    public enum JsoncContentType
-    {
-        [EnumMember] Unknown,
-        [EnumMember] DataViews,
-        [EnumMember] Events,
-        [EnumMember] Layout,
-        [EnumMember] Rules,
-        [EnumMember] Search,
-        [EnumMember] Combo,
-        [EnumMember] Tools,
-        [EnumMember] Strings,
-        [EnumMember] Patch
     }
 
     [DataContract]
@@ -72,14 +59,16 @@ namespace JsonDictionary
 
         public string Add(MetaNode newNode)
         {
-            if (newNode == null) return "No data to add";
+            if (newNode == null)
+                return "No data to add";
 
             var node = Nodes?.Where(n => n?.Depth == newNode.Depth
                                          && n.ParentName.Equals(newNode.ParentName, StringComparison.Ordinal)
                                          && n.Name.Equals(newNode.Name, StringComparison.Ordinal)
                                          && n.Type == newNode.Type
                                          && n.Version.Equals(newNode.Version, StringComparison.Ordinal)).ToArray();
-            if (node == null) return "Can't fine node " + newNode.Name + " to add new data";
+            if (node == null)
+                return "Can't fine node " + newNode.Name + " to add new data";
 
             var errorString = "";
             if (!node.Any())
@@ -102,7 +91,8 @@ namespace JsonDictionary
                 foreach (var newExample in newNode.ExamplesList)
                     if (!examples.ContainsKey(newExample.Key))
                         examples.Add(newExample.Key, newExample.Value);
-                    else if (CollectAllFileNames) examples[newExample.Key] += Environment.NewLine + newExample.Value;
+                    else if (CollectAllFileNames)
+                        examples[newExample.Key] += Environment.NewLine + newExample.Value;
             }
 
             return errorString;

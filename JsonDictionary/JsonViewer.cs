@@ -1,11 +1,14 @@
-﻿using ScintillaNET;
-
-using ScintillaNETviewer.Utils;
+﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
 using System;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+
+using ScintillaNET;
+
+using ScintillaNETviewer.Utils;
 
 namespace JsonDictionary
 {
@@ -45,13 +48,15 @@ namespace JsonDictionary
 
         // Indicators 0-7 could be in use by a lexer
         // so we'll use indicator 8 to highlight words.
-        const int INDICATOR_NUM = 8;
+        private const int INDICATOR_NUM = 8;
+        private const int PERMANENT_INDICATOR_NUM = 9;
 
         private Scintilla _textArea = new Scintilla();
         private readonly string _text = "";
         private string _fileName = "";
-        public bool singleLineBrackets = false;
-        private bool _multipleSearchActive = false;
+        public bool SingleLineBrackets = false;
+        private bool _multipleSearchActive;
+        private bool _textChanged = false;
 
         public string EditorText
         {
@@ -149,14 +154,58 @@ namespace JsonDictionary
             }
             else
             {
-                Text += _fileName;
+                //Text += _fileName;
                 _textArea.Text = _text;
             }
 
             // INIT HOTKEYS
             InitHotkeys();
 
-            _textArea.MouseDoubleClick += new MouseEventHandler(SelectAllPatterns);
+            _textArea.MouseDoubleClick += SelectAllPatterns;
+            _textArea.TextChanged += TextChangedFlag;
+            this.FormClosing += SaveOnFormClosing;
+
+        }
+
+        private void SaveOnFormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = !ConfirmOnCloseFile();
+        }
+
+        private bool ConfirmOnCloseFile()
+        {
+            if (!saveToolStripMenuItem.Visible)
+                return true;
+
+            if (!_textChanged)
+                return true;
+
+            var result = MessageBox.Show("Do you want to save file?", "File has been changed", MessageBoxButtons.YesNoCancel);
+
+            if (result == DialogResult.Yes)
+            {
+                if (!SaveTextToFile(_fileName, true, false))
+                {
+                    MessageBox.Show("Failed to save file!");
+                    return false;
+                }
+            }
+            else if (result == DialogResult.No)
+            {
+
+            }
+            else if (result == DialogResult.Cancel)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void TextChangedFlag(object sender, EventArgs e)
+        {
+            _textChanged = true;
+            _textArea.TextChanged -= TextChangedFlag;
         }
 
         private void InitColors()
@@ -317,70 +366,125 @@ namespace JsonDictionary
 
         #region Load Save File
 
-        public void LoadTextFromFile(string fullFileName)
+        public bool LoadTextFromFile(string fullFileName)
         {
+            if (!ConfirmOnCloseFile())
+                return false;
+
             if (string.IsNullOrEmpty(fullFileName))
-                return;
+                return false;
 
             if (!File.Exists(fullFileName))
             {
-                MessageBox.Show("File not found: " + fullFileName);
-                return;
+                //MessageBox.Show("File not found: " + fullFileName);
+                return false;
             }
 
-            Text += fullFileName;
-            this._fileName = fullFileName;
-            _textArea.Text = File.ReadAllText(fullFileName);
+            //Text += fullFileName;
+            _fileName = fullFileName;
+
+            var fileContent = "";
+            try
+            {
+                fileContent = File.ReadAllText(fullFileName);
+            }
+            catch (Exception Ex)
+            {
+
+            }
+
+            _textArea.Text = fileContent;
+
+            _textArea.TextChanged -= TextChangedFlag;
+            _textChanged = false;
+            _textArea.TextChanged += TextChangedFlag;
+
+            return true;
         }
 
-        public void LoadJsonFromFile(string fullFileName)
+        public bool LoadJsonFromFile(string fullFileName)
         {
+            if (!ConfirmOnCloseFile())
+                return false;
+
             if (string.IsNullOrEmpty(fullFileName))
-                return;
+                return false;
 
             if (!File.Exists(fullFileName))
             {
-                MessageBox.Show("File not found: " + fullFileName);
-                return;
+                //MessageBox.Show("File not found: " + fullFileName);
+                return false;
             }
 
-            Text += fullFileName;
-            this._fileName = fullFileName;
-            _textArea.Text = singleLineBrackets
-                ? JsonIo.BeautifyJson(File.ReadAllText(fullFileName), singleLineBrackets)
-                : File.ReadAllText(fullFileName);
+            //Text += fullFileName;
+            _fileName = fullFileName;
+
+            var fileContent = "";
+            try
+            {
+                fileContent = File.ReadAllText(fullFileName);
+            }
+            catch (Exception Ex)
+            {
+
+            }
+
+            _textArea.Text = SingleLineBrackets
+                ? JsonIo.BeautifyJson(fileContent, SingleLineBrackets)
+                : fileContent;
+
+            _textArea.TextChanged -= TextChangedFlag;
+            _textChanged = SingleLineBrackets;
+
+            if (!_textChanged)
+                _textArea.TextChanged += TextChangedFlag;
+
+            return true;
         }
 
-        public void SaveTextToFile(string fullFileName, bool makeBackup = true)
+        public bool SaveTextToFile(string fullFileName, bool makeBackup = true, bool showDialog = true)
         {
             if (string.IsNullOrEmpty(fullFileName))
             {
-                return;
+                return false;
             }
 
-            var choice = MessageBox.Show("Are you sure?", "Save file...", MessageBoxButtons.YesNo);
-
-            if (choice == DialogResult.No)
+            if (showDialog)
             {
-                return;
-            }
-
-            if (makeBackup)
-            {
-                //var bakFileName = ChangeFileExt(fullFileName, "bak");
-                var bakFileName = fullFileName + ".bak";
-
-                if (File.Exists(fullFileName))
+                var choice = MessageBox.Show("Are you sure to exit?", "Do you want to save file?", MessageBoxButtons.YesNo);
+                if (choice == DialogResult.No)
                 {
-                    if (File.Exists(bakFileName))
-                    {
-                        File.Delete(bakFileName);
-                    }
-                    File.Move(fullFileName, bakFileName);
+                    return false;
                 }
             }
 
-            File.WriteAllText(fullFileName, _textArea.Text);
+            try
+            {
+                if (makeBackup)
+                {
+                    //var bakFileName = ChangeFileExt(fullFileName, "bak");
+                    var bakFileName = fullFileName + ".bak";
+
+                    if (File.Exists(fullFileName))
+                    {
+                        if (File.Exists(bakFileName))
+                            File.Delete(bakFileName);
+                        File.Move(fullFileName, bakFileName);
+                    }
+                }
+
+                File.WriteAllText(fullFileName, _textArea.Text);
+            }
+            catch (Exception Ex)
+            {
+                return false;
+            }
+
+            _textArea.TextChanged -= TextChangedFlag;
+            _textChanged = false;
+            _textArea.TextChanged += TextChangedFlag;
+
+            return true;
         }
 
         #endregion
@@ -404,19 +508,20 @@ namespace JsonDictionary
 
         private void OpenFile()
         {
+            if (!ConfirmOnCloseFile())
+                return;
+
             openFileDialog.FileName = "";
             openFileDialog.Title = "Open file";
             openFileDialog.DefaultExt = "jsonc";
             openFileDialog.Filter = "Text files|*.txt;*.jsonc;*.json|All files|*.*";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
                 LoadTextFromFile(openFileDialog.FileName);
-            }
         }
 
         private void SaveFile()
         {
-            SaveTextToFile(_fileName, true);
+            SaveTextToFile(_fileName);
         }
 
         private void CutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -491,7 +596,7 @@ namespace JsonDictionary
 
         private void FormatText()
         {
-            _textArea.Text = JsonIo.BeautifyJson(_textArea.Text, singleLineBrackets);
+            _textArea.Text = JsonIo.BeautifyJson(_textArea.Text, SingleLineBrackets);
             _textArea.SelectionStart = _textArea.SelectionEnd = 0;
             _textArea.ScrollCaret();
         }
@@ -741,6 +846,7 @@ namespace JsonDictionary
             _multipleSearchActive = true;
         }
 
+
         #endregion
 
         #region Utils
@@ -757,6 +863,12 @@ namespace JsonDictionary
         {
             if (FindTextLines(_textArea.Text, text, out var startLine, out var lineNum))
                 SelectTextLines(startLine, lineNum);
+        }
+
+        public void PermanentHighlightText(string text)
+        {
+            if (FindTextLines(_textArea.Text, text, out var startLine, out var lineNum))
+                PermanentHighlightLines(startLine, lineNum);
         }
 
         private static bool FindTextLines(string text, string sample, out int startLine, out int lineNum)
@@ -794,11 +906,11 @@ namespace JsonDictionary
 
         public void SelectTextLines(int lineStart, int lineNum)
         {
-            if (lineStart < 0 || lineStart >= _textArea.Lines.Count)
+            if (lineStart < 0 || lineStart >= _textArea.Lines.Count || lineNum <= 0)
                 return;
 
             var startLine = _textArea.Lines[lineStart];
-            var endLine = _textArea.Lines[lineStart + lineNum];
+            var endLine = _textArea.Lines[lineStart + lineNum - 1];
             _textArea.SetSelection(startLine.Position, endLine.Position + endLine.Length);
 
             _textArea.ScrollCaret();
@@ -814,6 +926,61 @@ namespace JsonDictionary
             _textArea.SelectionStart = start;
             _textArea.SelectionEnd = end;
             _textArea.ScrollCaret();
+        }
+
+        public void PermanentHighlight(int start, int end)
+        {
+            if (start < 0 || start >= _textArea.TextLength)
+                return;
+            if (end < 0 || end >= _textArea.TextLength)
+                return;
+
+            // Remove all uses of our indicator
+            _textArea.IndicatorCurrent = PERMANENT_INDICATOR_NUM;
+            _textArea.IndicatorClearRange(0, _textArea.TextLength);
+
+            // Update indicator appearance
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].Style = IndicatorStyle.RoundBox;
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].Under = true;
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].ForeColor = Color.DarkRed;
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].OutlineAlpha = 100;
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].Alpha = 50;
+
+            // Mark the search results with the current indicator
+            _textArea.IndicatorFillRange(start, end - start);
+            _textArea.ScrollRange(start, end);
+            //_textArea.LineScroll(5, 0);
+
+            _multipleSearchActive = true;
+        }
+
+        public void PermanentHighlightLines(int startLine, int linesNumber)
+        {
+            if (startLine < 0 || startLine >= _textArea.TextLength)
+                return;
+            if (linesNumber < 0 || linesNumber >= _textArea.TextLength)
+                return;
+
+            // Remove all uses of our indicator
+            _textArea.IndicatorCurrent = PERMANENT_INDICATOR_NUM;
+            _textArea.IndicatorClearRange(0, _textArea.TextLength);
+
+            // Update indicator appearance
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].Style = IndicatorStyle.RoundBox;
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].Under = true;
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].ForeColor = Color.DarkRed;
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].OutlineAlpha = 100;
+            _textArea.Indicators[PERMANENT_INDICATOR_NUM].Alpha = 50;
+
+            // Mark the search results with the current indicator
+            var startPosition = _textArea.Lines[startLine].Position;
+            var endPosition = _textArea.Lines[startLine + linesNumber].EndPosition;
+
+
+            _textArea.IndicatorFillRange(startPosition, endPosition - startPosition);
+            _textArea.ScrollRange(startPosition, endPosition);
+
+            _multipleSearchActive = true;
         }
 
         #endregion
