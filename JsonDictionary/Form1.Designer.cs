@@ -56,6 +56,7 @@
             this.textBox_ExSearchString = new System.Windows.Forms.TextBox();
             this.checkBox_ExCaseSensitive = new System.Windows.Forms.CheckBox();
             this.button_ExClearSearch = new System.Windows.Forms.Button();
+            this.label_edit = new System.Windows.Forms.Label();
             this.label_descSave = new System.Windows.Forms.Label();
             this.textBox_description = new System.Windows.Forms.TextBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
@@ -306,6 +307,7 @@
             // 
             // splitContainer3.Panel2
             // 
+            this.splitContainer3.Panel2.Controls.Add(this.label_edit);
             this.splitContainer3.Panel2.Controls.Add(this.label_descSave);
             this.splitContainer3.Panel2.Controls.Add(this.textBox_description);
             this.splitContainer3.Size = new System.Drawing.Size(577, 490);
@@ -364,7 +366,7 @@
             this.dataGridView_examples.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_CellMouseDown);
             this.dataGridView_examples.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_RowEnter);
             this.dataGridView_examples.RowHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_RowHeaderMouseDoubleClick);
-            this.dataGridView_examples.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridView_examples_KeyDown);
+            this.dataGridView_examples.KeyDown += new System.Windows.Forms.KeyEventHandler(this.DataGridView_examples_KeyDown);
             // 
             // listBox_fileList
             // 
@@ -376,7 +378,7 @@
             this.listBox_fileList.Size = new System.Drawing.Size(180, 350);
             this.listBox_fileList.TabIndex = 0;
             this.listBox_fileList.SelectedValueChanged += new System.EventHandler(this.ListBox_fileList_SelectedValueChanged);
-            this.listBox_fileList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listBox_fileList_KeyDown);
+            this.listBox_fileList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ListBox_fileList_KeyDown);
             this.listBox_fileList.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ListBox_fileList_MouseDoubleClick);
             // 
             // textBox_ExSearchHistory
@@ -453,6 +455,16 @@
             this.button_ExClearSearch.UseVisualStyleBackColor = true;
             this.button_ExClearSearch.Click += new System.EventHandler(this.Button_ExClearSearch_Click);
             // 
+            // label_edit
+            // 
+            this.label_edit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_edit.AutoSize = true;
+            this.label_edit.Location = new System.Drawing.Point(479, 61);
+            this.label_edit.Name = "label_edit";
+            this.label_edit.Size = new System.Drawing.Size(98, 13);
+            this.label_edit.TabIndex = 9;
+            this.label_edit.Text = "Double-click to edit";
+            // 
             // label_descSave
             // 
             this.label_descSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -462,6 +474,7 @@
             this.label_descSave.Size = new System.Drawing.Size(162, 13);
             this.label_descSave.TabIndex = 9;
             this.label_descSave.Text = "Ctrl-Enter to save, ESC to cancel";
+            this.label_descSave.Visible = false;
             // 
             // textBox_description
             // 
@@ -582,6 +595,7 @@
         private System.Windows.Forms.SplitContainer splitContainer4;
         private System.Windows.Forms.ListBox listBox_fileList;
         private System.Windows.Forms.Label label_descSave;
+        private System.Windows.Forms.Label label_edit;
     }
 }
 

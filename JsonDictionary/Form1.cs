@@ -86,8 +86,6 @@ namespace JsonDictionary
         };
 
         // pre-defined constants
-        private string _fileMask = "*.jsonc";
-        private readonly string[] _exampleGridColumnsNames = { "Version", "Example", "File Name", "Json Path", "Line#" };
 
         private const string DefaultVersionCaption = "Any";
         private const string VersionTagName = "contentVersion";
@@ -97,9 +95,11 @@ namespace JsonDictionary
         private const float CellSizeAdjust = 0.7f;
         private const string PreViewCaption = "[Preview] ";
         private const string DefaultFormCaption = "JsonDictionary";
-        private string DefaultDescriptionFileName = "descriptions.json";
         private const string DefaultTreeFileExtension = "tree";
         private const string DefaultExamplesFileExtension = "examples";
+        private readonly string[] _exampleGridColumnsNames = { "Version", "Example", "File Name", "Json Path", "Line#" };
+        private string DefaultDescriptionFileName = "descriptions.json";
+        private string _fileMask = "*.jsonc";
 
         // behavior options
         private static bool _reformatJson;
@@ -110,8 +110,6 @@ namespace JsonDictionary
 
         // global variables
         private readonly StringBuilder _textLog = new StringBuilder();
-
-        // global data storage
         private readonly DataTable _examplesTable;
         private TreeNode _rootNodeExamples = new TreeNode();
         private Dictionary<string, List<JsonProperty>> _exampleLinkCollection = new Dictionary<string, List<JsonProperty>>();
@@ -650,6 +648,7 @@ namespace JsonDictionary
                 }
                 textBox_description.ReadOnly = false;
                 label_descSave.Visible = true;
+                label_edit.Visible = false;
             }
         }
 
@@ -672,6 +671,7 @@ namespace JsonDictionary
                     textBox_description.Text = descText;
                     textBox_description.ReadOnly = true;
                     label_descSave.Visible = false;
+                    label_edit.Visible = true;
                 }
                 else if (e.KeyCode == Keys.Enter && e.Control == true)
                 {
@@ -686,11 +686,12 @@ namespace JsonDictionary
 
                     textBox_description.ReadOnly = true;
                     label_descSave.Visible = false;
+                    label_edit.Visible = true;
                 }
             }
         }
 
-        private void listBox_fileList_KeyDown(object sender, KeyEventArgs e)
+        private void ListBox_fileList_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.C && e.Control == true)
             {
@@ -698,7 +699,7 @@ namespace JsonDictionary
             }
         }
 
-        private void dataGridView_examples_KeyDown(object sender, KeyEventArgs e)
+        private void DataGridView_examples_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.C && e.Control == true)
             {
