@@ -1812,9 +1812,9 @@ namespace JsonDictionary
             if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(path))
                 return false;
 
-            var pathList = JsonPathParser.ParseJsonToPathList(json.Replace(' ', ' '), out var _,"",'.', true);
+            var pathList = JsonPathParser.ParseJsonToPathList(json.Replace(' ', ' '), out var _, out var _, "", '.', false);
 
-            var pathItems = pathList.Where(n => n.Path == path).ToArray();
+            var pathItems = pathList.Where(n => n.Path == "." + path).ToArray();
             if (!pathItems.Any())
                 return false;
 

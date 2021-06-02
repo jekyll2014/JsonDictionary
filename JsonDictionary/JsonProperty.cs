@@ -124,7 +124,6 @@ namespace JsonDictionary
         {
             FullFileName = "";
             JsonPath = "";
-            FlattenedJsonPath = "";
             Name = "";
             Value = "";
             VariableType = JTokenType.Undefined;
