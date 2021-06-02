@@ -98,6 +98,8 @@ namespace JsonDictionary
         private const string PreViewCaption = "[Preview] ";
         private const string DefaultFormCaption = "JsonDictionary";
         private string DefaultDescriptionFileName = "descriptions.json";
+        private const string DefaultTreeFileExtension = "tree";
+        private const string DefaultExamplesFileExtension = "examples";
 
         // behavior options
         private static bool _reformatJson;
@@ -271,8 +273,8 @@ namespace JsonDictionary
         {
             openFileDialog1.FileName = "";
             openFileDialog1.Title = "Open KineticScheme data";
-            openFileDialog1.DefaultExt = "kineticLib";
-            openFileDialog1.Filter = "Binary files|*.kineticLib|All files|*.*";
+            openFileDialog1.DefaultExt = DefaultTreeFileExtension;
+            openFileDialog1.Filter = "Binary files|*." + DefaultTreeFileExtension + "|All files|*.*";
             openFileDialog1.ShowDialog();
         }
 
@@ -359,10 +361,10 @@ namespace JsonDictionary
         private void Button_saveDb_Click(object sender, EventArgs e)
         {
             saveFileDialog1.Title = "Save KineticScheme data";
-            saveFileDialog1.DefaultExt = "json";
-            saveFileDialog1.Filter = "Binary files|*.kineticLib|All files|*.*";
+            saveFileDialog1.DefaultExt = DefaultTreeFileExtension;
+            saveFileDialog1.Filter = "Binary files|*." + DefaultTreeFileExtension + "|All files|*.*";
             saveFileDialog1.FileName =
-                "KineticDictionary_" + DateTime.Today.ToShortDateString().Replace("/", "_") + ".kineticLib";
+                "KineticDictionary_" + DateTime.Today.ToShortDateString().Replace("/", "_") + "." + DefaultTreeFileExtension;
             saveFileDialog1.ShowDialog();
         }
 
@@ -376,8 +378,10 @@ namespace JsonDictionary
              {
                  try
                  {
-                     SaveBinary(_exampleLinkCollection, saveFileDialog1.FileName);
-                     SaveBinary(_rootNodeExamples, saveFileDialog1.FileName + ".tree");
+                     var treeFile = Path.ChangeExtension(saveFileDialog1.FileName, DefaultTreeFileExtension);
+                     var examplesFile = Path.ChangeExtension(saveFileDialog1.FileName, DefaultExamplesFileExtension);
+                     SaveBinary(_exampleLinkCollection, examplesFile);
+                     SaveBinary(_rootNodeExamples, treeFile);
                      GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                      Settings.Default.LastDbName = saveFileDialog1.FileName;
                      Settings.Default.Save();
@@ -588,6 +592,7 @@ namespace JsonDictionary
                     int.TryParse(dataGrid.Rows[e.RowIndex]?.Cells[4]?.Value?.ToString().Split(Delimiter)?.FirstOrDefault(), out var lineNumber);
 
                     ShowPreviewEditor(fileName, jsonPath, lineNumber);
+                    dataGrid.Focus();
                 }
             }
         }
@@ -685,6 +690,23 @@ namespace JsonDictionary
             }
         }
 
+        private void listBox_fileList_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.C && e.Control == true)
+            {
+                Clipboard.SetText(listBox_fileList?.SelectedItem?.ToString());
+            }
+        }
+
+        private void dataGridView_examples_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.C && e.Control == true)
+            {
+                Clipboard.SetText(dataGridView_examples?.SelectedCells?.ToString());
+            }
+
+        }
+
         private void ListBox_fileList_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (dataGridView_examples.SelectedCells.Count <= 0)
@@ -742,6 +764,7 @@ namespace JsonDictionary
             }
 
             ShowPreviewEditor(fileName, jsonPath, lineNumber);
+            listBox_fileList.Focus();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -1129,7 +1152,8 @@ namespace JsonDictionary
                 || propertiesCollection.Count() <= 0
                 || string.IsNullOrEmpty(elementName)
                 || parentName == null
-                || parentName.Length <= 0)
+                || parentName.Length <= 0
+                || string.IsNullOrEmpty(parentName[0]))
                 return false;
 
             var typedCollection = propertiesCollection
@@ -1264,18 +1288,8 @@ namespace JsonDictionary
 
         private async Task<bool> LoadDb(string fileName)
         {
-            try
-            {
-                if (!File.Exists(fileName)
-                    || !File.Exists(fileName + ".tree"))
-                    return false;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("File read exception [" + fileName + "]: " + ex.Message);
-                toolStripStatusLabel1.Text = "Failed to load database";
-                return false;
-            }
+            var treeFile = Path.ChangeExtension(fileName, DefaultTreeFileExtension);
+            var examplesFile = Path.ChangeExtension(fileName, DefaultExamplesFileExtension);
 
             FormCaption = DefaultFormCaption;
             if (string.IsNullOrEmpty(fileName))
@@ -1289,8 +1303,8 @@ namespace JsonDictionary
             {
                 var t = Task.Run(() =>
                     {
-                        rootNodeExamples = LoadBinary<TreeNode>(fileName + ".tree");
-                        exampleLinkCollection = LoadBinary<Dictionary<string, List<JsonProperty>>>(fileName);
+                        rootNodeExamples = LoadBinary<TreeNode>(treeFile);
+                        exampleLinkCollection = LoadBinary<Dictionary<string, List<JsonProperty>>>(examplesFile);
                     }
                 );
                 await Task.WhenAll(t).ConfigureAwait(true);
@@ -1300,27 +1314,31 @@ namespace JsonDictionary
                 MessageBox.Show("File read exception [" + fileName + "]: " + ex.Message);
                 toolStripStatusLabel1.Text = "Failed to load database";
             }
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
 
-            ActivateUiControls(true, false);
-
-            if (exampleLinkCollection != null && rootNodeExamples != null)
-            {
-                _rootNodeExamples = rootNodeExamples;
-                _exampleLinkCollection = exampleLinkCollection;
-                tabControl1.TabPages[1].Enabled = true;
-                FormCaption = DefaultFormCaption + " " + ShortFileName(fileName);
-                treeView_examples.Nodes.Clear();
-                treeView_examples.Nodes.Add(_rootNodeExamples);
-                treeView_examples.Nodes[0].Expand();
-                tabControl1.SelectedTab = tabControl1.TabPages[1];
-
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-                toolStripStatusLabel1.Text = "";
-            }
-            else
+            if (exampleLinkCollection == null && rootNodeExamples == null)
             {
                 return false;
             }
+
+            if (rootNodeExamples != null)
+            {
+                _rootNodeExamples = rootNodeExamples;
+            }
+
+            if (exampleLinkCollection != null)
+            {
+                _exampleLinkCollection = exampleLinkCollection;
+            }
+
+            tabControl1.TabPages[1].Enabled = true;
+            FormCaption = DefaultFormCaption + " " + ShortFileName(fileName);
+            treeView_examples.Nodes.Clear();
+            treeView_examples.Nodes.Add(_rootNodeExamples);
+            treeView_examples.Nodes[0].Expand();
+            tabControl1.SelectedTab = tabControl1.TabPages[1];
+            ActivateUiControls(true, false);
+            toolStripStatusLabel1.Text = "";
 
             return true;
         }
@@ -1662,6 +1680,7 @@ namespace JsonDictionary
                 if (textEditor != null)
                 {
                     textEditor.Close();
+                    textEditor.Dispose();
                 }
 
                 textEditor = new JsonViewer("", "", newWindow)
@@ -1675,8 +1694,8 @@ namespace JsonDictionary
                 fileLoaded = textEditor.LoadJsonFromFile(fileName);
             }
 
-            if (_sideViewer == null)
-                _sideViewer = textEditor;
+            //if (_sideViewer == null)
+            _sideViewer = textEditor;
 
             textEditor.AlwaysOnTop = _alwaysOnTop;
             textEditor.Show();

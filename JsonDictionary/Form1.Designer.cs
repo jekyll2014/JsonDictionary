@@ -364,6 +364,7 @@
             this.dataGridView_examples.CellMouseDown += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_CellMouseDown);
             this.dataGridView_examples.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_RowEnter);
             this.dataGridView_examples.RowHeaderMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_RowHeaderMouseDoubleClick);
+            this.dataGridView_examples.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridView_examples_KeyDown);
             // 
             // listBox_fileList
             // 
@@ -375,6 +376,7 @@
             this.listBox_fileList.Size = new System.Drawing.Size(180, 350);
             this.listBox_fileList.TabIndex = 0;
             this.listBox_fileList.SelectedValueChanged += new System.EventHandler(this.ListBox_fileList_SelectedValueChanged);
+            this.listBox_fileList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listBox_fileList_KeyDown);
             this.listBox_fileList.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.ListBox_fileList_MouseDoubleClick);
             // 
             // textBox_ExSearchHistory
