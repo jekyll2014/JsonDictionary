@@ -1336,7 +1336,9 @@ namespace JsonDictionary
             }
             catch (Exception ex)
             {
-                MessageBox.Show("File read exception [" + fileName + "]: " + ex.Message);
+                MessageBox.Show("File read exception (" + fileName + "): "
+                    + Environment.NewLine
+                    + ex.Message);
                 toolStripStatusLabel1.Text = "Failed to load database";
             }
 

@@ -119,12 +119,15 @@ namespace JsonDictionary
             {
                 using (Stream file = File.Open(fileName, FileMode.Create))
                 {
-                    MessagePackSerializer.Serialize<T>(file, data, MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray));
+                    MessagePackSerializer.Serialize(file, data, MessagePackSerializerOptions
+                        .Standard
+                        .WithCompression(MessagePackCompression.Lz4BlockArray)
+                        .WithResolver(MessagePack.Resolvers.StandardResolverAllowPrivate.Instance));
                 }
             }
             catch (Exception ex)
             {
-                return false;
+                throw;
             }
 
             return true;
@@ -140,14 +143,15 @@ namespace JsonDictionary
             {
                 try
                 {
-
-                    data = MessagePackSerializer.Deserialize<T>(file);
+                    data = MessagePackSerializer.Deserialize<T>(file,
+                        MessagePackSerializerOptions
+                        .Standard
+                        .WithCompression(MessagePackCompression.Lz4BlockArray)
+                        .WithResolver(MessagePack.Resolvers.StandardResolverAllowPrivate.Instance));
                 }
                 catch (Exception ex)
                 {
                     throw;
-                    /*throw new Exception("File parse exception: " + ex.Message + Environment.NewLine +
-                                        ex.InnerException?.Message);*/
                 }
             }
 

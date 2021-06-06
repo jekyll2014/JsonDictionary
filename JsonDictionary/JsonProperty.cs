@@ -1,7 +1,6 @@
 ﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
 
-using System;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -11,7 +10,6 @@ using Newtonsoft.Json.Linq;
 namespace JsonDictionary
 {
     [DataContract]
-    [Serializable]
     public enum JsoncContentType
     {
         [EnumMember] Unknown,
@@ -27,7 +25,6 @@ namespace JsonDictionary
     }
 
     [DataContract]
-    [Serializable]
     public enum JsonItemType
     {
         [EnumMember] Unknown,
@@ -39,7 +36,6 @@ namespace JsonDictionary
     }
 
     [DataContract]
-    [Serializable]
     public enum JsonVariableType
     {
         [EnumMember] Unknown,
@@ -53,10 +49,9 @@ namespace JsonDictionary
     }
 
     [DataContract]
-    [Serializable]
     public class JsonProperty
     {
-        [DataMember] private char _delimiter = '.';
+        [DataMember] public char PathDelimiter = '.';
         [DataMember] public int LineId; // line # in complete project properties collection
         [DataMember] public string FullFileName; // original path + file name
         [DataMember] public string Name; // property name
@@ -87,7 +82,7 @@ namespace JsonDictionary
         [DataMember] private string _unifiedFlattenedJsonPath = null;
         public string UnifiedFlattenedJsonPath => _unifiedFlattenedJsonPath ??= UnifyPath(FlattenedJsonPath); // json flattened path with no array [] brackets
 
-        private int _jsonDepth = -1; // depth in the original JSON structure
+        [DataMember] private int _jsonDepth = -1; // depth in the original JSON structure
         public int JsonDepth
         {
             get
@@ -101,15 +96,15 @@ namespace JsonDictionary
             }
         }
 
-        private string _parentPath = null;
+        [DataMember] private string _parentPath = null;
         public string ParentPath // parent object path
         {
             get
             {
                 if (_parentPath == null)
                 {
-                    if (!string.IsNullOrEmpty(JsonPath) && JsonPath.Contains("."))
-                        _parentPath = JsonPath.Substring(0, JsonPath.LastIndexOf('.'));
+                    if (!string.IsNullOrEmpty(JsonPath) && JsonPath.Contains(PathDelimiter))
+                        _parentPath = JsonPath.Substring(0, JsonPath.LastIndexOf(PathDelimiter));
                     else
                         _parentPath = "";
                 }
@@ -118,7 +113,7 @@ namespace JsonDictionary
             }
         }
 
-        private string _unifiedPath = null;
+        [DataMember] private string _unifiedPath = null;
         public string UnifiedPath => _unifiedPath ??= UnifyPath(JsonPath); // json path with no array [] brackets
 
         public JsonProperty()
@@ -144,25 +139,25 @@ namespace JsonDictionary
                 return "";
 
             var unifiedPath = new StringBuilder();
-            foreach (var token in path.Split(_delimiter))
+            foreach (var token in path.Split(PathDelimiter))
             {
                 var pos = token.IndexOf('[');
                 if (pos >= 0)
                 {
-                    unifiedPath.Append(token.Substring(0, pos) + _delimiter);
+                    unifiedPath.Append(token.Substring(0, pos) + PathDelimiter);
                 }
                 else
                 {
-                    unifiedPath.Append(token + _delimiter);
+                    unifiedPath.Append(token + PathDelimiter);
                 }
             }
-            return unifiedPath.ToString().TrimEnd(_delimiter);
+            return unifiedPath.ToString().TrimEnd(PathDelimiter);
         }
 
         // incorrect
         public int GetPathDepth(string path)
         {
-            return string.IsNullOrEmpty(path) ? 0 : path.Count(c => c == _delimiter);
+            return string.IsNullOrEmpty(path) ? 0 : path.Count(c => c == PathDelimiter);
         }
     }
 }
