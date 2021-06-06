@@ -17,7 +17,7 @@ using System.Windows.Forms;
 
 using JsonDictionary.Properties;
 
-using JsonPathParserLib;
+using JsonEditorForm;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -57,18 +57,6 @@ namespace JsonDictionary
             },
             new ContentTypeItem
             {
-                FileTypeMask = "search.jsonc",
-                PropertyTypeName = "search",
-                FileType = JsoncContentType.Search
-            },
-            new ContentTypeItem
-            {
-                FileTypeMask = "combo.jsonc",
-                PropertyTypeName = "combo",
-                FileType = JsoncContentType.Combo
-            },
-            new ContentTypeItem
-            {
                 FileTypeMask = "tools.jsonc",
                 PropertyTypeName = "tools",
                 FileType = JsoncContentType.Tools
@@ -84,7 +72,19 @@ namespace JsonDictionary
                 FileTypeMask = "patch.jsonc",
                 PropertyTypeName = "patch",
                 FileType = JsoncContentType.Patch
-            }
+            },
+            new ContentTypeItem
+            {
+                FileTypeMask = "search.jsonc",
+                PropertyTypeName = "search",
+                FileType = JsoncContentType.Search
+            },
+            new ContentTypeItem
+            {
+                FileTypeMask = "combo.jsonc",
+                PropertyTypeName = "combo",
+                FileType = JsoncContentType.Combo
+            },
         };
 
         // pre-defined constants
@@ -380,9 +380,8 @@ namespace JsonDictionary
                  {
                      var treeFile = Path.ChangeExtension(saveFileDialog1.FileName, DefaultTreeFileExtension);
                      var examplesFile = Path.ChangeExtension(saveFileDialog1.FileName, DefaultExamplesFileExtension);
+                     SaveBinaryTree(_rootNodeExamples, treeFile);
                      SaveBinary(_exampleLinkCollection, examplesFile);
-                     SaveBinary(_rootNodeExamples, treeFile);
-                     GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                      Settings.Default.LastDbName = saveFileDialog1.FileName;
                      Settings.Default.Save();
                  }
@@ -394,6 +393,7 @@ namespace JsonDictionary
              {
                  toolStripStatusLabel1.Text = "";
              }).ConfigureAwait(false);
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
         }
 
         private async void Button_ExAdjustRows_Click(object sender, EventArgs e)
@@ -522,11 +522,11 @@ namespace JsonDictionary
             if (FillExamplesGrid(_exampleLinkCollection, e.Node))
             {
                 _lastExSearchList.Clear();
+                ActivateUiControls(true);
+                ActivateUiControls(false, false);
+                dataGridView_examples.Invalidate();
+                await ReadjustRows(dataGridView_examples).ConfigureAwait(true);
             }
-            ActivateUiControls(true);
-            ActivateUiControls(false, false);
-            dataGridView_examples.Invalidate();
-            await ReadjustRows(dataGridView_examples).ConfigureAwait(true);
             ActivateUiControls(true, false);
         }
 
@@ -823,7 +823,7 @@ namespace JsonDictionary
             Parallel.ForEach(filesList, fileName =>
             {
                 var fileType = GetFileTypeFromFileName(fileName, _fileTypes);
-                DeserializeFile(fileName, fileType, jsonPropertiesCollection, 0);
+                DeserializeFile(fileName, fileType, jsonPropertiesCollection);
 
                 if (fileNumber % 10 == 0)
                 {
@@ -840,10 +840,9 @@ namespace JsonDictionary
         }
 
         private void DeserializeFile(
-    string fullFileName,
-    JsoncContentType fileType,
-    BlockingCollection<JsonProperty> rootCollection,
-    int jsonDepth)
+            string fullFileName,
+            JsoncContentType fileType,
+            BlockingCollection<JsonProperty> rootCollection)
         {
             string jsonStr;
             try
@@ -917,7 +916,6 @@ namespace JsonDictionary
                 rootCollection,
                 fullFileName,
                 ref ver,
-                jsonDepth,
                 "",
                 true);
         }
@@ -928,7 +926,6 @@ namespace JsonDictionary
             BlockingCollection<JsonProperty> rootCollection,
             string fullFileName,
             ref string version,
-            int jsonDepth,
             string parent,
             bool propertiesOnly = false)
         {
@@ -995,7 +992,7 @@ namespace JsonDictionary
                     var newProperty = new JsonProperty
                     {
                         Value = propValue,
-                        FileType = fileType,
+                        ContentType = fileType,
                         FullFileName = fullFileName,
                         JsonPath = jsonPath,
                         Name = name,
@@ -1011,7 +1008,6 @@ namespace JsonDictionary
                     {
                         if (child is JArray || child is JObject)
                         {
-                            jsonDepth++;
                             var newParent = string.IsNullOrEmpty(name) ? parent : name;
                             ParseJsonObject(
                                 child,
@@ -1019,10 +1015,8 @@ namespace JsonDictionary
                                 rootCollection,
                                 fullFileName,
                                 ref version,
-                                jsonDepth,
                                 newParent,
                                 propertiesOnly);
-                            jsonDepth--;
                         }
                     }
 
@@ -1034,7 +1028,7 @@ namespace JsonDictionary
                     {
                         var newProperty = new JsonProperty
                         {
-                            FileType = fileType,
+                            ContentType = fileType,
                             FullFileName = fullFileName,
                             Name = "{",
                             Version = version,
@@ -1051,7 +1045,6 @@ namespace JsonDictionary
                             rootCollection,
                             fullFileName,
                             ref version,
-                            jsonDepth,
                             parent,
                             propertiesOnly);
 
@@ -1059,7 +1052,7 @@ namespace JsonDictionary
                     {
                         var newProperty = new JsonProperty
                         {
-                            FileType = fileType,
+                            ContentType = fileType,
                             FullFileName = fullFileName,
                             Name = "}",
                             Version = version,
@@ -1076,7 +1069,7 @@ namespace JsonDictionary
                     {
                         var newProperty = new JsonProperty
                         {
-                            FileType = fileType,
+                            ContentType = fileType,
                             FullFileName = fullFileName,
                             Name = "[",
                             Version = version,
@@ -1093,7 +1086,6 @@ namespace JsonDictionary
                             rootCollection,
                             fullFileName,
                             ref version,
-                            jsonDepth,
                             parent,
                             propertiesOnly);
 
@@ -1101,7 +1093,7 @@ namespace JsonDictionary
                     {
                         var newProperty = new JsonProperty
                         {
-                            FileType = fileType,
+                            ContentType = fileType,
                             FullFileName = fullFileName,
                             Name = "]",
                             Version = version,
@@ -1120,7 +1112,7 @@ namespace JsonDictionary
                         {
                             var newProperty = new JsonProperty
                             {
-                                FileType = fileType,
+                                ContentType = fileType,
                                 FullFileName = fullFileName,
                                 Name = "}",
                                 Version = version,
@@ -1160,17 +1152,17 @@ namespace JsonDictionary
                 return false;
 
             var typedCollection = propertiesCollection
-                .Where(n => n.FileType == contentType)
+                .Where(n => n.ContentType == contentType)
                 .ToArray();
+
+            for (var i = 0; i < parentName.Length; i++)
+            {
+                parentName[i] = parentName[i].ToLower();
+            }
 
             IEnumerable<IGrouping<string, JsonProperty>> FileGroupedCollection;
             if (parentName.Length > 1)
             {
-                for (var i = 0; i < parentName.Length; i++)
-                {
-                    parentName[i] = parentName[i].ToLower();
-                }
-
                 FileGroupedCollection = typedCollection
                     .Where(n =>
                         n.Name.Equals(elementName, StringComparison.OrdinalIgnoreCase)
@@ -1211,8 +1203,9 @@ namespace JsonDictionary
 
                     foreach (var actionMember in actionMembers)
                     {
-                        var flattenedPath = actionMember.JsonPath.Replace(actionProperty.ParentPath,
-                            "events.actions.<" + actionProperty.Value.Replace('.', '_') + ">");
+                        /*var flattenedPath = actionMember.JsonPath.Replace(actionProperty.ParentPath,
+                            "events.actions.<" + actionProperty.Value.Replace('.', '_') + ">");*/
+                        string flattenedPath;
                         if (contentType == JsoncContentType.Events)
                         {
                             flattenedPath = actionMember.JsonPath.Replace(actionProperty.ParentPath,
@@ -1250,7 +1243,7 @@ namespace JsonDictionary
 
             foreach (var propertyItem in rootCollection)
             {
-                var itemName = "<" + propertyItem.FileType + ">." + propertyItem.UnifiedFlattenedPath;
+                var itemName = "<" + propertyItem.ContentType + ">." + propertyItem.UnifiedFlattenedJsonPath;
                 if (!_exampleLinkCollection.ContainsKey(itemName))
                 {
                     _exampleLinkCollection.Add(itemName, new List<JsonProperty>() { propertyItem });
@@ -1306,8 +1299,7 @@ namespace JsonDictionary
             {
                 var t = Task.Run(() =>
                     {
-                        rootNodeExamples = LoadBinary<TreeNode>(treeFile);
-                        exampleLinkCollection = LoadBinary<Dictionary<string, List<JsonProperty>>>(examplesFile);
+                        rootNodeExamples = LoadBinaryTree<TreeNode>(treeFile);
                     }
                 );
                 await Task.WhenAll(t).ConfigureAwait(true);
@@ -1317,22 +1309,13 @@ namespace JsonDictionary
                 MessageBox.Show("File read exception [" + fileName + "]: " + ex.Message);
                 toolStripStatusLabel1.Text = "Failed to load database";
             }
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-
-            if (exampleLinkCollection == null && rootNodeExamples == null)
-            {
-                return false;
-            }
 
             if (rootNodeExamples != null)
             {
                 _rootNodeExamples = rootNodeExamples;
             }
 
-            if (exampleLinkCollection != null)
-            {
-                _exampleLinkCollection = exampleLinkCollection;
-            }
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
 
             tabControl1.TabPages[1].Enabled = true;
             FormCaption = DefaultFormCaption + " " + ShortFileName(fileName);
@@ -1341,6 +1324,29 @@ namespace JsonDictionary
             treeView_examples.Nodes[0].Expand();
             tabControl1.SelectedTab = tabControl1.TabPages[1];
             ActivateUiControls(true, false);
+
+            try
+            {
+                var t = Task.Run(() =>
+                {
+                    exampleLinkCollection = LoadBinary<Dictionary<string, List<JsonProperty>>>(examplesFile);
+                }
+                );
+                await Task.WhenAll(t).ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("File read exception [" + fileName + "]: " + ex.Message);
+                toolStripStatusLabel1.Text = "Failed to load database";
+            }
+
+            if (exampleLinkCollection != null)
+            {
+                _exampleLinkCollection = exampleLinkCollection;
+            }
+
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+
             toolStripStatusLabel1.Text = "";
 
             return true;
@@ -1349,7 +1355,7 @@ namespace JsonDictionary
         private bool FillExamplesGrid(Dictionary<string, List<JsonProperty>> exampleLinkCollection, TreeNode currentNode,
             SearchItem searchParam = null)
         {
-            if (currentNode == null)
+            if (currentNode == null || exampleLinkCollection == null || exampleLinkCollection.Count <= 0)
                 return false;
 
             if (!exampleLinkCollection.ContainsKey(currentNode.Name.TrimEnd('.')))
@@ -1656,6 +1662,7 @@ namespace JsonDictionary
             {
                 var execParams = "-r -g " + fileName + ":" + lineNumber;
                 VsCodeOpenFile(execParams);
+
                 return;
             }
 
@@ -1725,13 +1732,9 @@ namespace JsonDictionary
                 textEditor.Text = fileName;
             }
 
-            if (TryGetPositionByPathStr(textEditor.EditorText, jsonPath, out var startPos, out var endPos))
+            if (!textEditor.HighlightPathJson(jsonPath))
             {
-                textEditor.PermanentHighlight(startPos, endPos + 1);
-            }
-            else
-            {
-                textEditor.SelectTextLines(lineNumber - 1, 1);
+                textEditor.HighlightLines(lineNumber - 1, 1);
             }
         }
 
@@ -1824,33 +1827,6 @@ namespace JsonDictionary
                     textBox_logText.ScrollToCaret();
                 });
             }
-        }
-
-        private static bool TryGetPositionByPathStr(string json, string path, out int startPos, out int endPos)
-        {
-            startPos = -1;
-            endPos = -1;
-
-            if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(path))
-                return false;
-
-            var parcer = new JsonPathParser
-            {
-                TrimComplexValues = false,
-                SaveAllValues = false,
-                RootName = "",
-                JsonPathDivider = '.',
-                FastSearch = false
-            };
-
-            var pathItem = parcer.SearchPath(json, "." + path);
-
-            if (pathItem == null)
-                return false;
-
-            startPos = pathItem.StartPosition;
-            endPos = pathItem.EndPosition;
-            return true;
         }
 
         private void VsCodeOpenFile(string command)

@@ -56,12 +56,13 @@ namespace JsonDictionary
     [Serializable]
     public class JsonProperty
     {
+        [DataMember] private char _delimiter = '.';
         [DataMember] public int LineId; // line # in complete project properties collection
         [DataMember] public string FullFileName; // original path + file name
         [DataMember] public string Name; // property name
         [DataMember] public string Value; // property value
         [DataMember] public JTokenType VariableType; // type of the variable
-        [DataMember] public JsoncContentType FileType; // file type (event, string, rules, ...)
+        [DataMember] public JsoncContentType ContentType; // file type (event, string, rules, ...)
         [DataMember] public string Version; // schema version declared in the beginning of the file
         [DataMember] public JsonItemType ItemType; // type of the property as per JSON classification (property, array, object)
         [DataMember] public string Parent; // parent name
@@ -83,8 +84,8 @@ namespace JsonDictionary
             get => _jsonPath;
         }
 
-        [DataMember] private string _unifiedFlattenedPath = null;
-        public string UnifiedFlattenedPath => _unifiedFlattenedPath ??= UnifyPath(FlattenedJsonPath); // json flattened path with no array [] brackets
+        [DataMember] private string _unifiedFlattenedJsonPath = null;
+        public string UnifiedFlattenedJsonPath => _unifiedFlattenedJsonPath ??= UnifyPath(FlattenedJsonPath); // json flattened path with no array [] brackets
 
         private int _jsonDepth = -1; // depth in the original JSON structure
         public int JsonDepth
@@ -127,7 +128,7 @@ namespace JsonDictionary
             Name = "";
             Value = "";
             VariableType = JTokenType.Undefined;
-            FileType = JsoncContentType.Unknown;
+            ContentType = JsoncContentType.Unknown;
             Version = "";
             ItemType = JsonItemType.Unknown;
             Parent = "";
@@ -143,24 +144,25 @@ namespace JsonDictionary
                 return "";
 
             var unifiedPath = new StringBuilder();
-            foreach (var token in path.Split('.'))
+            foreach (var token in path.Split(_delimiter))
             {
                 var pos = token.IndexOf('[');
                 if (pos >= 0)
                 {
-                    unifiedPath.Append(token.Substring(0, pos) + ".");
+                    unifiedPath.Append(token.Substring(0, pos) + _delimiter);
                 }
                 else
                 {
-                    unifiedPath.Append(token + ".");
+                    unifiedPath.Append(token + _delimiter);
                 }
             }
-            return unifiedPath.ToString().TrimEnd('.');
+            return unifiedPath.ToString().TrimEnd(_delimiter);
         }
 
+        // incorrect
         public int GetPathDepth(string path)
         {
-            return string.IsNullOrEmpty(path) ? 0 : path.Count(c => c == '.');
+            return string.IsNullOrEmpty(path) ? 0 : path.Count(c => c == _delimiter);
         }
     }
 }

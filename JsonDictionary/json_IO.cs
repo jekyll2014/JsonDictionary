@@ -8,6 +8,8 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
+using MessagePack;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 
@@ -108,7 +110,7 @@ namespace JsonDictionary
             return nodeList;
         }
 
-        public static bool SaveBinary<T>(T tree, string fileName)
+        public static bool SaveBinary<T>(T data, string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
                 return false;
@@ -117,8 +119,7 @@ namespace JsonDictionary
             {
                 using (Stream file = File.Open(fileName, FileMode.Create))
                 {
-                    var bf = new BinaryFormatter();
-                    bf.Serialize(file, tree);
+                    MessagePackSerializer.Serialize<T>(file, data, MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray));
                 }
             }
             catch (Exception ex)
@@ -130,6 +131,51 @@ namespace JsonDictionary
         }
 
         public static T LoadBinary<T>(string fileName)
+        {
+            T data = default;
+            if (string.IsNullOrEmpty(fileName))
+                return data;
+
+            using (Stream file = File.Open(fileName, FileMode.Open))
+            {
+                try
+                {
+
+                    data = MessagePackSerializer.Deserialize<T>(file);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                    /*throw new Exception("File parse exception: " + ex.Message + Environment.NewLine +
+                                        ex.InnerException?.Message);*/
+                }
+            }
+
+            return data;
+        }
+
+        public static bool SaveBinaryTree<T>(T data, string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+                return false;
+
+            try
+            {
+                using (Stream file = File.Open(fileName, FileMode.Create))
+                {
+                    var bf = new BinaryFormatter();
+                    bf.Serialize(file, data);
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static T LoadBinaryTree<T>(string fileName)
         {
             T nodeList = default;
             if (string.IsNullOrEmpty(fileName))

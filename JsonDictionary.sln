@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonDictionary", "JsonDicti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonPathParserLib", "JsonPathParserLib\JsonPathParserLib.csproj", "{F02937A5-79A7-46D7-B631-B5F8E94B685B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonEditorForm", "JsonEditorForm\JsonEditorForm.csproj", "{90AC616B-F41C-4138-9F34-733FA4038A98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F02937A5-79A7-46D7-B631-B5F8E94B685B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F02937A5-79A7-46D7-B631-B5F8E94B685B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F02937A5-79A7-46D7-B631-B5F8E94B685B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90AC616B-F41C-4138-9F34-733FA4038A98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90AC616B-F41C-4138-9F34-733FA4038A98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90AC616B-F41C-4138-9F34-733FA4038A98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90AC616B-F41C-4138-9F34-733FA4038A98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

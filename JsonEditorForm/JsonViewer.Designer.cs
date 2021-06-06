@@ -1,4 +1,4 @@
-﻿namespace JsonDictionary
+﻿namespace JsonEditorForm
 {
     partial class JsonViewer
     {
