@@ -105,7 +105,6 @@
     </Compile>
     <Compile Include="HotKeyManager.cs" />
     <Compile Include="JsoncDictionary.cs" />
-    <Compile Include="JsonPathParser.cs" />
     <Compile Include="JsonProperty.cs" />
     <Compile Include="JsonViewer.cs">
       <SubType>Form</SubType>
@@ -170,6 +169,12 @@
     <Content Include="readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\JsonPathParserLib\JsonPathParserLib.csproj">
+      <Project>{f02937a5-79a7-46d7-b631-b5f8e94b685b}</Project>
+      <Name>JsonPathParserLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

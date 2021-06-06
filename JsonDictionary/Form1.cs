@@ -17,6 +17,8 @@ using System.Windows.Forms;
 
 using JsonDictionary.Properties;
 
+using JsonPathParserLib;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -1832,14 +1834,22 @@ namespace JsonDictionary
             if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(path))
                 return false;
 
-            var pathList = JsonPathParser.ParseJsonToPathList(json.Replace(' ', ' '), out var _, out var _, "", '.', false);
+            var parcer = new JsonPathParser
+            {
+                TrimComplexValues = false,
+                SaveAllValues = false,
+                RootName = "",
+                JsonPathDivider = '.',
+                FastSearch = false
+            };
 
-            var pathItems = pathList.Where(n => n.Path == "." + path).ToArray();
-            if (!pathItems.Any())
+            var pathItem = parcer.SearchPath(json, "." + path);
+
+            if (pathItem == null)
                 return false;
 
-            startPos = pathItems.Last().StartPosition;
-            endPos = pathItems.Last().EndPosition;
+            startPos = pathItem.StartPosition;
+            endPos = pathItem.EndPosition;
             return true;
         }
 
