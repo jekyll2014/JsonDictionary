@@ -46,5 +46,7 @@
   "<Events>.events.actions.<condition>": "Description: condition\r\n*Note: like if() {} else{}",
   "<Events>.events.actions.<data-clear>": "Description: clear data from dataTable/dataView/dataSet\r\n*Note: ",
   "<Events>.events.actions.<dataview-clear>": "Description: dataView clear\r\n*Note: ",
-  "<Events>.events.actions.<dataview-condition>": "Description: iterate dataView by row with event\r\n*Note: 'result' field must be different from original dataView"
+  "<Events>.events.actions.<dataview-condition>": "Description: iterate dataView by row with event\r\n*Note: 'result' field must be different from original dataView",
+  "<Combo>": "Description: ComboBox definitions\r\n*Note: ",
+  "<Search>": "Description: Search form definitions\r\n*Note: "
 }
