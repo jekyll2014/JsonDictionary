@@ -291,32 +291,35 @@ namespace JsonDictionary
 
         public static string ReformatJson(string json, Formatting formatting)
         {
-            if (json.Contains(':') && (json.StartsWith("{") && json.EndsWith("}") ||
-                                       json.StartsWith("[") && json.EndsWith("]")))
+            bool trim = false;
+            if (json[0] != '{' && json[0] != '[')
             {
-                try
+                json = "{" + json + "}";
+                trim = true;
+            }
+            try
+            {
+                using (var stringReader = new StringReader(json))
                 {
-                    using (var stringReader = new StringReader(json))
+                    using (var stringWriter = new StringWriter())
                     {
-                        using (var stringWriter = new StringWriter())
+                        using (var jsonReader = new JsonTextReader(stringReader))
                         {
-                            using (var jsonReader = new JsonTextReader(stringReader))
+                            jsonReader.SupportMultipleContent = true;
+                            using (var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = formatting })
                             {
-                                using (var jsonWriter = new JsonTextWriter(stringWriter) { Formatting = formatting })
-                                {
-                                    jsonWriter.WriteToken(jsonReader);
-                                    return stringWriter.ToString();
-                                }
+                                jsonWriter.WriteToken(jsonReader);
+                                json = stringWriter.ToString();
                             }
                         }
                     }
                 }
-                catch
-                {
-                }
+            }
+            catch
+            {
             }
 
-            return json;
+            return trim ? json.Substring(1, json.Length - 2).Trim() : json;
         }
 
         // possibly need rework
